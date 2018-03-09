@@ -12,6 +12,7 @@ Imports:
     GpGp,
     Matrix,
     RcppParallel,
+    RcppArmadillo,
     parallel,
     sparseinv,
     fields
