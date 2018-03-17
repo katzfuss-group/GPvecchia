@@ -32,7 +32,7 @@ calculate_posterior_VL = function(likelihood_model, covparms, m = 3, use_low_ran
   vecchia.approx=vecchia_specify(z, locs, m, conditioning = cond_type )
 
   # init latent variable
-  y_o = rep(1, samp_size)
+  y_o = rep(1, length(z))
   convgd = FALSE
   for( i in 1:50){
     D_inv = ell_dbl_prime(y_o, z)
