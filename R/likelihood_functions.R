@@ -6,7 +6,7 @@
 #################  Logistic   #########################
 logistic_model = function(){
   logistic_llh = function(y_o, z) sum(z*y_o-log(1+exp(y_o)))
-  logistic_hess = function(y_o, z) diag(array(exp(y_o)/(1+exp(y_o))^2))
+  logistic_hess = function(y_o, z) sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)/(1+exp(y_o))^2))
   logistic_score = function(y_o, z) z - exp(y_o)/(1+exp(y_o))
   # return object with all components of model
   return(list("hess" = logistic_hess, "score"=logistic_score,"llh" = logistic_llh))
@@ -15,7 +15,7 @@ logistic_model = function(){
 #################  Poisson  #########################
 pois_model = function(){
   pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-log(factorial(z)))
-  pois_hess =function(y_o, z) diag(array(exp(y_o)))
+  pois_hess =function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)))
   pois_score = function(y_o, z) z-exp(y_o)
   return(list("hess" = pois_hess, "score"=pois_score,"llh" = pois_llh))
 }
@@ -24,14 +24,14 @@ pois_model = function(){
 gauss_model = function(sigma = .3){
 
   gauss_llh = function(y_o, z) sum(-.5*(z-y_o)^2/sigma^2) -n*(log(sigma)+log(2*pi)/2)
-  gauss_hess = function(y_o, z) diag(array(rep(1/sigma^2, length(y_o))))
+  gauss_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(rep(1/sigma^2, length(y_o))))
   gauss_score = function(y_o, z) (z-y_o)/sigma^2
   return(list("hess" = gauss_hess, "score"=gauss_score, "llh"=gauss_llh))
 }
 
 #################  Gamma  #########################
 gamma_sample = function(alpha = 2 ){
-  gamma_hess = function(y_o, z) diag(array(z*exp(y_o)))
+  gamma_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(z*exp(y_o)))
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
   gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(Gamma(alpha)))
   return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh))
