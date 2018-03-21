@@ -1,19 +1,19 @@
 library(FNN)
 
 findOrderedNN_kdtree1 <- function(locs,m,mult=2){
-    
+
     n <- nrow(locs)
     NNarray <- matrix(NA,n,m+1)
     NNarray[,1] <- 1:n
     NNarray[1:(mult*m+1),] <- findOrderedNN(locs[1:(mult*m+1),],m)
-    
+
     data_inds <- 1:n
     query_inds <- (mult*m+2):n
-    
+
     msearch <- mult*m
-    
+
     while( length(query_inds) > 0 ){
-        
+
         msearch <- min( max(query_inds), msearch )
         data_inds <- 1:max(query_inds)
         NN <- FNN::get.knnx( locs[data_inds,,drop=FALSE], locs[query_inds,,drop=FALSE], msearch )$nn.index
@@ -21,15 +21,15 @@ findOrderedNN_kdtree1 <- function(locs,m,mult=2){
         sum_less_than_k <- apply(less_than_k,1,sum)
         ind_less_than_k <- which(sum_less_than_k >= m+1)
         NN_less_than_k <- NN[ind_less_than_k,]
-        
+
         NN_m <- t(sapply(ind_less_than_k,function(k) NN[k,][less_than_k[k,]][1:(m+1)] ))
-        
+
         NNarray[ query_inds[ind_less_than_k], ] <- NN_m
-        
-        query_inds <- query_inds[-ind_less_than_k] 
+
+        query_inds <- query_inds[-ind_less_than_k]
         #print(length(query_inds))
         msearch <- min( length(data_inds), msearch )
-        
+
 
     }
     return(NNarray)
@@ -37,19 +37,20 @@ findOrderedNN_kdtree1 <- function(locs,m,mult=2){
 
 
 findOrderedNN_kdtree2 <- function(locs,m,mult=2){
-    
+
     n <- nrow(locs)
     NNarray <- matrix(NA,n,m+1)
     NNarray[,1] <- 1:n
-    NNarray[1:(mult*m+1),] <- findOrderedNN(locs[1:(mult*m+1),,drop=FALSE],m)
-    
-    query_inds <- (mult*m+2):n
+    maxval <- min(mult * m + 1, n)
+    NNarray[1:(maxval),] <- findOrderedNN(locs[1:(maxval),,drop=FALSE],m)
+
+    query_inds <- min(maxval + 1, n):n
     data_inds <- 1:n
-    
+
     msearch <- m
-    
+
     while( length(query_inds) > 0 ){
-        
+
         msearch <- min( max(query_inds), 2*msearch )
         data_inds <- 1:max(query_inds)
         NN <- FNN::get.knnx( locs[data_inds,,drop=FALSE], locs[query_inds,,drop=FALSE], msearch )$nn.index
@@ -57,20 +58,20 @@ findOrderedNN_kdtree2 <- function(locs,m,mult=2){
         sum_less_than_k <- apply(less_than_k,1,sum)
         ind_less_than_k <- which(sum_less_than_k >= m+1)
         NN_less_than_k <- NN[ind_less_than_k,]
-        
+
         NN_m <- t(sapply(ind_less_than_k,function(k) NN[k,][less_than_k[k,]][1:(m+1)] ))
-        
+
         NNarray[ query_inds[ind_less_than_k], ] <- NN_m
-        
-        query_inds <- query_inds[-ind_less_than_k] 
+
+        query_inds <- query_inds[-ind_less_than_k]
         # print(length(query_inds))
 
     }
-    
+
     return(NNarray)
 }
 
-    
+
 # naive nearest neighbor finder
 
 findOrderedNN <- function( locs, m ){
@@ -84,14 +85,13 @@ findOrderedNN <- function( locs, m ){
   }
   NNarray
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
