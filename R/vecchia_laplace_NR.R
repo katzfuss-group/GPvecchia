@@ -57,8 +57,10 @@ calculate_posterior_VL = function(likelihood_model, covparms, m = 3, use_low_ran
 
   if(return_all){
     # return additional information if needed
+    orig.order=order(vecchia.approx$ord)
+    W = as.matrix(rev.mat(updated$V.ord%*%t(updated$V.ord))[orig.order,orig.order])
     return (list("mean" = y_o, "sd" =sqrt(updated$var.obs), "iter"=tot_iters,
-                 "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=updated$V.ord))
+                 "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=updated$V.ord, "W" = W))
   }
 
   return (list("mean" = y_o, "sd" =sqrt(updated$var.obs), "cnvgd" = convgd, "iter" = tot_iters))
@@ -69,6 +71,7 @@ calculate_posterior_VL = function(likelihood_model, covparms, m = 3, use_low_ran
 #####################################################################
 ######################    Laplace + True Covar ######################
 #####################################################################
+
 
 calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, get_sd = FALSE){
 
@@ -104,9 +107,9 @@ calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, get_sd
   if(get_sd){
     # Caclulating sd is expensive, avoid for fair comparison
     sd_posterior = sqrt(diag(solve(W)))
-    return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters))
+    return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters, "C"=C, "t" = t, "D" = D))
   }
-  return (list("mean" = y_o, "W"=W, "C"=C, "t" = t, "D" = D, "iter"=tot_iters))
+  return (list("mean" = y_o, "W"=W, "iter"=tot_iters))
 }
 
 
