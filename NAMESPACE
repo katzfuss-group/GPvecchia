@@ -1,4 +1,4 @@
-useDynLib(GPvecchia0)
+useDynLib(GPvecchia)
 importFrom(Rcpp, evalCpp)
 exportPattern("^[[:alpha:]]+")
 export(vecchia_specify,	vecchia_likelihood, vecchia_prediction, vecchia_lincomb, createU_matern, findOrderedNN_kdtree1, findOrderedNN_kdtree2, whichCondOnLatent)
@@ -9,7 +9,6 @@ importFrom(fields,rdist)
 importFrom(Matrix,sparseMatrix)
 importFrom(parallel,detectCores)
 importFrom(GpGp,order_coordinate,order_maxmin,find_ordered_nn)
-importFrom(spam,diag)
 
 
 

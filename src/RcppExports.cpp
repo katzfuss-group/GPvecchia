@@ -10,7 +10,7 @@ using namespace std;
 
 // dist2
 double dist2(double lat1, double long1, double lat2, double long2);
-RcppExport SEXP _GPvecchia0_dist2(SEXP lat1SEXP, SEXP long1SEXP, SEXP lat2SEXP, SEXP long2SEXP) {
+RcppExport SEXP _GPvecchia_dist2(SEXP lat1SEXP, SEXP long1SEXP, SEXP lat2SEXP, SEXP long2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -24,7 +24,7 @@ END_RCPP
 }
 // dist1
 double dist1(double x, double y);
-RcppExport SEXP _GPvecchia0_dist1(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _GPvecchia_dist1(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,7 +36,7 @@ END_RCPP
 }
 // calcPWD2
 mat calcPWD2(mat x);
-RcppExport SEXP _GPvecchia0_calcPWD2(SEXP xSEXP) {
+RcppExport SEXP _GPvecchia_calcPWD2(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -47,7 +47,7 @@ END_RCPP
 }
 // calcPWD1
 mat calcPWD1(vec x);
-RcppExport SEXP _GPvecchia0_calcPWD1(SEXP xSEXP) {
+RcppExport SEXP _GPvecchia_calcPWD1(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -58,7 +58,7 @@ END_RCPP
 }
 // NZentries_new2
 List NZentries_new2(int Ncores, int n, const mat& locs, const umat& revNNarray, const mat& revCondOnLatent, const vec& nuggets, const vec covparms);
-RcppExport SEXP _GPvecchia0_NZentries_new2(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP covparmsSEXP) {
+RcppExport SEXP _GPvecchia_NZentries_new2(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP covparmsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -73,64 +73,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpparma_hello_world
-arma::mat rcpparma_hello_world();
-RcppExport SEXP _GPvecchia0_rcpparma_hello_world() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpparma_hello_world());
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_outerproduct
-arma::mat rcpparma_outerproduct(const arma::colvec& x);
-RcppExport SEXP _GPvecchia0_rcpparma_outerproduct(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_outerproduct(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_innerproduct
-double rcpparma_innerproduct(const arma::colvec& x);
-RcppExport SEXP _GPvecchia0_rcpparma_innerproduct(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_innerproduct(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_bothproducts
-Rcpp::List rcpparma_bothproducts(const arma::colvec& x);
-RcppExport SEXP _GPvecchia0_rcpparma_bothproducts(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_bothproducts(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_GPvecchia0_dist2", (DL_FUNC) &_GPvecchia0_dist2, 4},
-    {"_GPvecchia0_dist1", (DL_FUNC) &_GPvecchia0_dist1, 2},
-    {"_GPvecchia0_calcPWD2", (DL_FUNC) &_GPvecchia0_calcPWD2, 1},
-    {"_GPvecchia0_calcPWD1", (DL_FUNC) &_GPvecchia0_calcPWD1, 1},
-    {"_GPvecchia0_NZentries_new2", (DL_FUNC) &_GPvecchia0_NZentries_new2, 7},
-    {"_GPvecchia0_rcpparma_hello_world", (DL_FUNC) &_GPvecchia0_rcpparma_hello_world, 0},
-    {"_GPvecchia0_rcpparma_outerproduct", (DL_FUNC) &_GPvecchia0_rcpparma_outerproduct, 1},
-    {"_GPvecchia0_rcpparma_innerproduct", (DL_FUNC) &_GPvecchia0_rcpparma_innerproduct, 1},
-    {"_GPvecchia0_rcpparma_bothproducts", (DL_FUNC) &_GPvecchia0_rcpparma_bothproducts, 1},
+    {"_GPvecchia_dist2", (DL_FUNC) &_GPvecchia_dist2, 4},
+    {"_GPvecchia_dist1", (DL_FUNC) &_GPvecchia_dist1, 2},
+    {"_GPvecchia_calcPWD2", (DL_FUNC) &_GPvecchia_calcPWD2, 1},
+    {"_GPvecchia_calcPWD1", (DL_FUNC) &_GPvecchia_calcPWD1, 1},
+    {"_GPvecchia_NZentries_new2", (DL_FUNC) &_GPvecchia_NZentries_new2, 7},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_GPvecchia0(DllInfo *dll) {
+RcppExport void R_init_GPvecchia(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

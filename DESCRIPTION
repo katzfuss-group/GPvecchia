@@ -1,11 +1,11 @@
-Package: GPvecchia0
+Package: GPvecchia
 Type: Package
 Title: What the package does (short line)
 Version: 1.0
-Date: 2018-03-21
+Date: 2018-03-23
 Author: Who wrote it
 Maintainer: Who to complain to <yourfault@somewhere.net>
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
-Imports: Rcpp (>= 0.12.16), methods, stats, sparseinv, fields, Matrix, parallel, GpGp,spam
+Imports: Rcpp (>= 0.12.16), methods, stats, sparseinv, fields, Matrix, parallel, GpGp
 LinkingTo: Rcpp, RcppArmadillo, BH

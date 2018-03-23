@@ -2,38 +2,22 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 dist2 <- function(lat1, long1, lat2, long2) {
-    .Call('_GPvecchia0_dist2', PACKAGE = 'GPvecchia0', lat1, long1, lat2, long2)
+    .Call('_GPvecchia_dist2', PACKAGE = 'GPvecchia', lat1, long1, lat2, long2)
 }
 
 dist1 <- function(x, y) {
-    .Call('_GPvecchia0_dist1', PACKAGE = 'GPvecchia0', x, y)
+    .Call('_GPvecchia_dist1', PACKAGE = 'GPvecchia', x, y)
 }
 
 calcPWD2 <- function(x) {
-    .Call('_GPvecchia0_calcPWD2', PACKAGE = 'GPvecchia0', x)
+    .Call('_GPvecchia_calcPWD2', PACKAGE = 'GPvecchia', x)
 }
 
 calcPWD1 <- function(x) {
-    .Call('_GPvecchia0_calcPWD1', PACKAGE = 'GPvecchia0', x)
+    .Call('_GPvecchia_calcPWD1', PACKAGE = 'GPvecchia', x)
 }
 
 NZentries_new2 <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms) {
-    .Call('_GPvecchia0_NZentries_new2', PACKAGE = 'GPvecchia0', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms)
-}
-
-rcpparma_hello_world <- function() {
-    .Call('_GPvecchia0_rcpparma_hello_world', PACKAGE = 'GPvecchia0')
-}
-
-rcpparma_outerproduct <- function(x) {
-    .Call('_GPvecchia0_rcpparma_outerproduct', PACKAGE = 'GPvecchia0', x)
-}
-
-rcpparma_innerproduct <- function(x) {
-    .Call('_GPvecchia0_rcpparma_innerproduct', PACKAGE = 'GPvecchia0', x)
-}
-
-rcpparma_bothproducts <- function(x) {
-    .Call('_GPvecchia0_rcpparma_bothproducts', PACKAGE = 'GPvecchia0', x)
+    .Call('_GPvecchia_NZentries_new2', PACKAGE = 'GPvecchia', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms)
 }
 

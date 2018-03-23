@@ -2,4 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+<<<<<<< HEAD
 .Rbuildignore
+=======
+*.Rproj
+>>>>>>> adb9dc13b82c0e2517efa12eb7485e7d46641bf6
