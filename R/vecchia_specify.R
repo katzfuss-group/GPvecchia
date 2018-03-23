@@ -52,8 +52,9 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
         ord.obs=order_coordinate(locs)
         ord.pred=order_coordinate(locs.pred)
       } else {
-        ord.obs = order_maxmin(locs)
-        ord.pred = order_maxmin(locs.pred)
+        temp=order_maxmin_obs_pred(locs,locs.pred)
+        ord.obs=temp$ord
+        ord.pred=temp$ord_pred
       }
       ord=c(ord.obs,ord.pred+n)
     }
