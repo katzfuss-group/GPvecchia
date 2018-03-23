@@ -68,10 +68,11 @@ U2V=function(U,vecchia.approx){
 vecchia_mean=function(vecchia.approx,U,V.ord){
   
   # compute entire posterior mean vector
-  z1=t(U[-vecchia.approx$U.prep$y.ind,])%*%vecchia.approx$zord
+  #z1=t(U[-vecchia.approx$U.prep$y.ind,])%*%vecchia.approx$zord      ## t(U[...,]) cause error when put in package
+  z1=Matrix::crossprod(U[-vecchia.approx$U.prep$y.ind,],vecchia.approx$zord) ## crossprod(x,y) = t(x)%*%y
   z2=as.numeric(U[vecchia.approx$U.prep$y.ind,]%*%z1)
   temp=solve(V.ord,rev(z2))
-  mu.rev=-solve(t(V.ord),temp)
+  mu.rev=-solve(Matrix::t(V.ord),temp) ## base::t() cause error when put in package: Error in t.default(V.ord) : argument is not a matrix
   mu.ord=rev(mu.rev)
   
   # extract obs and pred parts; return to original ordering
@@ -90,13 +91,13 @@ vecchia_mean=function(vecchia.approx,U,V.ord){
 ######  linear combination   #######
 
 vecchia_lincomb=function(H,vecchia.approx,V.ord,cov.mat=FALSE) {
-  H.tt=t(H[,rev(vecchia.approx$ord),drop=FALSE])
-  temp=solve(V.ord,H.tt)
+  H.tt=Matrix::t(H[,rev(vecchia.approx$ord),drop=FALSE])
+  temp=Matrix::solve(V.ord,H.tt)
   if(cov.mat){
-    lincomb.cov=t(temp)%*%temp
+    lincomb.cov=Matrix::t(temp)%*%temp
     return(lincomb.cov)
   } else {
-    lincomb.vars=as.numeric(t(temp*temp)%*%rep(1,ncol(H)))
+    lincomb.vars=as.numeric(Matrix::t(temp*temp)%*%rep(1,ncol(H)))
     return(lincomb.vars)
   }
 }
@@ -144,7 +145,7 @@ vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
 V2covmat=function(preds,vecchia.approx){
   
   orig.order=order(vecchia.approx$ord)
-  W=as.matrix(rev.mat(preds$V.ord%*%t(preds$V.ord))[orig.order,orig.order])
+  W=as.matrix(rev.mat(preds$V.ord%*%Matrix::t(preds$V.ord))[orig.order,orig.order])
   Sigma=solve(W)
   
   n=sum(vecchia.approx$obs)
