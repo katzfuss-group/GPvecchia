@@ -1,18 +1,11 @@
-Package: GPvecchia
-Title: Fast Gaussian-process inference using Vecchia approximations
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.4.3)
+Package: GPvecchia0
+Type: Package
+Title: What the package does (short line)
+Version: 1.0
+Date: 2018-03-21
+Author: Who wrote it
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
 License: What license is it under?
-Encoding: UTF-8
-LazyData: true
-Imports:
-    Rcpp,
-    GpGp,
-    Matrix,
-    RcppParallel,
-    RcppArmadillo,
-    parallel,
-    sparseinv,
-    fields
+Imports: Rcpp (>= 0.12.16), methods, stats, sparseinv, fields, Matrix, parallel, GpGp,spam
+LinkingTo: Rcpp, RcppArmadillo, BH
