@@ -17,7 +17,11 @@ calcPWD1 <- function(x) {
     .Call('_GPvecchia_calcPWD1', PACKAGE = 'GPvecchia', x)
 }
 
-NZentries_new2 <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms) {
-    .Call('_GPvecchia_NZentries_new2', PACKAGE = 'GPvecchia', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms)
+MaternFun <- function(distmat, covparms) {
+    .Call('_GPvecchia_MaternFun', PACKAGE = 'GPvecchia', distmat, covparms)
+}
+
+U_NZentries <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms) {
+    .Call('_GPvecchia_U_NZentries', PACKAGE = 'GPvecchia', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms)
 }
 

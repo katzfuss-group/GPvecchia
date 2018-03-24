@@ -1,5 +1,3 @@
-// This NZentries_new function pre-define all elements outside of omp part, and claim them as private
-
 #include <iostream>
 #include <RcppArmadillo.h>
 #include <omp.h>
@@ -67,7 +65,7 @@ double gamma_fn_boost(double x) {
 
 
 // rewrite MaternFun with arma object input/output
-
+// [[Rcpp::export]]
 mat MaternFun( mat distmat, vec covparms ){
   
   int d1 = distmat.n_rows;
@@ -98,28 +96,31 @@ mat MaternFun( mat distmat, vec covparms ){
 
 
  // [[Rcpp::export]]
-List NZentries_new2 (int Ncores,int n, const mat& locs, const umat& revNNarray,const mat& revCondOnLatent,const vec& nuggets, const vec covparms){
-  // initialized the output matrix
+List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,const mat& revCondOnLatent,const vec& nuggets, const vec covparms){
+  // initialize the output matrix
   int m= revNNarray.n_cols-1;
   int nnp=locs.n_rows;
   mat Lentries=zeros(nnp,m+1);
   int n0; //number of !is_na elements
   uvec inds;//
   vec revCon_row;//
-  //vec revCond;//
   uvec inds00;//
   vec nug;//
   mat covmat;//
-  //mat cholmat;//
   vec onevec;//
   vec M;//
-  //mat locs0;//
   mat dist;//
   int k;//
   mat Zentries=zeros(2*n);
-  
+  int attempt;
+  bool succ;
+  //vec revCond;//
+  //mat cholmat;//
+  //mat locs0;//
+ 
   omp_set_num_threads(Ncores);// selects the number of cores to use.
-#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets,nnp,m,Lentries) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00) default(none) schedule(static)
+  // initialized all elements outside of omp part, and claim them as private
+  #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets,nnp,m,Lentries) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
    for (k = 0; k < nnp; k++) {
 // extract a row to work with
      inds=revNNarray.row(k).t();
@@ -131,9 +132,11 @@ List NZentries_new2 (int Ncores,int n, const mat& locs, const umat& revNNarray,c
       n0=m+1;
     }
      inds00=inds(span(m+1-n0,m))-ones<uvec>(n0);// shift the indices by -1
-     //revCond = revCon_row(span(m+1-n0,m));
+
 // extract locations
      //locs0=locs.rows(inds00); // to extract multiple rows from matrix
+     //revCond = revCon_row(span(m+1-n0,m));
+     // "%" indicates element-wise multiplication
      nug=nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m))); // vec is vec, cannot convert to mat
     if (locs.n_cols==2){
       dist=calcPWD2(locs.rows(inds00));
@@ -142,22 +145,46 @@ List NZentries_new2 (int Ncores,int n, const mat& locs, const umat& revNNarray,c
     }
       
     
-// #pragma omp critical
-// {
+#pragma omp critical
+{
 // add nugget if cond on observed i.e., not in CondOnLatent
     covmat= MaternFun(dist,covparms) + diagmat(nug) ; // summation from arma
-// }
+}
 
-// get Cholesky decomposition : lower triagular
+// get Cholesky decomposition : upper triagular
     //cholmat = chol(covmat,"upper");
 // get last row of inverse Cholesky
+    onevec.resize(n0); 
     onevec = zeros(n0);
     onevec[n0-1] = 1;
-    M=solve(chol(covmat,"upper"),onevec);
+    try {
+      M=solve(chol(covmat,"upper"),onevec);
+    } catch(...) {
+        M=zeros(n0);
+        succ=false;
+        attempt=1;
+        while(succ==false && attempt<n0-1) {
+            // remove the farthest conditioning locs, i.e.the first element corresponding to revNNarray (last elem in NNarray)
+            // to avoid resize nug, covmat and dist, use directly in chol() witout pre-defining
+            onevec.resize( onevec.size()-1 );
+            onevec = zeros(n0-attempt);
+            onevec.tail(1) = 1;
+            try {
+              if (locs.n_cols==2){
+                M.tail(n0-attempt)=solve(chol(MaternFun(calcPWD2(locs.rows(inds00(span(attempt,n0-1)))),covparms)+ diagmat(nuggets.elem(inds00(span(attempt,n0-1)))),"upper"),onevec);
+              } else {
+                M.tail(n0-attempt)=solve(chol(MaternFun(calcPWD1(locs.rows(inds00(span(attempt,n0-1)))),covparms)+ diagmat(nuggets.elem(inds00(span(attempt,n0-1)))),"upper"),onevec);
+              }
+              succ=true;
+            } catch(...){
+              attempt=attempt+1;
+            }
+            
+        }
+        
+    }
 // save the entries to matrix
     Lentries(k,span(0,n0-1)) = M.t();
-   // if save results by overwrite the revNNarray
-   // revNNarray(k,span(0,n0-1)) =M.t(); ## have to convert revNNarray to mat 
   }
    
    for (int i = 0; i < n; i++){

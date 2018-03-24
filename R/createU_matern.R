@@ -11,7 +11,7 @@ createU_matern <- function(vecchia.approx,covparms,nuggets) {
   nuggets.ord=nuggets.all[vecchia.approx$ord]
   
   # call Rcpp function to create the nonzero entries of U
-  LmatZ=NZentries_new2(vecchia.approx$U.prep$n.cores,n,vecchia.approx$locsord,
+  LmatZ=U_NZentries(vecchia.approx$U.prep$n.cores,n,vecchia.approx$locsord,
           vecchia.approx$U.prep$revNNarray,vecchia.approx$U.prep$revCond,
           nuggets.ord,covparms)
   
