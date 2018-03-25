@@ -27,13 +27,13 @@ double dist1(double x, double y){
 // [[Rcpp::export]]
 mat calcPWD2( mat x) {//Rcpp::NumericMatrix
   int outrows = x.n_rows ;
-  
+
   int outcols = x.n_rows ;
   mat out(outrows, outcols) ;
   for (int arow = 0 ; arow < outrows ; arow++) {
     for (int acol = 0 ; acol < outcols ; acol++) {
       out(arow, acol) = dist2(x(arow, 0),x(arow, 1),
-                              x(acol, 0),x(acol, 1)) ; //extract element from mat 
+                              x(acol, 0),x(acol, 1)) ; //extract element from mat
     }
   }
   return (out) ;
@@ -56,7 +56,7 @@ mat calcPWD1( vec x) {//Rcpp::NumericMatrix
 
 
 double besselK_boost(double v, double x) {
-  return boost::math::cyl_bessel_k(v,x);//*exp(x); 
+  return boost::math::cyl_bessel_k(v,x);//*exp(x);
 }
 
 double gamma_fn_boost(double x) {
@@ -67,7 +67,7 @@ double gamma_fn_boost(double x) {
 // rewrite MaternFun with arma object input/output
 // [[Rcpp::export]]
 mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
-  
+
   int d1 = distmat.n_rows;
   int d2 = distmat.n_cols;
   int j1;
@@ -81,7 +81,7 @@ mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
           covmat(j1,j2) = covparms(0);
         } else {
           scaledist = distmat(j1,j2)/covparms(1);
-          covmat(j1,j2) = covparms(0)*exp(scaledist);
+          covmat(j1,j2) = covparms(0)*exp(-scaledist);
         }
       }
     }
@@ -94,7 +94,7 @@ mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
         } else {
           scaledist = distmat(j1,j2)/covparms(1);
           covmat(j1,j2) = normcon*pow( scaledist, covparms(2) )*boost::math::cyl_bessel_k(covparms(2),scaledist); //Rf_bessel_k(scaledist,covparms(2),1.0);
-          
+
         }
       }
     }
@@ -124,7 +124,7 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
   //vec revCond;//
   //mat cholmat;//
   //mat locs0;//
- 
+
   omp_set_num_threads(Ncores);// selects the number of cores to use.
   // initialized all elements outside of omp part, and claim them as private
   #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets,nnp,m,Lentries) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
@@ -150,8 +150,8 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
     } else {
       dist=calcPWD1(locs.rows(inds00));
     }
-      
-    
+
+
 #pragma omp critical
 {
 // add nugget if cond on observed i.e., not in CondOnLatent
@@ -161,7 +161,7 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
 // get Cholesky decomposition : upper triagular
     //cholmat = chol(covmat,"upper");
 // get last row of inverse Cholesky
-    onevec.resize(n0); 
+    onevec.resize(n0);
     onevec = zeros(n0);
     onevec[n0-1] = 1;
     try {
@@ -186,19 +186,19 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
             } catch(...){
               attempt=attempt+1;
             }
-            
+
         }
-        
+
     }
 // save the entries to matrix
     Lentries(k,span(0,n0-1)) = M.t();
   }
-   
+
    for (int i = 0; i < n; i++){
      Zentries[2*i] = (-1)/sqrt(nuggets[i]);
      Zentries[2*i+1] = 1/sqrt(nuggets[i]);
    }
-    
+
   List LZentries;
    LZentries["Lentries"]=Lentries;
    LZentries["Zentries"]=Zentries;
