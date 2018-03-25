@@ -66,7 +66,7 @@ double gamma_fn_boost(double x) {
 
 // rewrite MaternFun with arma object input/output
 // [[Rcpp::export]]
-mat MaternFun( mat distmat, vec covparms ){
+mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
   
   int d1 = distmat.n_rows;
   int d2 = distmat.n_cols;
@@ -74,28 +74,35 @@ mat MaternFun( mat distmat, vec covparms ){
   int j2;
   mat covmat(d1,d2);
   double scaledist;
-  
-  double normcon = covparms(0)/(pow(2.0,covparms(2)-1)*//Rf_gammafn(covparms(2)));//
-                            boost::math::tgamma(covparms(2)));//
-  
-  for (j1 = 0; j1 < d1; j1++){
-    for (j2 = 0; j2 < d2; j2++){
-      if ( distmat(j1,j2) == 0 ){
-        covmat(j1,j2) = covparms(0);
-      } else {
-        scaledist = distmat(j1,j2)/covparms(1);
-        covmat(j1,j2) = normcon*pow( scaledist, covparms(2) )*//Rf_bessel_k(scaledist,covparms(2),1.0);
-          boost::math::cyl_bessel_k(covparms(2),scaledist);
+  if (covparms(2)==0.5) { // Exponential cov function
+    for (j1 = 0; j1 < d1; j1++){
+      for (j2 = 0; j2 < d2; j2++){
+        if ( distmat(j1,j2) == 0 ){
+          covmat(j1,j2) = covparms(0);
+        } else {
+          scaledist = distmat(j1,j2)/covparms(1);
+          covmat(j1,j2) = covparms(0)*exp(scaledist);
+        }
+      }
+    }
+  }else{ // Matern cov with bessel function
+    double normcon = covparms(0)/(pow(2.0,covparms(2)-1)*boost::math::tgamma(covparms(2))); //Rf_gammafn(covparms(2)));//
+    for (j1 = 0; j1 < d1; j1++){
+      for (j2 = 0; j2 < d2; j2++){
+        if ( distmat(j1,j2) == 0 ){
+          covmat(j1,j2) = covparms(0);
+        } else {
+          scaledist = distmat(j1,j2)/covparms(1);
+          covmat(j1,j2) = normcon*pow( scaledist, covparms(2) )*boost::math::cyl_bessel_k(covparms(2),scaledist); //Rf_bessel_k(scaledist,covparms(2),1.0);
+          
+        }
       }
     }
   }
   return covmat;
 }
 
-
-
-
- // [[Rcpp::export]]
+// [[Rcpp::export]]
 List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,const mat& revCondOnLatent,const vec& nuggets, const vec covparms){
   // initialize the output matrix
   int m= revNNarray.n_cols-1;
