@@ -119,7 +119,7 @@ vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
   
   # compute selected inverse and extract variances
   inv.sparse=SelInv(V.ord)
-  vars.ord=rev(diag(inv.sparse))
+  vars.ord=rev(Matrix::diag(inv.sparse))
   
   # extract obs and pred parts; return to original ordering
   orig.order=order(vecchia.approx$ord)
