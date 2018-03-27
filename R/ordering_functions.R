@@ -188,7 +188,7 @@ order_maxmin <- function(locs, lonlat = FALSE,
 
     # get number of locs
     n <- nrow(locs)
-    m <- round(sqrt(n))
+    m <- min( round(sqrt(n)), 200 )
     # m is number of neighbors to search over
     # get the past and future nearest neighbors
     NNall <- FNN::get.knn( locs, k = m )$nn.index
@@ -306,7 +306,7 @@ order_maxmin_obs_pred <- function(locs, locs_pred, lonlat = FALSE,
     locs <- locs_all[1:n,,drop=FALSE]
     locs_pred <- locs_all[(n+1):(n+n_pred),,drop=FALSE]
 
-    m <- round(sqrt(n))
+    m <- min( round(sqrt(n)), 200 )
     # m is number of neighbors to search over
     # get the past and future nearest neighbors
     NN <- FNN::get.knn( locs, k = m )$nn.index
