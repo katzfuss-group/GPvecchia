@@ -1,3 +1,5 @@
+#define ARMA_DONT_PRINT_ERRORS
+
 #include <iostream>
 #include <RcppArmadillo.h>
 #include <omp.h>
