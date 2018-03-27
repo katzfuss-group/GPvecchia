@@ -354,9 +354,6 @@ order_maxmin_obs_pred <- function(locs, locs_pred, lonlat = FALSE,
             position_of_index[ index_in_position[j] ] <- curlen
             index_in_position[curlen] <- index_in_position[j]
             index_in_position[j] <- NA
-        } else {
-          print(nneigh)
-          print(j)
         }
     }
     ord_pred <- index_in_position[ !is.na( index_in_position ) ][(n+1):(n+n_pred)] - n
