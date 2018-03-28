@@ -145,10 +145,10 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
      //revCond = revCon_row(span(m+1-n0,m));
      // "%" indicates element-wise multiplication
      nug=nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m))); // vec is vec, cannot convert to mat
-    if (locs.n_cols==2){
-      dist=calcPWD2(locs.rows(inds00));
-    } else {
+    if (locs.n_cols==1){
       dist=calcPWD1(locs.rows(inds00));
+    } else {
+      dist=calcPWD2(locs.rows(inds00));
     }
 
 
@@ -177,10 +177,10 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
             onevec = zeros(n0-attempt);
             onevec.tail(1) = 1;
             try {
-              if (locs.n_cols==2){
-                M.tail(n0-attempt)=solve(chol(MaternFun(calcPWD2(locs.rows(inds00(span(attempt,n0-1)))),covparms)+ diagmat(nuggets.elem(inds00(span(attempt,n0-1)))),"upper"),onevec);
-              } else {
+              if (locs.n_cols==1){
                 M.tail(n0-attempt)=solve(chol(MaternFun(calcPWD1(locs.rows(inds00(span(attempt,n0-1)))),covparms)+ diagmat(nuggets.elem(inds00(span(attempt,n0-1)))),"upper"),onevec);
+              } else {
+                M.tail(n0-attempt)=solve(chol(MaternFun(calcPWD2(locs.rows(inds00(span(attempt,n0-1)))),covparms)+ diagmat(nuggets.elem(inds00(span(attempt,n0-1)))),"upper"),onevec);
               }
               succ=true;
             } catch(...){
