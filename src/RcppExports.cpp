@@ -9,16 +9,14 @@ using namespace arma;
 using namespace std;
 
 // dist2
-double dist2(double lat1, double long1, double lat2, double long2);
-RcppExport SEXP _GPvecchia_dist2(SEXP lat1SEXP, SEXP long1SEXP, SEXP lat2SEXP, SEXP long2SEXP) {
+double dist2(vec l1, vec l2);
+RcppExport SEXP _GPvecchia_dist2(SEXP l1SEXP, SEXP l2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type lat1(lat1SEXP);
-    Rcpp::traits::input_parameter< double >::type long1(long1SEXP);
-    Rcpp::traits::input_parameter< double >::type lat2(lat2SEXP);
-    Rcpp::traits::input_parameter< double >::type long2(long2SEXP);
-    rcpp_result_gen = Rcpp::wrap(dist2(lat1, long1, lat2, long2));
+    Rcpp::traits::input_parameter< vec >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< vec >::type l2(l2SEXP);
+    rcpp_result_gen = Rcpp::wrap(dist2(l1, l2));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -87,7 +85,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_GPvecchia_dist2", (DL_FUNC) &_GPvecchia_dist2, 4},
+    {"_GPvecchia_dist2", (DL_FUNC) &_GPvecchia_dist2, 2},
     {"_GPvecchia_dist1", (DL_FUNC) &_GPvecchia_dist1, 2},
     {"_GPvecchia_calcPWD2", (DL_FUNC) &_GPvecchia_calcPWD2, 1},
     {"_GPvecchia_calcPWD1", (DL_FUNC) &_GPvecchia_calcPWD1, 1},
