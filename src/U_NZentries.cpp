@@ -15,8 +15,8 @@ using namespace std;
 
 // distance function for 1 pair of locs
 // [[Rcpp::export]]
-double dist2(double lat1,double long1,double lat2,double long2) {
-  double dist = sqrt(pow(lat1 - lat2, 2) + pow(long1 - long2, 2)) ;
+double dist2(vec l1,vec l2) {
+  double dist = norm(l1-l2,2) ;
   return (dist) ;
 }
 // [[Rcpp::export]]
@@ -29,13 +29,11 @@ double dist1(double x, double y){
 // [[Rcpp::export]]
 mat calcPWD2( mat x) {//Rcpp::NumericMatrix
   int outrows = x.n_rows ;
-
   int outcols = x.n_rows ;
   mat out(outrows, outcols) ;
   for (int arow = 0 ; arow < outrows ; arow++) {
     for (int acol = 0 ; acol < outcols ; acol++) {
-      out(arow, acol) = dist2(x(arow, 0),x(arow, 1),
-                              x(acol, 0),x(acol, 1)) ; //extract element from mat
+      out(arow, acol) = dist2(x.row(arow).t(),x.row(acol).t()) ; //extract row from mat, have to transpose to colvec
     }
   }
   return (out) ;
