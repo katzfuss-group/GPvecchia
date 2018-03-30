@@ -29,7 +29,7 @@ calculate_posterior_VL = function(likelihood_model, covparms, m = 3, use_low_ran
 
   # make initial approximation and Cond, NNArray
   cond_type = ifelse(use_low_rank, 'firstm', 'NN')
-  vecchia.approx=vecchia_specify(z, locs, m, conditioning = cond_type )
+  vecchia.approx=vecchia_specify(z, locs, m, conditioning = cond_type)#, cond.yz = "z" )
 
   # init latent variable
   y_o = rep(1, length(z))
@@ -58,9 +58,10 @@ calculate_posterior_VL = function(likelihood_model, covparms, m = 3, use_low_ran
   if(return_all){
     # return additional information if needed
     orig.order=order(vecchia.approx$ord)
+    vec_likelihood = vecchia_likelihood(vecchia.approx,covparms,pseudo.vars)
     W = as.matrix(rev.mat(updated$V.ord%*%t(updated$V.ord))[orig.order,orig.order])
     return (list("mean" = y_o, "sd" =sqrt(updated$var.obs), "iter"=tot_iters,
-                 "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=updated$V.ord, "W" = W))
+                 "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=updated$V.ord, "W" = W, "vec_lh"=vec_likelihood))
   }
 
   return (list("mean" = y_o, "sd" =sqrt(updated$var.obs), "cnvgd" = convgd, "iter" = tot_iters))
@@ -73,7 +74,7 @@ calculate_posterior_VL = function(likelihood_model, covparms, m = 3, use_low_ran
 #####################################################################
 
 
-calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, get_sd = FALSE){
+calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, return_all = FALSE){
 
   l_type = likelihood_model$type
   locsord = likelihood_model$locs
@@ -104,7 +105,7 @@ calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, get_sd
     }
   } # end iterate
 
-  if(get_sd){
+  if(return_all){
     # Caclulating sd is expensive, avoid for fair comparison
     sd_posterior = sqrt(diag(solve(W)))
     return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters, "C"=C, "t" = t, "D" = D))
