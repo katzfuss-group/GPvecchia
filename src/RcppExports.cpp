@@ -54,6 +54,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// EsqeFun
+mat EsqeFun(mat distmat, vec covparms);
+RcppExport SEXP _GPvecchia_EsqeFun(SEXP distmatSEXP, SEXP covparmsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type distmat(distmatSEXP);
+    Rcpp::traits::input_parameter< vec >::type covparms(covparmsSEXP);
+    rcpp_result_gen = Rcpp::wrap(EsqeFun(distmat, covparms));
+    return rcpp_result_gen;
+END_RCPP
+}
 // MaternFun
 mat MaternFun(mat distmat, vec covparms);
 RcppExport SEXP _GPvecchia_MaternFun(SEXP distmatSEXP, SEXP covparmsSEXP) {
@@ -67,8 +79,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // U_NZentries
-List U_NZentries(int Ncores, int n, const mat& locs, const umat& revNNarray, const mat& revCondOnLatent, const vec& nuggets, const vec covparms);
-RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP covparmsSEXP) {
+List U_NZentries(int Ncores, int n, const mat& locs, const umat& revNNarray, const mat& revCondOnLatent, const vec& nuggets, std::string COV, const vec covparms);
+RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP COVSEXP, SEXP covparmsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -78,8 +90,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const umat& >::type revNNarray(revNNarraySEXP);
     Rcpp::traits::input_parameter< const mat& >::type revCondOnLatent(revCondOnLatentSEXP);
     Rcpp::traits::input_parameter< const vec& >::type nuggets(nuggetsSEXP);
+    Rcpp::traits::input_parameter< std::string >::type COV(COVSEXP);
     Rcpp::traits::input_parameter< const vec >::type covparms(covparmsSEXP);
-    rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, covparms));
+    rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, COV, covparms));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -89,8 +102,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GPvecchia_dist1", (DL_FUNC) &_GPvecchia_dist1, 2},
     {"_GPvecchia_calcPWD2", (DL_FUNC) &_GPvecchia_calcPWD2, 1},
     {"_GPvecchia_calcPWD1", (DL_FUNC) &_GPvecchia_calcPWD1, 1},
+    {"_GPvecchia_EsqeFun", (DL_FUNC) &_GPvecchia_EsqeFun, 2},
     {"_GPvecchia_MaternFun", (DL_FUNC) &_GPvecchia_MaternFun, 2},
-    {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 7},
+    {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 8},
     {NULL, NULL, 0}
 };
 
