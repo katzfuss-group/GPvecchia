@@ -15,7 +15,7 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
   n=nrow(locs)
 
   # default options
-  if(missing(ordering)){ ordering = (if(spatial.dim==1) 'coord' else ord='maxmin') }
+  if(missing(ordering)){ ordering = (if(spatial.dim==1) 'coord' else 'maxmin') }
   if(missing(cond.yz)){ cond.yz = (if(missing(locs.pred)) 'SGV' else 'SGVT') }
   if(missing(pred.cond)){ pred.cond='general' }
   if(missing(conditioning)){ conditioning='NN' }

@@ -15,7 +15,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   # call Rcpp function to create the nonzero entries of U
   U.entries=U_NZentries(vecchia.approx$U.prep$n.cores,n,vecchia.approx$locsord,
           vecchia.approx$U.prep$revNNarray,vecchia.approx$U.prep$revCond,
-          nuggets.ord,covmodel,covparms)
+          nuggets.all,covmodel,covparms)
 
   not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
   Lentries=c(t(U.entries$Lentries))[not.na]
