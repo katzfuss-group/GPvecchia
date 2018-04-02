@@ -1,7 +1,7 @@
 useDynLib(GPvecchia)
 importFrom(Rcpp, evalCpp)
 exportPattern("^[[:alpha:]]+")
-export(vecchia_specify,	vecchia_likelihood, vecchia_prediction, vecchia_lincomb, createU_matern, findOrderedNN_kdtree1, findOrderedNN_kdtree2, whichCondOnLatent)
+export(vecchia_specify,	vecchia_likelihood, vecchia_prediction, vecchia_lincomb, createU, findOrderedNN_kdtree1, findOrderedNN_kdtree2, whichCondOnLatent)
 importFrom(methods,as)
 importFrom(stats,Gamma)
 importFrom(sparseinv,Takahashi_Davis)
