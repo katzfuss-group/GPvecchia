@@ -13,7 +13,7 @@
 }
 
 #################  Poisson  #########################
-.pois_model = function(){
+.poisson_model = function(){
   pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-log(factorial(z)))
   pois_hess =function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)))
   pois_score = function(y_o, z) z-exp(y_o)
@@ -66,10 +66,10 @@ define_likelihood_model = function(model_type = c("gaussian","logistic", "poisso
   if (!is.matrix(locs)) stop("Locations must be a matrix")
 
   model_funs = switch(model_type,
-                      "gaussian" = gauss_model(),
-                      "logistic" = logistic_model(),
-                      "poisson" = poisson_model(),
-                      "gamma" = gamma_model())
+                      "gaussian" = .gauss_model(),
+                      "logistic" = .logistic_model(),
+                      "poisson" = .poisson_model(),
+                      "gamma" = .gamma_model())
 
   return(list("type"=model_type, "locs" = locs, "z"=obs,
               "hess" = model_funs$hess,
