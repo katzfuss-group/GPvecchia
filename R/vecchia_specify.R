@@ -72,7 +72,9 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
   ### condition on first m neighbors if specified
   if(conditioning == 'firstm'){
     first_m = NNarray[m+1,2:(m+1)]
-    NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
+    if (m+2<=n){  # if m=n-1, nothing to replace
+      NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
+    }
   }
 
   if(pred.cond=='independent'){

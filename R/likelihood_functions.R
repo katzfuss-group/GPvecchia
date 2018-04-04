@@ -4,7 +4,7 @@
 
 
 #################  Logistic   #########################
-logistic_model = function(){
+.logistic_model = function(){
   logistic_llh = function(y_o, z) sum(z*y_o-log(1+exp(y_o)))
   logistic_hess = function(y_o, z) sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)/(1+exp(y_o))^2))
   logistic_score = function(y_o, z) z - exp(y_o)/(1+exp(y_o))
@@ -13,7 +13,7 @@ logistic_model = function(){
 }
 
 #################  Poisson  #########################
-pois_model = function(){
+.poisson_model = function(){
   pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-log(factorial(z)))
   pois_hess =function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)))
   pois_score = function(y_o, z) z-exp(y_o)
@@ -21,7 +21,7 @@ pois_model = function(){
 }
 
 #################  Gaussian  #########################
-gauss_model = function(sigma = .3){
+.gauss_model = function(sigma = .3){
 
   gauss_llh = function(y_o, z) sum(-.5*(z-y_o)^2/sigma^2) -n*(log(sigma)+log(2*pi)/2)
   gauss_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(rep(1/sigma^2, length(y_o))))
@@ -30,7 +30,7 @@ gauss_model = function(sigma = .3){
 }
 
 #################  Gamma  #########################
-gamma_sample = function(alpha = 2 ){
+.gamma_model = function(alpha = 2 ){
   gamma_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(z*exp(y_o)))
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
   gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(Gamma(alpha)))
@@ -42,7 +42,7 @@ gamma_sample = function(alpha = 2 ){
 
 ################# Negative Binomial (NOT FINISHED) #########################
 
-negbin_sample = function(n, covfun, seed = 125, dom = 1){
+.negbin_model = function(n, covfun, seed = 125, dom = 1){
 
   # store score and hessian functions, update
   negbin_hess = 0#function(y_o, z) diag(array(exp(y_o)/(1+exp(y_o))^2))
@@ -66,10 +66,10 @@ define_likelihood_model = function(model_type = c("gaussian","logistic", "poisso
   if (!is.matrix(locs)) stop("Locations must be a matrix")
 
   model_funs = switch(model_type,
-                      "gaussian" = gauss_model(),
-                      "logistic" = logistic_model(),
-                      "poisson" = poisson_model(),
-                      "gamma" = gamma_model())
+                      "gaussian" = .gauss_model(),
+                      "logistic" = .logistic_model(),
+                      "poisson" = .poisson_model(),
+                      "gamma" = .gamma_model())
 
   return(list("type"=model_type, "locs" = locs, "z"=obs,
               "hess" = model_funs$hess,
