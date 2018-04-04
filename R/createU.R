@@ -10,12 +10,13 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   size=vecchia.approx$U.prep$size
   if(length(nuggets)==1) nuggets=rep(nuggets,n)
   nuggets.all=c(nuggets,rep(0,sum(!vecchia.approx$obs)))
-  nuggets.ord=nuggets.all[vecchia.approx$ord]
-
+  nuggets.all.ord=nuggets.all[vecchia.approx$ord]# # ordered nuggets for all locs
+  nuggets.ord=nuggets.all[vecchia.approx$ord[vecchia.approx$obs]]# ordered nuggets for observed locs
+  
   # call Rcpp function to create the nonzero entries of U
   U.entries=U_NZentries(vecchia.approx$U.prep$n.cores,n,vecchia.approx$locsord,
           vecchia.approx$U.prep$revNNarray,vecchia.approx$U.prep$revCond,
-          nuggets.ord,covmodel,covparms)
+          nuggets.all.ord,nuggets.ord,covmodel,covparms)
 
   not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
   Lentries=c(t(U.entries$Lentries))[not.na]

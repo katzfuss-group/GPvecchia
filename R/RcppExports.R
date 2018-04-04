@@ -25,7 +25,7 @@ MaternFun <- function(distmat, covparms) {
     .Call('_GPvecchia_MaternFun', PACKAGE = 'GPvecchia', distmat, covparms)
 }
 
-U_NZentries <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, COV, covparms) {
-    .Call('_GPvecchia_U_NZentries', PACKAGE = 'GPvecchia', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, COV, covparms)
+U_NZentries <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms) {
+    .Call('_GPvecchia_U_NZentries', PACKAGE = 'GPvecchia', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms)
 }
 

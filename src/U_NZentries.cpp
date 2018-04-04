@@ -129,7 +129,7 @@ mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
 }
 
 // [[Rcpp::export]]
-List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,const mat& revCondOnLatent,const vec& nuggets, std::string COV, const vec covparms){
+List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,const mat& revCondOnLatent,const vec& nuggets,const vec& nuggets_obsord, std::string COV, const vec covparms){
   // initialize the output matrix
   int m= revNNarray.n_cols-1;
   int nnp=locs.n_rows;
@@ -156,7 +156,7 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
 
   omp_set_num_threads(Ncores);// selects the number of cores to use.
   // initialized all elements outside of omp part, and claim them as private
-  #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets,nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
+#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
    for (k = 0; k < nnp; k++) {
 // extract a row to work with
      inds=revNNarray.row(k).t();
@@ -236,8 +236,8 @@ List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,cons
   }
 
    for (int i = 0; i < n; i++){
-     Zentries[2*i] = (-1)/sqrt(nuggets[i]);
-     Zentries[2*i+1] = 1/sqrt(nuggets[i]);
+     Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
+     Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
    }
 
   List LZentries;

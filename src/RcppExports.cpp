@@ -79,8 +79,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // U_NZentries
-List U_NZentries(int Ncores, int n, const mat& locs, const umat& revNNarray, const mat& revCondOnLatent, const vec& nuggets, std::string COV, const vec covparms);
-RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP COVSEXP, SEXP covparmsSEXP) {
+List U_NZentries(int Ncores, int n, const mat& locs, const umat& revNNarray, const mat& revCondOnLatent, const vec& nuggets, const vec& nuggets_obsord, std::string COV, const vec covparms);
+RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP COVSEXP, SEXP covparmsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -90,9 +90,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const umat& >::type revNNarray(revNNarraySEXP);
     Rcpp::traits::input_parameter< const mat& >::type revCondOnLatent(revCondOnLatentSEXP);
     Rcpp::traits::input_parameter< const vec& >::type nuggets(nuggetsSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type nuggets_obsord(nuggets_obsordSEXP);
     Rcpp::traits::input_parameter< std::string >::type COV(COVSEXP);
     Rcpp::traits::input_parameter< const vec >::type covparms(covparmsSEXP);
-    rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, COV, covparms));
+    rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -104,7 +105,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GPvecchia_calcPWD1", (DL_FUNC) &_GPvecchia_calcPWD1, 1},
     {"_GPvecchia_EsqeFun", (DL_FUNC) &_GPvecchia_EsqeFun, 2},
     {"_GPvecchia_MaternFun", (DL_FUNC) &_GPvecchia_MaternFun, 2},
-    {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 8},
+    {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 9},
     {NULL, NULL, 0}
 };
 
