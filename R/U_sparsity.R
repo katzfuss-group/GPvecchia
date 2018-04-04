@@ -76,7 +76,7 @@ U_sparsity <- function( locs, NNarray, obs, Cond ){
   n.cores=detectCores(all.tests = FALSE, logical = TRUE)
   
   return(list(revNNarray=revNNarray,revCond=revCondOnLatent,n.cores=n.cores,
-        size=size,rowpointers=allrowpointers,colindices=allcolindices,y.ind=latent_map))
+        size=size,rowpointers=allrowpointers,colindices=allcolindices,y.ind=latent_map,observed_map=observed_map))
   
 }
 
