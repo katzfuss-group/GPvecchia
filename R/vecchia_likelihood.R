@@ -28,8 +28,7 @@ vecchia_likelihood_U=function(vecchia.approx,U) {
   # denominator
   U.y=U[y.ind,]
   z2=as.numeric(U.y%*%z1)
-  W=Matrix::tcrossprod(U.y)
-  V.ord=t(chol(rev.mat(W)))
+  V.ord=U2V(U,vecchia.approx)
   z3=solve(V.ord,rev(z2),system='L')
   quadform.denom=sum(z3^2)
   logdet.denom=-2*sum(log(diag(V.ord)))
