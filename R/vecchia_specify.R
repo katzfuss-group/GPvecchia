@@ -77,7 +77,7 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
     }
   }
 
-  if(pred.cond=='independent'){
+  if(!missing(locs.pred) & pred.cond=='independent'){
     if(ordering.pred=='obspred'){
       NNarray.pred <- array(dim=c(n.p,m+1))
       dist.predobs=rdist(locsord[n+(1:n.p),,drop=FALSE],locsord[1:n,,drop=FALSE])
