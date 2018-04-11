@@ -94,7 +94,7 @@ vecchia_lincomb=function(H,vecchia.approx,V.ord,cov.mat=FALSE) {
   H.tt=Matrix::t(H[,rev(vecchia.approx$ord),drop=FALSE])
   temp=Matrix::solve(V.ord,H.tt)
   if(cov.mat){
-    lincomb.cov=Matrix::t(temp)%*%temp
+    lincomb.cov=as.matrix(Matrix::t(temp)%*%temp)
     return(lincomb.cov)
   } else {
     lincomb.vars=as.numeric(Matrix::t(temp*temp)%*%rep(1,ncol(H)))
@@ -116,6 +116,10 @@ SelInv=function(cholmat){
 ######  posterior variances   #######
 
 vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
+
+  # joe added these two lines (4/8/2018)
+  n <- length(vecchia.approx$zord)
+  n.p <- length(vecchia.approx$ord) - n
 
   # compute selected inverse and extract variances
   inv.sparse=SelInv(V.ord)
