@@ -9,13 +9,14 @@
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
+
 using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
 // distance function for 1 pair of locs
 // [[Rcpp::export]]
-double dist2(vec l1,vec l2) {
+double dist2(arma::vec l1,arma::vec l2) {
   double dist = norm(l1-l2,2) ;
   return (dist) ;
 }
@@ -27,10 +28,10 @@ double dist1(double x, double y){
 //calculate distance matrix for multiple pairs of locs: have to use two separate functions because 1D is vec locs 2D is mat locs
 //for 2D
 // [[Rcpp::export]]
-mat calcPWD2( mat x) {//Rcpp::NumericMatrix
+arma::mat calcPWD2( arma::mat x) {//Rcpp::NumericMatrix
   int outrows = x.n_rows ;
   int outcols = x.n_rows ;
-  mat out(outrows, outcols) ;
+  arma::mat out(outrows, outcols) ;
   for (int arow = 0 ; arow < outrows ; arow++) {
     for (int acol = 0 ; acol < outcols ; acol++) {
       out(arow, acol) = dist2(x.row(arow).t(),x.row(acol).t()) ; //extract row from mat, have to transpose to colvec
@@ -40,10 +41,10 @@ mat calcPWD2( mat x) {//Rcpp::NumericMatrix
 }
 //for 1D
 // [[Rcpp::export]]
-mat calcPWD1( vec x) {//Rcpp::NumericMatrix
+arma::mat calcPWD1( arma::vec x) {//Rcpp::NumericMatrix
   int outrows = x.size() ;
   int outcols = x.size() ;
-  mat out(outrows, outcols) ;
+  arma::mat out(outrows, outcols) ;
   for (int arow = 0 ; arow < outrows ; arow++) {
     for (int acol = 0 ; acol < outcols ; acol++) {
       out(arow, acol) = dist1(x[arow],x[acol]) ; //extract element from vec
@@ -65,13 +66,13 @@ double gamma_fn_boost(double x) {
 
 // cov fun: exponential + square exponential
 // [[Rcpp::export]]
-mat EsqeFun( mat distmat, vec covparms ){ //covparms=c(sig2_1,r1,sig2_2,r2)
+arma::mat EsqeFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2_1,r1,sig2_2,r2)
   
   int d1 = distmat.n_rows;
   int d2 = distmat.n_cols;
   int j1;
   int j2;
-  mat covmat(d1,d2);
+ arma::mat covmat(d1,d2);
   double scaledist;
   double scaledist2;
 
@@ -92,13 +93,13 @@ mat EsqeFun( mat distmat, vec covparms ){ //covparms=c(sig2_1,r1,sig2_2,r2)
 
 // rewrite MaternFun with arma object input/output
 // [[Rcpp::export]]
-mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
+arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,range,smooth)
 
   int d1 = distmat.n_rows;
   int d2 = distmat.n_cols;
   int j1;
   int j2;
-  mat covmat(d1,d2);
+  arma::mat covmat(d1,d2);
   double scaledist;
   if (covparms(2)==0.5) { // Exponential cov function
     for (j1 = 0; j1 < d1; j1++){
@@ -129,20 +130,20 @@ mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
 }
 
 // [[Rcpp::export]]
-List U_NZentries (int Ncores,int n, const mat& locs, const umat& revNNarray,const mat& revCondOnLatent,const vec& nuggets,const vec& nuggets_obsord, std::string COV, const vec covparms){
+List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& revNNarray,const arma::mat& revCondOnLatent,const arma::vec& nuggets,const arma::vec& nuggets_obsord, std::string COV, const arma::vec covparms){
   // initialize the output matrix
   int m= revNNarray.n_cols-1;
   int nnp=locs.n_rows;
-  mat Lentries=zeros(nnp,m+1);
+ arma::mat Lentries=zeros(nnp,m+1);
   int n0; //number of !is_na elements
-  uvec inds;//
-  vec revCon_row;//
-  uvec inds00;//
-  vec nug;//
-  mat covmat;//
-  vec onevec;//
-  vec M;//
-  mat dist;//
+  arma::uvec inds;//
+  arma::vec revCon_row;//
+  arma::uvec inds00;//
+  arma::vec nug;//
+  arma::mat covmat;//
+  arma::vec onevec;//
+  arma::vec M;//
+  arma::mat dist;//
   int k;//
   mat Zentries=zeros(2*n);
   int attempt;
