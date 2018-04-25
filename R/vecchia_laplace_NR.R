@@ -17,8 +17,8 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model, covparms, ma
 
   # for logging purposes, output scenario
   l_type = likelihood_model$type
-  log_comment = paste("Running VL-NR for",l_type, "with _ nbrs and sample size", length(z) )
-  message(log_comment)
+  log_comment = print(paste("Running VL-NR for",l_type, "with",
+              ncol(vecchia.approx$U.prep$revNNarray)-1,"nbrs and sample size",length(z)))
 
   # record duration of NR
   t_start = Sys.time()
