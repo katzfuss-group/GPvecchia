@@ -1,24 +1,16 @@
 ##### example for calculating likelihood and predictions for general vecchia
 
-rm(list = ls())
-setwd("G:/My Drive/projects/vecchia_predictions/code")
-
 
 ###  load GPvecchia package
 # library(GPvecchia)
-for (nm in list.files('GPvecchia',pattern = "\\.[RrSsQq]$")) {
-  cat(nm,":"); source(file.path('GPvecchia',nm)); cat("\n")
-}
-Rcpp::sourceCpp('GPvecchia/NZentries_arma_omp1.cpp')
-
+library(devtools)
+install_github("katzfuss-group/GPvecchia")
 
 
 #####################   simulate data    #######################
 
 spatial.dim=2 # number of spatial dimensions
-n=30^2  # number of observed locs
-
-library(fields)
+n=20^2  # number of observed locs
 
 # simulate locations
 set.seed(10)
@@ -30,8 +22,8 @@ if(spatial.dim==1){
 
 # covariance parameters (only matern implemented so far)
 sig2=1; range=.1; smooth=1.5
-covfun <- function(locs) sig2*Matern(rdist(locs),range=range,smoothness=smooth)
-nuggets=rep(.1,n) #.001+(locs[,1]<.5) 
+covfun <- function(locs) sig2*Matern(fields::rdist(locs),range=range,smoothness=smooth)
+nuggets=rep(.1,n)
 
 # simulate observations
 if(n < 1e4) {
@@ -57,8 +49,7 @@ vecchia.approx=vecchia_specify(z,locs,m)
 #####################   likelihood evaluation    #######################
 
 covparms=c(sig2,range,smooth)
-vecchia_likelihood(vecchia.approx,covparms,nuggets) 
-# currently, only isotropic matern is implemented
+vecchia_likelihood(vecchia.approx,covparms,nuggets)
 
 # ## compare to exact likelihood
 # library(mvtnorm)
@@ -81,10 +72,10 @@ n.p=nrow(locs.pred)
 
 
 ######  specify Vecchia approximation   #######
-m=10
+m=20
 vecchia.approx=vecchia_specify(z,locs,m,locs.pred=locs.pred)
 
-  
+
 
 ######  carry out prediction   #######
 preds=vecchia_prediction(vecchia.approx,covparms,nuggets)
@@ -126,7 +117,7 @@ if(spatial.dim==1) {
 
 ### plot entire predictive covariance matrix
 Sigma=V2covmat(preds,vecchia.approx)$Sigma.pred
-cov.range=range(rbind(Sigma,cov.exact.pred))
+cov.range=quantile(rbind(Sigma,cov.exact.pred),c(.01,.99))
 par(mfrow=c(1,2))
 image.plot(cov.exact.pred,zlim=cov.range)
 image.plot(Sigma,zlim=cov.range)
@@ -139,7 +130,7 @@ par(mfrow=c(1,1))
 ### example: subset pred locs
 
 H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
-  
+
 # compute variances of Hy
 lincomb.vars=vecchia_lincomb(H,vecchia.approx,preds$V.ord)
 
