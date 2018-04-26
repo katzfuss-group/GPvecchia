@@ -5,6 +5,7 @@
 ######################    Vecchia + Laplace     #####################
 #####################################################################
 
+
 # algorithm to find latent GP for non-gaussian likelihood
 calculate_posterior_VL = function(vecchia.approx, likelihood_model, covparms, max.iter=50, convg = 1e-6, return_all = FALSE){
   # pull out constants for readability
@@ -16,8 +17,8 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model, covparms, ma
 
   # for logging purposes, output scenario
   l_type = likelihood_model$type
-  log_comment = paste("Running VL-NR for",l_type, "with _ nbrs and sample size", length(z) )
-  message(log_comment)
+  log_comment = print(paste("Running VL-NR for",l_type, "with",
+              ncol(vecchia.approx$U.prep$revNNarray)-1,"nbrs and sample size",length(z)))
 
   # record duration of NR
   t_start = Sys.time()
@@ -55,7 +56,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model, covparms, ma
     W = as.matrix(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order])
     return (list("mean" = y_o, "sd" =sqrt(diag(solve(W))), "iter"=tot_iters,
                  "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=V.ord,
-                 "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time))
+                 "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time, "U" = U))
   }
   return (list("mean" = y_o, "cnvgd" = convgd, "iter" = tot_iters))
 }
@@ -78,6 +79,8 @@ calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, return
 
   C_inv = solve(C)
 
+  t_start = Sys.time()
+
   y_o = rep(1,length(z))
   tot_iters=0
   # begin NR iteration
@@ -95,11 +98,14 @@ calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, return
       break
     }
   } # end iterate
+  t_end = Sys.time()
+  Lap_time = as.double(difftime(t_end, t_start, units = "secs"))
 
   if(return_all){
     # Caclulating sd is expensive, avoid for fair comparison
     sd_posterior = sqrt(diag(solve(W)))
-    return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters, "C"=C, "t" = t, "D" = D))
+    return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters,
+                 "C"=C, "t" = t, "D" = D, "runtime"=Lap_time))
   }
   return (list("mean" = y_o, "W"=W, "iter"=tot_iters))
 }

@@ -80,11 +80,10 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
   if(!missing(locs.pred) & pred.cond=='independent'){
     if(ordering.pred=='obspred'){
       NNarray.pred <- array(dim=c(n.p,m+1))
-      dist.predobs=rdist(locsord[n+(1:n.p),,drop=FALSE],locsord[1:n,,drop=FALSE])
       for(j in 1:n.p){
-        dists=dist.predobs[j,]
+        dists=rdist(locsord[n+j,,drop=FALSE],locsord[1:n,,drop=FALSE])
         m.nearest.obs=sort(order(dists)[1:m],decreasing=TRUE)
-        NNarray.pred[j,]=c(j+n,m.nearest.obs)
+        NNarray.pred[j,]=c(n+j,m.nearest.obs)
       }
       NNarray[n+(1:n.p),]=NNarray.pred
     } else print('indep. conditioning currently only implemented for obspred ordering')
