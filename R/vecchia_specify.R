@@ -1,3 +1,18 @@
+#' specify the vecchia approximation
+#' 
+#' specify the vecchia approximation, prepare U. This fct does not depend on parameter values, only has to be run once before repeated likelihood evals
+#' @param locs: nxd matrix of obs locs
+#' @param ordering: options are 'coord' or 'maxmin'
+#' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', and 'zy'
+#' @param ordering.pred: options are 'obspred' or 'general'
+#' @param pred.cond: prediction conditioning, options are 'general' or 'independent'
+#' @param conditioning:  conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
+#' 
+#' @return An object that specifies the vecchia approximation.@@MK
+#' @examples
+#' vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning)
+#' @export
+
 # specify the vecchia approximation, prepare U
 # this fct does not depend on parameter values
 # only has to be run once before repeated likelihood evals

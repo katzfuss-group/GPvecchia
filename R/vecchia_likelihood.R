@@ -1,3 +1,16 @@
+#' evaluation of the likelihood
+#' 
+#' @param vecchia.approx Results from vecchia_prediction @@MK
+#' @param covparms: covariance parameters as a vector
+#' @param nuggets: nugget
+#' @param var.exact  @@MK
+#' @param covmodel: covariance model, 'matern' by default.
+#' 
+#' @return An object that specifies the vecchia approximation. @@MK
+#' @examples
+#' vecchia_likelihood=function(vecchia.approx,covparms,nuggets,covmodel='matern')
+#' @export
+
 ##  evaluation of the likelihood
 
 vecchia_likelihood=function(vecchia.approx,covparms,nuggets,covmodel='matern') {

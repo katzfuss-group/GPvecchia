@@ -1,3 +1,18 @@
+#' Vecchia prediction 
+#' 
+#' @param vecchia.approx @@ MK
+#' @param covparms: covariance parameters as a vector
+#' @param nuggets: nugget
+#' @param var.exact  @@ MK
+#' @param covmodel: covariance model, 'matern' by default.
+#' 
+#' @return Posterior mean, obverved mean, posterior variance, observed variance and V matrix.
+#' @examples
+#' vecchia_prediction=function(vecchia.approx,covparms,nuggets,var.exact,covmodel='matern')
+#' @export
+
+
+
 vecchia_prediction=function(vecchia.approx,covparms,nuggets,var.exact,covmodel='matern') {
 
   # create the U matrix
@@ -88,6 +103,21 @@ vecchia_mean=function(vecchia.approx,U,V.ord){
 
 
 
+
+#' linear combination of predictions
+#' 
+#' @param H: @@MK
+#' @param vecchia.approx @@ MK
+#' @param V.ord ordered V matrix
+#' @param cov.mat logical TRUE or FALSE
+#' 
+#' @return Variance of linear combination of predictions.
+#' @examples
+#' vecchia_lincomb=function(H,vecchia.approx,V.ord,cov.mat=FALSE)
+#' @export
+
+
+
 ######  linear combination   #######
 
 vecchia_lincomb=function(H,vecchia.approx,V.ord,cov.mat=FALSE) {
@@ -142,6 +172,18 @@ vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
   return(list(vars.obs=vars.obs,vars.pred=vars.pred))
 }
 
+
+
+
+#' compute covariance matrix from V.ord
+#' 
+#' @param preds: Results from vecchia_prediction @@MK
+#' @param vecchia.approx Results from vecchia_specify
+#' 
+#' @return Covariance matrix of prediction. Do not do this for large n or n.p!!!
+#' @examples
+#' V2covmat=function(preds,vecchia.approx)
+#' @export
 
 ######  compute covariance matrix from V.ord   #######
 # do not do this for large n or n.p!!!
