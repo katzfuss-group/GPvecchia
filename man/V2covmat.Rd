@@ -2,21 +2,25 @@
 % Please edit documentation in R/vecchia_prediction.R
 \name{V2covmat}
 \alias{V2covmat}
-\title{compute covariance matrix from V.ord}
+\title{compute covariance matrix from V.ord
+Do not run this function for large n or n.p!!!}
 \usage{
 V2covmat(preds, vecchia.approx)
 }
 \arguments{
-\item{vecchia.approx}{Results from vecchia_specify}
+\item{preds:}{Object returned by vecchia_prediction()}
 
-\item{preds:}{Results from vecchia_prediction @MK}
+\item{vecchia.approx:}{Object returned by vecchia_specify()}
 }
 \value{
-Covariance matrix of prediction. Do not do this for large n or n.p!!!
+Covariance matrix at all locations in original order
 }
 \description{
 compute covariance matrix from V.ord
+Do not run this function for large n or n.p!!!
 }
 \examples{
+z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5,locs.pred=(1:5)+.5)
+preds=vecchia_prediction=function(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 V2covmat=function(preds,vecchia.approx)
 }

@@ -2,13 +2,13 @@
 % Please edit documentation in R/vecchia_specify.R
 \name{vecchia_specify}
 \alias{vecchia_specify}
-\title{specify the vecchia approximation}
+\title{specify a general vecchia approximation}
 \usage{
 vecchia_specify(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred,
   pred.cond, conditioning)
 }
 \arguments{
-\item{locs:}{nxd matrix of obs locs}
+\item{locs:}{nxd matrix of observed locs}
 
 \item{ordering:}{options are 'coord' or 'maxmin'}
 
@@ -21,11 +21,11 @@ vecchia_specify(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred,
 \item{conditioning:}{conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)}
 }
 \value{
-An object that specifies the vecchia approximation.@MK
+An object that specifies the vecchia approximation for later use in likelihood evaluation or prediction.
 }
 \description{
-specify the vecchia approximation, prepare U. This fct does not depend on parameter values, only has to be run once before repeated likelihood evals
+specify the vecchia approximation for later use in likelihood evaluation or prediction. This function does not depend on parameter values, and only has to be run once before repeated likelihood evaluations.
 }
 \examples{
-vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning)
+z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5)
 }
