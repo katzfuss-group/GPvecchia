@@ -8,7 +8,6 @@ library(devtools)
 install_github("katzfuss-group/GPvecchia")
 
 
-
 #####################   simulate data    #######################
 
 data.distr = 'logistic' # options: "gaussian","logistic", "poisson", "gamma"
@@ -16,15 +15,16 @@ spatial.dim = 1 # number of spatial dimensions
 n=10^2  # number of observed locs
 
 # simulate locations
-set.seed(10)
+set.seed(12)
 if(spatial.dim==1){
   locs=matrix(runif(n),ncol=1)
 } else {
   locs <- cbind(runif(n),runif(n))
 }
 
+
 # covariance parameters
-sig2=1; range=.05; smooth=1.5
+sig2=1; range=.05; smooth=1
 covfun <- function(locs) sig2*Matern(fields::rdist(locs),range=range,smoothness=smooth)
 
 # simulate latent process
@@ -59,16 +59,17 @@ if(spatial.dim==1) {
 
 #####################   specify Vecchia approx    #######################
 # (this only has to be run once)
-m=5
-lk_m = define_likelihood_model(model_type=data.distr,locs = locs, obs = z)
-vecchia.approx=vecchia_specify(lk_m$z,lk_m$locs, m)
+m=2
+vecchia.approx=vecchia_specify(z, locs, m)
 
 
 #####################   prediction at observed locations    #######################
 
 covparms=c(sig2,range,smooth)
-posterior = calculate_posterior_VL(vecchia.approx, likelihood_model=lk_m, covparms)
-post_lap = calculate_posterior_laplace(lk_m, C = covfun(locs))
+# Perform inference on latent mean with Vecchia Laplace approximation
+posterior = calculate_posterior_VL(vecchia.approx, likelihood_model=data.distr, covparms)
+# Laplace approximation for comparison
+post_lap = calculate_posterior_laplace(z, data.distr, C = covfun(locs))
 
 if (spatial.dim==1){
   par(mfrow=c(1,1),mar=c(2,2,2,2))
