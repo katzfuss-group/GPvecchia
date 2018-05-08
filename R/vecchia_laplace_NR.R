@@ -7,17 +7,25 @@
 
 
 # algorithm to find latent GP for non-gaussian likelihood
-calculate_posterior_VL = function(vecchia.approx, likelihood_model, covparms, max.iter=50, convg = 1e-6, return_all = FALSE){
+calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian","logistic", "poisson", "gamma"),
+                                  covparms, likparms = list("alpha"=2, "sigma"=.3),
+                                  max.iter=50, convg = 1e-6, return_all = FALSE){
   # pull out constants for readability
-  z = likelihood_model$z
-  locs = likelihood_model$locs
+  z = vecchia.approx$zord
+  locs = vecchia.approx$locsord
+
   # pull out score and second derivative for readability
-  ell_dbl_prime = likelihood_model$hess
-  ell_prime = likelihood_model$score
+  model_funs = switch(likelihood_model,
+                      "gaussian" = .gauss_model(likparms),
+                      "logistic" = .logistic_model(),
+                      "poisson" = .poisson_model(),
+                      "gamma" = .gamma_model(likparms))
+  ell_dbl_prime = model_funs$hess
+  ell_prime = model_funs$score
 
   # for logging purposes, output scenario
-  l_type = likelihood_model$type
-  log_comment = print(paste("Running VL-NR for",l_type, "with",
+
+  log_comment = print(paste("Running VL-NR for",likelihood_model, "with",
               ncol(vecchia.approx$U.prep$revNNarray)-1,"nbrs and sample size",length(z)))
 
   # record duration of NR
@@ -35,7 +43,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model, covparms, ma
     pseudo.data = D %*% u + y_o
     nuggets = diag(D)
     # Update the pseudo data stored in the approximation
-    vecchia.approx$zord=pseudo.data[vecchia.approx$ord]
+    vecchia.approx$zord=pseudo.data#[vecchia.approx$ord]
     # Update U matrix with new nuggets, make the prediction
     U=createU(vecchia.approx,covparms,nuggets)
     V.ord=U2V(U,vecchia.approx)
@@ -68,13 +76,19 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model, covparms, ma
 #####################################################################
 
 
-calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, return_all = FALSE){
-  l_type = likelihood_model$type
-  locsord = likelihood_model$locs
-  z = likelihood_model$z
-  ell_dbl_prime = likelihood_model$hess
-  ell_prime = likelihood_model$score
-  log_comment = paste("Running Laplace for",l_type, "with sample size", length(z) )
+calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list("alpha"=2, "sigma"=.3),
+                                       convg = 1e-6, return_all = FALSE){
+  # pull out score and second derivative for readability
+  model_funs = switch(likelihood_model,
+                      "gaussian" = .gauss_model(likparms),
+                      "logistic" = .logistic_model(),
+                      "poisson" = .poisson_model(),
+                      "gamma" = .gamma_model(likparms))
+  ell_dbl_prime = model_funs$hess
+  ell_prime = model_funs$score
+
+
+  log_comment = paste("Running Laplace for",likelihood_model, "with sample size", length(z) )
   message(log_comment)
 
   C_inv = solve(C)
@@ -109,5 +123,60 @@ calculate_posterior_laplace = function(likelihood_model, C, convg = 1e-6, return
   }
   return (list("mean" = y_o, "W"=W, "iter"=tot_iters))
 }
+
+
+
+#################  Logistic   #########################
+.logistic_model = function(){
+  logistic_llh = function(y_o, z) sum(z*y_o-log(1+exp(y_o)))
+  logistic_hess = function(y_o, z) sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)/(1+exp(y_o))^2))
+  logistic_score = function(y_o, z) z - exp(y_o)/(1+exp(y_o))
+  # return object with all components of model
+  return(list("hess" = logistic_hess, "score"=logistic_score,"llh" = logistic_llh))
+}
+
+#################  Poisson  #########################
+.poisson_model = function(){
+  pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-log(factorial(z)))
+  pois_hess =function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)))
+  pois_score = function(y_o, z) z-exp(y_o)
+  return(list("hess" = pois_hess, "score"=pois_score,"llh" = pois_llh))
+}
+
+#################  Gaussian  #########################
+.gauss_model = function(likparams){
+  # default nugget sd = .3
+  sigma = ifelse("sigma" %in% names(likparams),likparams$sigma, .3)
+  gauss_llh = function(y_o, z) sum(-.5*(z-y_o)^2/sigma^2) -n*(log(sigma)+log(2*pi)/2)
+  gauss_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(rep(1/sigma^2, length(y_o))))
+  gauss_score = function(y_o, z) (z-y_o)/sigma^2
+  return(list("hess" = gauss_hess, "score"=gauss_score, "llh"=gauss_llh))
+}
+
+#################  Gamma  #########################
+.gamma_model = function(likparams){
+  alpha = ifelse("alpha" %in% names(likparams),likparams$alpha, 2)
+  gamma_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(z*exp(y_o)))
+  gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
+  gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(Gamma(alpha)))
+  return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh))
+}
+
+
+
+
+################# Negative Binomial (NOT FINISHED) #########################
+
+.negbin_model = function(likparams){
+
+  # store score and hessian functions, update
+  negbin_hess = 0#function(y_o, z) diag(array(exp(y_o)/(1+exp(y_o))^2))
+  negbin_score = 0 # function(y_o, z) z - exp(y_o)/(1+exp(y_o))
+
+  # return object with all components of model
+  return(list("hess" = logistic_hess, "score"=logistic_score))
+
+}
+
 
 
