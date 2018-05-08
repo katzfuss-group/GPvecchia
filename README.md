@@ -1,6 +1,7 @@
 # GPvecchia
 Fast Gaussian-process inference using general Vecchia approximations
 
+For examples of how to use the package, please see the vignettes folder.
 
 ## Installation
 This package can be installed directly from R by running the following code:
