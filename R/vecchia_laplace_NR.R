@@ -13,8 +13,9 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
 
   # undo ordering - Vecchia code reorders
   orig_ord = order(vecchia.approx$ord)
+
   z = vecchia.approx$zord[orig_ord]
-  locs = vecchia.approx$locsord[orig_ord]
+  locs = vecchia.approx$locsord[orig_ord,]
 
 
   # pull out score and second derivative for readability
