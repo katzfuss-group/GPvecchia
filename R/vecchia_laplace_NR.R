@@ -8,11 +8,14 @@
 
 # algorithm to find latent GP for non-gaussian likelihood
 calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian","logistic", "poisson", "gamma"),
-                                  covparms, likparms = list("alpha"=2, "sigma"=.3),
+                                  covparms, likparms = list("alpha"=2, "sigma"=.1),
                                   max.iter=50, convg = 1e-6, return_all = FALSE){
-  # pull out constants for readability
-  z = vecchia.approx$zord
-  locs = vecchia.approx$locsord
+
+  # undo ordering - Vecchia code reorders
+  orig_ord = order(vecchia.approx$ord)
+  z = vecchia.approx$zord[orig_ord]
+  locs = vecchia.approx$locsord[orig_ord]
+
 
   # pull out score and second derivative for readability
   model_funs = switch(likelihood_model,
@@ -43,7 +46,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
     pseudo.data = D %*% u + y_o
     nuggets = diag(D)
     # Update the pseudo data stored in the approximation
-    vecchia.approx$zord=pseudo.data#[vecchia.approx$ord]
+    vecchia.approx$zord=pseudo.data[vecchia.approx$ord]
     # Update U matrix with new nuggets, make the prediction
     U=createU(vecchia.approx,covparms,nuggets)
     V.ord=U2V(U,vecchia.approx)
@@ -87,9 +90,8 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   ell_dbl_prime = model_funs$hess
   ell_prime = model_funs$score
 
-
   log_comment = paste("Running Laplace for",likelihood_model, "with sample size", length(z) )
-  message(log_comment)
+  print(log_comment)
 
   C_inv = solve(C)
 
@@ -129,7 +131,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 #################  Logistic   #########################
 .logistic_model = function(){
   logistic_llh = function(y_o, z) sum(z*y_o-log(1+exp(y_o)))
-  logistic_hess = function(y_o, z) sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)/(1+exp(y_o))^2))
+  logistic_hess = function(y_o, z) sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=exp(y_o)/(1+exp(y_o))^2)
   logistic_score = function(y_o, z) z - exp(y_o)/(1+exp(y_o))
   # return object with all components of model
   return(list("hess" = logistic_hess, "score"=logistic_score,"llh" = logistic_llh))
@@ -138,7 +140,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 #################  Poisson  #########################
 .poisson_model = function(){
   pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-log(factorial(z)))
-  pois_hess =function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(exp(y_o)))
+  pois_hess =function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=exp(y_o))
   pois_score = function(y_o, z) z-exp(y_o)
   return(list("hess" = pois_hess, "score"=pois_score,"llh" = pois_llh))
 }
@@ -148,7 +150,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   # default nugget sd = .3
   sigma = ifelse("sigma" %in% names(likparams),likparams$sigma, .3)
   gauss_llh = function(y_o, z) sum(-.5*(z-y_o)^2/sigma^2) -n*(log(sigma)+log(2*pi)/2)
-  gauss_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(rep(1/sigma^2, length(y_o))))
+  gauss_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=rep(1/sigma^2, length(y_o)))
   gauss_score = function(y_o, z) (z-y_o)/sigma^2
   return(list("hess" = gauss_hess, "score"=gauss_score, "llh"=gauss_llh))
 }
@@ -156,7 +158,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 #################  Gamma  #########################
 .gamma_model = function(likparams){
   alpha = ifelse("alpha" %in% names(likparams),likparams$alpha, 2)
-  gamma_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=(z*exp(y_o)))
+  gamma_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=z*exp(y_o))
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
   gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(Gamma(alpha)))
   return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh))
