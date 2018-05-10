@@ -4,9 +4,9 @@ Fast Gaussian-process inference using general Vecchia approximations
 For examples of how to use the package, please see the vignettes folder.
 
 ## References
-Katzfuss, M., & Guinness, J. (2017). A general framework for Vecchia approximations of Gaussian processes. *arXiv:1708.06302*.
+[Katzfuss, M., & Guinness, J. (2017). A general framework for Vecchia approximations of Gaussian processes. *arXiv:1708.06302*.](https://arxiv.org/abs/1708.06302)
 
-Katzfuss, M., Guinness, J., & Gong, W. (2018). Vecchia approximations of Gaussian-process predictions. *arXiv:1805.03309*.
+[Katzfuss, M., Guinness, J., & Gong, W. (2018). Vecchia approximations of Gaussian-process predictions. *arXiv:1805.03309*.](https://arxiv.org/abs/1805.03309)
 
 ## Installation
 This package can be installed directly from R by running the following code:
