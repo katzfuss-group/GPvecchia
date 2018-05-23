@@ -11,6 +11,8 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
                                   covparms, likparms = list("alpha"=2, "sigma"=.1),
                                   max.iter=50, convg = 1e-6, return_all = FALSE){
 
+  likelihood_model <- match.arg(likelihood_model)
+
   # undo ordering - Vecchia code reorders
   orig_ord = order(vecchia.approx$ord)
 
@@ -53,6 +55,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
     V.ord=U2V(U,vecchia.approx)
     vecchia.mean=vecchia_mean(vecchia.approx,U,V.ord)
     y_o = vecchia.mean$mu.obs
+    #print(sum(abs(V.ord%*%(y_o-y_prev)))) #newton increment-> reveals cycling
     if (max(abs(y_o-y_prev))<convg){
       convgd = TRUE
       tot_iters = i
@@ -80,7 +83,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
 #####################################################################
 
 
-calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list("alpha"=2, "sigma"=.3),
+calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list("alpha"=2, "sigma"=.1),
                                        convg = 1e-6, return_all = FALSE){
   # pull out score and second derivative for readability
   model_funs = switch(likelihood_model,
@@ -94,10 +97,9 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   log_comment = paste("Running Laplace for",likelihood_model, "with sample size", length(z) )
   print(log_comment)
 
-  C_inv = solve(C)
+  #C_inv = solve(C)
 
   t_start = Sys.time()
-
   y_o = rep(1,length(z))
   tot_iters=0
   # begin NR iteration
@@ -107,24 +109,23 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
     D = solve(D_inv)  # d is diagonal (hessian), cheap to invert
     u =  ell_prime(y_o,z)
     t = D%*%u+y_o
-    W=D_inv+C_inv
     y_prev=y_o
-    y_o = solve(W , D_inv) %*% t
-    if (max(abs(y_o-y_prev))<convg){
-      tot_iters = i
-      break
-    }
+    #y_o = solve(W , D_inv) %*% t
+    y_o = t - D%*%solve(D+C,t) # woodbury morrison of previous line
+    #print((t(y_o-y_prev)%*%W%*%(y_o-y_prev))[1,1]) #newton increment, llh
+    tot_iters = i
+    if (max(abs(y_o-y_prev))<convg) break
   } # end iterate
   t_end = Sys.time()
   Lap_time = as.double(difftime(t_end, t_start, units = "secs"))
-
   if(return_all){
-    # Caclulating sd is expensive, avoid for fair comparison
+    # Caclulating sd is expensive
+    W = D_inv +  solve(C)
     sd_posterior = sqrt(diag(solve(W)))
     return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters,
                  "C"=C, "t" = t, "D" = D, "runtime"=Lap_time))
   }
-  return (list("mean" = y_o, "W"=W, "iter"=tot_iters))
+  return (list("mean" = y_o, "iter"=tot_iters))
 }
 
 
@@ -149,7 +150,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 #################  Gaussian  #########################
 .gauss_model = function(likparams){
   # default nugget sd = .3
-  sigma = ifelse("sigma" %in% names(likparams),likparams$sigma, .3)
+  sigma = ifelse("sigma" %in% names(likparams),likparams$sigma, .1)
   gauss_llh = function(y_o, z) sum(-.5*(z-y_o)^2/sigma^2) -n*(log(sigma)+log(2*pi)/2)
   gauss_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=rep(1/sigma^2, length(y_o)))
   gauss_score = function(y_o, z) (z-y_o)/sigma^2
@@ -161,7 +162,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   alpha = ifelse("alpha" %in% names(likparams),likparams$alpha, 2)
   gamma_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=z*exp(y_o))
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
-  gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(Gamma(alpha)))
+  gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(gamma(alpha)))
   return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh))
 }
 
