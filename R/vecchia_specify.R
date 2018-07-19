@@ -18,13 +18,6 @@
 # only has to be run once before repeated likelihood evals
 
 vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning) {
-  ###  arguments:
-  # locs: nxd matrix of obs locs
-  # ordering: options are 'coord' or 'maxmin'
-  # cond.yz: options are 'y', 'z', 'SGV', 'SGVT', and 'zy'
-  # ordering.pred: options are 'obspred' or 'general'
-  # pred.cond: prediction conditioning, options are 'general' or 'independent'
-  # conditioning:  conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
@@ -118,6 +111,26 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
     Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=FALSE; Cond[,1]=TRUE
   }
 
+  if(cond.yz=='zy' & missing(locs.pred)){
+
+    ## specify neighbors
+    NNs=FNN::get.knn(locsord,m-1)$nn.index
+    prev=NNs<matrix(rep(1:n,m-1),nrow=n)
+    NNs[prev]=NNs[prev]+n
+
+    ## create NN array
+    NNarray.z=NNarray # cbind(1:n,matrix(nrow=n,ncol=m)) ## change this line once U_NZentries.cpp can handle NAs
+    NNarray.y=cbind((1:n)+n,1:n,NNs)
+    NNarray=rbind(NNarray.z,NNarray.y)
+
+    ## set other variables appropriately
+    Cond=(NNarray>n); Cond[,1]=TRUE
+    obs=rep(c(TRUE,FALSE),each=n)
+    locsord=rbind(locsord,locsord)
+    ord=c(ord,ord+n)
+    ordering.pred='obspred'
+
+  }
 
   ### determine the sparsity structure of U
   U.prep=U_sparsity( locsord, NNarray, obs, Cond )
