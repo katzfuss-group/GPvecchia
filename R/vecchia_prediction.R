@@ -203,7 +203,9 @@ V2covmat=function(preds,vecchia.approx){
   n=sum(vecchia.approx$obs)
   n.p=sum(!vecchia.approx$obs)
   Sigma.obs=Sigma[1:n,1:n]
-  Sigma.pred=Sigma[n+(1:n.p),n+(1:n.p)]
-
+  if(n.p>0) {
+    Sigma.pred=Sigma[n+(1:n.p),n+(1:n.p)]
+  } else Sigma.pred=matrix(nrow=0,ncol=0)
+  
   return(list(Sigma.obs=Sigma.obs,Sigma.pred=Sigma.pred))
 }
