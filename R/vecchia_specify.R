@@ -116,10 +116,10 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
     ## specify neighbors
     NNs=FNN::get.knn(locsord,m-1)$nn.index
     prev=NNs<matrix(rep(1:n,m-1),nrow=n)
-    NNs[prev]=NNs[prev]+n
+    NNs[prev]=NNs[prev]+n # condition on latent y if possible
 
     ## create NN array
-    NNarray.z=NNarray # cbind(1:n,matrix(nrow=n,ncol=m)) ## change this line once U_NZentries.cpp can handle NAs
+    NNarray.z= cbind(1:n,matrix(nrow=n,ncol=m)) ## change this line once U_NZentries.cpp can handle NAs
     NNarray.y=cbind((1:n)+n,1:n,NNs)
     NNarray=rbind(NNarray.z,NNarray.y)
 
@@ -137,7 +137,7 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
 
 
   ### object that specifies the vecchia approximation
-  vecchia.approx=list(zord=zord,locsord=locsord,obs=obs,ord=ord,ord.pred=ordering.pred,U.prep=U.prep)
+  vecchia.approx=list(zord=zord,locsord=locsord,obs=obs,ord=ord,ord.pred=ordering.pred,U.prep=U.prep, cond.yz=cond.yz)
   # U.prep has attributes: revNNarray,revCond,n.cores,size,rowpointers,colindices,y.ind)
 
   return(vecchia.approx)
