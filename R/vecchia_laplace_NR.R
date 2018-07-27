@@ -48,11 +48,11 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
   tot_iters = max.iter
   for( i in 1:max.iter){
     y_prev = y_o    # save y_prev for convergence test
-    D_inv =ell_dbl_prime(y_o, z)#diag(length(z))*4 #
-    D = solve(D_inv)
+    D_inv =ell_dbl_prime(y_o, z)
+    D = 1/diag(D_inv)
     u = ell_prime(y_o,z)
-    pseudo.data = D %*% u + y_o
-    nuggets = diag(D)
+    pseudo.data =matrix(D * u + y_o, ncol=1)
+    nuggets = D
     # Update the pseudo data stored in the approximation
     vecchia.approx$zord=pseudo.data[vecchia.approx$ord]
     vecchia.approx$zord = vecchia.approx$zord[!is.na(vecchia.approx$zord)]
@@ -79,20 +79,18 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
 
   if(return_all){
     # return additional information if needed
+    orig.order=order(vecchia.approx$ord)
+    vec_likelihood = vecchia_likelihood(vecchia.approx,covparms,nuggets)
+    W = as.matrix(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order])
     if (vecchia.approx$cond.yz=="zy"){
-      preds=vecchia_prediction(vecchia.approx,covparms,nuggets)
-      Sigma.post=V2covmat(preds,vecchia.approx)$Sigma.pred
-      return (list("mean" = y_o, "iter"=tot_iters,
-                   "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=V.ord,
-                   "Sigma" = Sigma.post, "runtime" = LV_time, "U" = U))
-    }else{
-      orig.order=order(vecchia.approx$ord)
-      vec_likelihood = vecchia_likelihood(vecchia.approx,covparms,nuggets)
-      W = as.matrix(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order])
-      return (list("mean" = y_o, "sd" =sqrt(diag(solve(W))), "iter"=tot_iters,
-                   "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=V.ord,
-                   "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time, "U" = U))
+      n = length(y_o)
+      W = W[(n+1):(2*n), (n+1):(2*n)]
+      vec_likelihood = NA # needs to be corrected?
     }
+
+    return (list("mean" = y_o, "sd" =sqrt(diag(solve(W))), "iter"=tot_iters,
+                 "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=V.ord,
+                 "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time, "U" = U))
   }
   return (list("mean" = y_o, "cnvgd" = convgd, "runtime" = LV_time,
                "iter" = tot_iters, "t"=pseudo.data, "D" = D))
@@ -119,8 +117,6 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   log_comment = paste("Running Laplace for",likelihood_model, "with sample size", length(z) )
   print(log_comment)
 
-  #C_inv = solve(C)
-
   t_start = Sys.time()
   y_o = rep(1, length(z))
   tot_iters=0
@@ -128,11 +124,11 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   for( i in 1:50){
     #b= exp(y_o) #scale, g''(y)
     D_inv = ell_dbl_prime(y_o, z)
-    D = solve(D_inv)  # d is diagonal (hessian), cheap to invert
+    D = sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x= 1/diag(D_inv))
     u =  ell_prime(y_o,z)
     t = D%*%u+y_o
     y_prev = y_o
-    #y_o = solve(W , D_inv) %*% t
+    #y_o = solve(W , D_inv) %*% t # prior mean 0 update
     y_o = t - D%*%solve(D+C,t) # woodbury morrison of previous line
     #W = D_inv +  C_inv
     #print((t(y_o-y_prev)%*%W%*%(y_o-y_prev))[1,1]) #newton increment, llh
