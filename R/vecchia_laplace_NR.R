@@ -48,18 +48,18 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
   tot_iters = max.iter
   for( i in 1:max.iter){
     y_prev = y_o    # save y_prev for convergence test
-    D_inv =ell_dbl_prime(y_o, z)
+    D_inv = ell_dbl_prime(y_o, z)
     D = 1/diag(D_inv)
     u = ell_prime(y_o,z)
-    pseudo.data =matrix(D * u + y_o, ncol=1)
+    pseudo.data = matrix(D * u + y_o, ncol=1)
     nuggets = D
     # Update the pseudo data stored in the approximation
-    vecchia.approx$zord=pseudo.data[vecchia.approx$ord]
+    vecchia.approx$zord = pseudo.data[vecchia.approx$ord]
     vecchia.approx$zord = vecchia.approx$zord[!is.na(vecchia.approx$zord)]
     # Update U matrix with new nuggets, make the prediction
-    U=createU(vecchia.approx,covparms,nuggets)
-    V.ord=U2V(U,vecchia.approx)
-    vecchia.mean=vecchia_mean(vecchia.approx,U,V.ord)
+    U = createU(vecchia.approx,covparms,nuggets)
+    V.ord = U2V(U,vecchia.approx)
+    vecchia.mean = vecchia_mean(vecchia.approx,U,V.ord)
     if( zy.conditioning){
       y_o = vecchia.mean$mu.pred # y treated as prediction
     }else{
@@ -84,6 +84,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
     W = as.matrix(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order])
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
+      V.ord = V.ord[1:n, 1:n]
       W = W[(n+1):(2*n), (n+1):(2*n)]
       vec_likelihood = NA # needs to be corrected?
     }
