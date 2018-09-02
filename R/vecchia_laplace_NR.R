@@ -10,8 +10,8 @@
 
 # algorithm to find latent GP for non-gaussian likelihood
 calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian","logistic", "poisson", "gamma"),
-                                  covparms, likparms = list("alpha"=2, "sigma"=.1),
-                                  max.iter=50, convg = 1e-5, return_all = FALSE){
+                                  covparms, likparms = list("alpha"=2, "sigma"=sqrt(.1)),
+                                  max.iter=50, convg = 1e-5, return_all = FALSE, y_init = NA, prior_mean = 0){
 
   zy.conditioning = (vecchia.approx$cond.yz=="zy")
   likelihood_model <- match.arg(likelihood_model)
@@ -42,7 +42,9 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
   t_start = Sys.time()
 
   # init latent variable
-  y_o = rep(1, length(vecchia.approx$zord))
+  y_o = y_init
+  if(is.na(y_o)) y_o = rep(1, length(vecchia.approx$zord))
+
   #points(locs[order(locs)], y_o[order(locs)], type = "l", col = alpha("black", .4))
   convgd = FALSE
   tot_iters = max.iter
@@ -51,7 +53,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
     D_inv = ell_dbl_prime(y_o, z)
     D = 1/diag(D_inv)
     u = ell_prime(y_o,z)
-    pseudo.data = matrix(D * u + y_o, ncol=1)
+    pseudo.data = matrix(D * u + y_o, ncol=1) - prior_mean
     nuggets = D
     # Update the pseudo data stored in the approximation
     vecchia.approx$zord = pseudo.data[vecchia.approx$ord]
@@ -61,13 +63,21 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
     V.ord = U2V(U,vecchia.approx)
     vecchia.mean = vecchia_mean(vecchia.approx,U,V.ord)
     if( zy.conditioning){
-      y_o = vecchia.mean$mu.pred # y treated as prediction
+      y_o = vecchia.mean$mu.pred + prior_mean # y treated as prediction
     }else{
-      y_o = vecchia.mean$mu.obs  # SGV, firstm, etc
+      y_o = vecchia.mean$mu.obs + prior_mean # SGV, firstm, etc
     }
     #print(sum(abs(V.ord%*%(y_o-y_prev)))) #newton increment-> reveals cycling
     #print(y_o)
     #points(locs[order(locs)], y_o[order(locs)], type = "l", col = alpha("black", .2))
+    if(is.na(max(abs(y_o-y_prev)))){
+      # convergence failed due to machine precision?
+      fail_comment = print(paste("VL-NR hit NA on iteration ",tot_iters,", convergence failed."))
+
+      y_o = rep(1, length(vecchia.approx$zord))
+      tot_iters = -1
+      break
+    }
     if (max(abs(y_o-y_prev))<convg){
       convgd = TRUE
       tot_iters = i
@@ -76,17 +86,17 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
   }
   t_end = Sys.time()
   LV_time = as.double(difftime(t_end, t_start, units = "secs"))
+  vec_likelihood = vecchia_likelihood(vecchia.approx,covparms,nuggets)
 
   if(return_all){
-    # return additional information if needed
+    # return additional information if needed, can be slow
     orig.order=order(vecchia.approx$ord)
-    vec_likelihood = vecchia_likelihood(vecchia.approx,covparms,nuggets)
-    W = as.matrix(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order])
+    W = as(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
       V.ord = V.ord[1:n, 1:n]
       W = W[(n+1):(2*n), (n+1):(2*n)]
-      vec_likelihood = NA # needs to be corrected?
+      vec_likelihood = NA # needs to be adjusted: run with SGV
     }
 
     return (list("mean" = y_o, "sd" =sqrt(diag(solve(W))), "iter"=tot_iters,
@@ -94,7 +104,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
                  "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time, "U" = U))
   }
   return (list("mean" = y_o, "cnvgd" = convgd, "runtime" = LV_time,
-               "iter" = tot_iters, "t"=pseudo.data, "D" = D))
+               "iter" = tot_iters, "t"=pseudo.data, "D" = D, "vec_lh"=vec_likelihood))
 }
 
 
@@ -104,8 +114,8 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
 #####################################################################
 
 
-calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list("alpha"=2, "sigma"=.1),
-                                       convg = 1e-6, return_all = FALSE){
+calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list("alpha"=2, "sigma"=sqrt(.1)),
+                                       convg = 1e-6, return_all = FALSE, prior_mean = 0){
   # pull out score and second derivative for readability
   model_funs = switch(likelihood_model,
                       "gaussian" = .gauss_model(likparms),
@@ -127,10 +137,10 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
     D_inv = ell_dbl_prime(y_o, z)
     D = sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x= 1/diag(D_inv))
     u =  ell_prime(y_o,z)
-    t = D%*%u+y_o
+    t = D%*%u+y_o - prior_mean
     y_prev = y_o
     #y_o = solve(W , D_inv) %*% t # prior mean 0 update
-    y_o = t - D%*%solve(D+C,t) # woodbury morrison of previous line
+    y_o = t - D%*%solve(D+C,t) + prior_mean # woodbury morrison of previous line
     #W = D_inv +  C_inv
     #print((t(y_o-y_prev)%*%W%*%(y_o-y_prev))[1,1]) #newton increment, llh
     tot_iters = i
@@ -170,7 +180,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 #################  Gaussian  #########################
 .gauss_model = function(likparams){
   # default nugget sd = .3
-  sigma = ifelse("sigma" %in% names(likparams),likparams$sigma, .1)
+  sigma = ifelse("sigma" %in% names(likparams),likparams$sigma, sqrt(.1))
   gauss_llh = function(y_o, z) sum(-.5*(z-y_o)^2/sigma^2) -n*(log(sigma)+log(2*pi)/2)
   gauss_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=rep(1/sigma^2, length(y_o)))
   gauss_score = function(y_o, z) (z-y_o)/sigma^2
@@ -222,3 +232,18 @@ backtrack = function(model_funs, y_o, y_prev,z, beta = .9, alpha = .4){
   return(tau)
 }
 
+
+
+# Bringing loglikhd calculation into this class requires recalculating vecchia_specify in the class
+
+VL_loglik = function(data_gen, pred_lv, ms = 1, ps = 0){
+  pseudo_marginal_loglik_vecchia=pred_lv$vec_lh
+  # for testing approximation, allow perturbation of mean
+  n=length(pred_lv$mean)
+  perturbed = rnorm(n, sd = ps)
+  post_mean = pred_lv$mean*ms + perturbed
+  pseudo_cond_loglik = dmvnorm(x=t(pred_lv$t), mean = post_mean, sigma = diag(pred_lv$D), log = TRUE)
+  true_loglike = data_gen$llh(post_mean, data_gen$z)
+  loglik_vecchia = pseudo_marginal_loglik_vecchia + true_loglike - pseudo_cond_loglik
+  return(loglik_vecchia)
+}
