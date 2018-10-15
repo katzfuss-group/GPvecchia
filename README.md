@@ -1,7 +1,7 @@
 # GPvecchia
 Fast Gaussian-process inference using general Vecchia approximations
 
-For examples of how to use the package, please see the vignettes folder.
+For examples of how to use the package, please see the vignettes folder. Please note that GPvecchia is under active development and not stable at this time.
 
 ## References
 [Katzfuss, M., & Guinness, J. (2017). A general framework for Vecchia approximations of Gaussian processes. *arXiv:1708.06302*.](https://arxiv.org/abs/1708.06302)
