@@ -33,10 +33,9 @@ vecchia_likelihood_U=function(vecchia.approx,U) {
   const=n.z*log(2*pi)
 
   # numerator
-  #z1=t(U[-y.ind,])%*%vecchia.approx$zord      ## t(U[-y.ind,]) does not work when put in package
-  z1=Matrix::crossprod(U[-y.ind,],vecchia.approx$zord) ## crossprod(x,y) = t(x)%*%y
+  z1=Matrix::crossprod(U[-y.ind,],vecchia.approx$zord)
   quadform.num=sum(z1^2)
-  logdet.num=-2*sum(log(Matrix::diag(U))) ## base::diag(U) cause error when put in package: Error in diag(U) : no method for coercing this S4 class to a vector
+  logdet.num=-2*sum(log(Matrix::diag(U)))
 
   # denominator
   U.y=U[y.ind,]
