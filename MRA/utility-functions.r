@@ -11,7 +11,6 @@ list2matrix = function(L, padding=NA){
     elem = L[[ind]]
     A[ind,1:length(elem)] = elem
   }
-  print(A)
   return(A)
 }
 

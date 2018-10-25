@@ -1,14 +1,18 @@
 #' specify a general vecchia approximation
 #'
-#' specify the vecchia approximation for later use in likelihood evaluation or prediction. This function does not depend on parameter values, and only has to be run once before repeated likelihood evaluations.
+#' specify the vecchia approximation for later use in likelihood evaluation or prediction.
+#' This function does not depend on parameter values, and only has to be run once before
+#' repeated likelihood evaluations.
 #' @param locs: nxd matrix of observed locs
 #' @param ordering: options are 'coord' or 'maxmin'
 #' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', and 'zy'
 #' @param ordering.pred: options are 'obspred' or 'general'
 #' @param pred.cond: prediction conditioning, options are 'general' or 'independent'
 #' @param conditioning:  conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
+#'  or 'mra' (like in the MRA case)
 #'
-#' @return An object that specifies the vecchia approximation for later use in likelihood evaluation or prediction.
+#' @return An object that specifies the vecchia approximation for later use in likelihood
+#' evaluation or prediction.
 #' @examples
 #' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5)
 #' @export
@@ -17,7 +21,8 @@
 # this fct does not depend on parameter values
 # only has to be run once before repeated likelihood evals
 
-vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning) {
+
+vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred, pred.cond, conditioning) {
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
@@ -30,16 +35,20 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
 
   # for firstm conditioning, ordering must be maxmin to spread out fixed points
   if(conditioning == 'firstm') ordering='maxmin'
+  if(conditioning == 'mra') ordering=='maxmin'
 
   ### order locs and z
 
   if(missing(locs.pred)){  # no prediction
 
-    if(ordering=='coord') ord=order_coordinate(locs) else {
+    if(ordering=='coord') {
+      ord=order_coordinate(locs)
+    } else if(ordering=='maxmin'){
       ord = order_maxmin(locs)
     }
     zord=z[ord]
     locsord=locs[ord,,drop=FALSE]
+
     obs=rep(TRUE,n)
     ordering.pred='general'
 
@@ -69,6 +78,8 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
     zord=z[ord.obs]
     locsord=locs.all[ord,,drop=FALSE]
     obs=observed.obspred[ord]
+
+
   }
 
 
@@ -83,6 +94,8 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
     if (m+2<=n){  # if m=n-1, nothing to replace
       NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
     }
+  } else if (conditioning == 'mra') {
+    NNarray = findOrderedNN_mra(locsord, m)
   }
 
   if(!missing(locs.pred) & pred.cond=='independent'){

@@ -21,6 +21,9 @@ if(spatial.dim==1){
 ord = order_maxmin(locs)
 locs = locs[ord,]
 
+
+
+
 ind.tree = domain.tree.J4(locs)
 knot.tree = knot.tree(ind.tree, 2)
 #plot.locs.tree(ind.tree, locs, knots=knot.tree)
