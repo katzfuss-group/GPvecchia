@@ -1,11 +1,14 @@
 rm(list=ls())
 
-source("~/GPvecchia/R/ordering_functions.R")
-source("~/GPvecchia/tests/hierarchy.r")
-source("~/GPvecchia/tests/hierarchy-plotting.r")
+setwd("/home/marcin/GPvecchia")
+source("R/ordering_functions.R")
+source("MRA/domain-tree.r")
+source("MRA/knot-tree.r")
+source("MRA/tree-plotting-methods.r")
+
 
 spatial.dim=2 # number of spatial dimensions
-n=43  # number of observed locs
+n=200  # number of observed locs
 m=4
 
 # simulate locations
@@ -16,9 +19,10 @@ if(spatial.dim==1){
   locs = cbind(runif(n),runif(n))
 }
 ord = order_maxmin(locs)
-
 locs = locs[ord,]
 
-ind.tree = findOrderedHierarchyJ4(locs)
-knot.tree = buildKnotTree(ind.tree, 3)
-plot.locs.tree(ind.tree, locs, knots=knot.tree)
+ind.tree = domain.tree.J4(locs)
+knot.tree = knot.tree(ind.tree, 2)
+#plot.locs.tree(ind.tree, locs, knots=knot.tree)
+
+getNNmatrix(knot.tree)
