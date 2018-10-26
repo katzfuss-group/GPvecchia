@@ -84,11 +84,10 @@ U2V=function(U,vecchia.approx){
 vecchia_mean=function(vecchia.approx,U,V.ord){
 
   # compute entire posterior mean vector
-  #z1=t(U[-vecchia.approx$U.prep$y.ind,])%*%vecchia.approx$zord      ## t(U[...,]) cause error when put in package
-  z1=Matrix::crossprod(U[-vecchia.approx$U.prep$y.ind,],vecchia.approx$zord) ## crossprod(x,y) = t(x)%*%y
+  z1=Matrix::crossprod(U[-vecchia.approx$U.prep$y.ind,],vecchia.approx$zord)
   z2=as.numeric(U[vecchia.approx$U.prep$y.ind,]%*%z1)
   temp=solve(V.ord,rev(z2))
-  mu.rev=-solve(Matrix::t(V.ord),temp) ## base::t() cause error when put in package: Error in t.default(V.ord) : argument is not a matrix
+  mu.rev=-solve(Matrix::t(V.ord),temp)
   mu.ord=rev(mu.rev)
 
   # extract obs and pred parts; return to original ordering
@@ -151,8 +150,7 @@ SelInv=function(cholmat){
 
 vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
 
-  # joe added these two lines (4/8/2018)
-  n <- length(vecchia.approx$zord)
+  n <- length(vecchia.approx$ord)
   n.p <- length(vecchia.approx$ord) - n
 
   # compute selected inverse and extract variances
@@ -178,6 +176,8 @@ vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
 
 
 
+######  compute covariance matrix from V.ord   #######
+# do not do this for large n or n.p!!!
 
 #' compute covariance matrix from V.ord
 #' Do not run this function for large n or n.p!!!
@@ -191,9 +191,6 @@ vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
 #' V2covmat=function(preds,vecchia.approx)
 #' @export
 
-######  compute covariance matrix from V.ord   #######
-# do not do this for large n or n.p!!!
-
 V2covmat=function(preds,vecchia.approx){
 
   orig.order=order(vecchia.approx$ord)
@@ -206,6 +203,6 @@ V2covmat=function(preds,vecchia.approx){
   if(n.p>0) {
     Sigma.pred=Sigma[n+(1:n.p),n+(1:n.p)]
   } else Sigma.pred=matrix(nrow=0,ncol=0)
-  
+
   return(list(Sigma.obs=Sigma.obs,Sigma.pred=Sigma.pred))
 }

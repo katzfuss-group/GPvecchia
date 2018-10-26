@@ -22,7 +22,8 @@ if(spatial.dim==1){
 
 # covariance parameters (only matern implemented so far)
 sig2=1; range=.1; smooth=1.5
-covfun <- function(locs) sig2*Matern(fields::rdist(locs),range=range,smoothness=smooth)
+covparms =c(sig2,range,smooth)
+covfun <- function(locs) sig2*MaternFun(fields::rdist(locs),covparms)
 nuggets=rep(.1,n)
 
 # simulate observations
