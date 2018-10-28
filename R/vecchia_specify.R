@@ -10,14 +10,14 @@
 #'
 #' @return An object that specifies the vecchia approximation for later use in likelihood evaluation or prediction.
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5)
+#' locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=2)
 #' @export
 
 # specify the vecchia approximation, prepare U
 # this fct does not depend on parameter values
 # only has to be run once before repeated likelihood evals
 
-vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning) {
+vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning) {
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
@@ -38,7 +38,7 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
     if(ordering=='coord') ord=order_coordinate(locs) else {
       ord = order_maxmin(locs)
     }
-    zord=z[ord]
+    ord.z=ord
     locsord=locs[ord,,drop=FALSE]
     obs=rep(TRUE,n)
     ordering.pred='general'
@@ -66,7 +66,7 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
       }
       ord=c(ord.obs,ord.pred+n)
     }
-    zord=z[ord.obs]
+    ord.z=ord.obs
     locsord=locs.all[ord,,drop=FALSE]
     obs=observed.obspred[ord]
   }
@@ -137,7 +137,7 @@ vecchia_specify=function(z,locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.
 
 
   ### object that specifies the vecchia approximation
-  vecchia.approx=list(zord=zord,locsord=locsord,obs=obs,ord=ord,ord.pred=ordering.pred,U.prep=U.prep)
+  vecchia.approx=list(locsord=locsord,obs=obs,ord=ord,ord.z=ord.z,ord.pred=ordering.pred,U.prep=U.prep)
   # U.prep has attributes: revNNarray,revCond,n.cores,size,rowpointers,colindices,y.ind)
 
   return(vecchia.approx)

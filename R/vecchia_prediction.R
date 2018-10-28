@@ -8,44 +8,48 @@
 #'
 #' @return posterior mean and variances at observed and unobserved locations; V matrix
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5,locs.pred=(1:5)+.5)
-#' vecchia_prediction=function(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=5,locs.pred=(1:5)+.5)
+#' vecchia_prediction=function(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export
 
-
-
-vecchia_prediction=function(vecchia.approx,covparms,nuggets,var.exact,covmodel='matern') {
+vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,covmodel='matern') {
 
   # create the U matrix
-  U=createU(vecchia.approx,covparms,nuggets,covmodel)
+  U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
 
-  # compute V for posterior inference
-  V.ord=U2V(U,vecchia.approx)
+  # remove NAs in data and U
+  na.rm()
+
+  # compute cholesky V for posterior inference
+  V.ord=U2V(U.obj)
+  
+  if(length(U.obj$zero.nugg)>0) 
+    print('Warning: Rows/cols of V have been removed for data with zero noise')
 
   # compute the posterior mean
-  vecchia.mean=vecchia_mean(vecchia.approx,U,V.ord)
+  vecchia.mean=vecchia_mean(z,vecchia.approx,U.obj,V.ord)
 
   # compute posterior variances
   if(missing(var.exact)) var.exact = (sum(!vecchia.approx$obs)<2*1e4)
-  vars.vecchia=vecchia_var(vecchia.approx,V.ord,exact=var.exact)
+  vars.vecchia=vecchia_var(vecchia.approx,U.obj,V.ord,exact=var.exact)
 
   # return everything
-  return(list(mu.pred=vecchia.mean$mu.pred,mu.obs=vecchia.mean$mu.obs,
-               var.pred=vars.vecchia$vars.pred,var.obs=vars.vecchia$vars.obs,
-               V.ord=V.ord))
+  return.list=list(mu.pred=vecchia.mean$mu.pred,mu.obs=vecchia.mean$mu.obs,
+                   var.pred=vars.vecchia$vars.pred,var.obs=vars.vecchia$vars.obs,
+                   V.ord=V.ord,U.obj=U.obj)
+  return(return.list)
 
 }
 
 
 
 
-
 ######  compute V for posterior inference   #######
 
-U2V=function(U,vecchia.approx){
+U2V=function(U.obj){
 
-  U.y=U[vecchia.approx$U.prep$y.ind,]
-
+  U.y=U.obj$U[U.obj$latent,]
+  
   if(vecchia.approx$ord.pred!='obspred'){
 
     W=Matrix::tcrossprod(U.y)
@@ -54,20 +58,21 @@ U2V=function(U,vecchia.approx){
 
   } else {  # for obspred ordering
 
-    n=sum(vecchia.approx$obs)
-    n.p=sum(!vecchia.approx$obs)
+    last.obs=max(which(!U.obj$latent))
+    latents.before=sum(U.obj$latent[1:last.obs])
+    latents.after=sum(U.obj$latent[-(1:last.obs)])
 
     # pred columns are unchanged
-    V.pr=rev.mat(U.y[,2*n+(1:n.p)]) # in reverse order
+    V.pr=rev.mat(U.y[,(last.obs+1):ncol(U.y),drop=FALSE])
 
     # have to compute cholesky for obs block
-    U.oo=U.y[1:n,1:(2*n)]
+    U.oo=U.y[1:latents.before,1:last.obs]
     A=Matrix::tcrossprod(U.oo)
     A.rev=rev.mat(A)
     V.oor=t(chol(A.rev))
 
     # combine the blocks into one matrix
-    zeromat.sparse=sparseMatrix(c(),c(),dims=c(n.p,n))
+    zeromat.sparse=sparseMatrix(c(),c(),dims=c(latents.after,latents.before))
     V.or=rbind(zeromat.sparse,V.oor)
     V.ord=as(cbind(V.pr,V.or),'dtCMatrix')
 
@@ -81,28 +86,37 @@ U2V=function(U,vecchia.approx){
 
 ######  posterior mean (predictions)   #######
 
-vecchia_mean=function(vecchia.approx,U,V.ord){
+vecchia_mean=function(z,vecchia.approx,U.obj,V.ord){
+
+  U=U.obj$U
 
   # compute entire posterior mean vector
-  z1=Matrix::crossprod(U[-vecchia.approx$U.prep$y.ind,],vecchia.approx$zord)
-  z2=as.numeric(U[vecchia.approx$U.prep$y.ind,]%*%z1)
+  z.ord=z[U.obj$ord.z]
+  z1=Matrix::crossprod(U[!U.obj$latent,],z.ord)
+  z2=as.numeric(U[U.obj$latent,]%*%z1)
   temp=solve(V.ord,rev(z2))
   mu.rev=-solve(Matrix::t(V.ord),temp)
   mu.ord=rev(mu.rev)
 
+  # for zero nugget, observations are posterior means
+  if(length(U.obj$zero.nugg)>0){
+    obs.zero=z.ord[U.obj$zero.nugg$inds.z]
+    mu.ord=c(mu.ord,obs.zero)
+  }
+
   # extract obs and pred parts; return to original ordering
-  orig.order=order(vecchia.approx$ord)
+  orig.order=order(U.obj$ord)
   mu=mu.ord[orig.order]
-  mu.obs=mu[1:sum(vecchia.approx$obs)]
-  if(sum(vecchia.approx$obs)<length(mu)) {
-    mu.pred=mu[(sum(vecchia.approx$obs)+1):length(mu)]
-  } else mu.pred=c()
+  obs.orig=U.obj$obs[orig.order]
+  mu.obs=mu[obs.orig]
+  mu.pred=mu[!obs.orig]
 
   return(list(mu.obs=mu.obs,mu.pred=mu.pred))
 }
 
 
 
+######  linear combination   #######
 
 #' linear combination of predictions
 #' compute the distribution of a linear combination Hy
@@ -113,18 +127,18 @@ vecchia_mean=function(vecchia.approx,U,V.ord){
 #'
 #' @return Variance of linear combination of predictions.
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5,locs.pred=(1:5)+.5)
-#' preds=vecchia_prediction=function(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=5,locs.pred=(1:5)+.5)
+#' preds=vecchia_prediction=function(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' H=sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
 #' vecchia_lincomb(H,vecchia.approx,preds$V.ord,cov.mat=TRUE)
 #' @export
 
-
-
-######  linear combination   #######
-
-vecchia_lincomb=function(H,vecchia.approx,V.ord,cov.mat=FALSE) {
-  H.tt=Matrix::t(H[,rev(vecchia.approx$ord),drop=FALSE])
+vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
+  ord=U.obj$ord
+  if(length(U.obj$zero.nugg)>0){
+    ord=order(order(ord[1:(length(ord)-length(U.obj$zero.nugg$inds.U))]))
+  }
+  H.tt=Matrix::t(H[,rev(ord),drop=FALSE])
   temp=Matrix::solve(V.ord,H.tt)
   if(cov.mat){
     lincomb.cov=as.matrix(Matrix::t(temp)%*%temp)
@@ -134,6 +148,7 @@ vecchia_lincomb=function(H,vecchia.approx,V.ord,cov.mat=FALSE) {
     return(lincomb.vars)
   }
 }
+
 
 
 ######  selected inverse of a sparse matrix   #######
@@ -148,28 +163,32 @@ SelInv=function(cholmat){
 
 ######  posterior variances   #######
 
-vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
-
-  n <- length(vecchia.approx$ord)
-  n.p <- length(vecchia.approx$ord) - n
+vecchia_var=function(vecchia.approx,U.obj,V.ord,exact=FALSE){
 
   # compute selected inverse and extract variances
   inv.sparse=SelInv(V.ord)
   vars.ord=rev(Matrix::diag(inv.sparse))
 
+  # for zero nugget, add zero variances
+  if(length(U.obj$zero.nugg)>0){
+    vars.ord=c(vars.ord,rep(0,length(U.obj$zero.nugg$inds.z)))
+  }
+  
   # extract obs and pred parts; return to original ordering
-  orig.order=order(vecchia.approx$ord)
+  orig.order=order(U.obj$ord)
   vars=vars.ord[orig.order]
-  vars.obs=vars[1:sum(vecchia.approx$obs)]
+  obs.orig=U.obj$obs[orig.order]
+  vars.obs=vars[obs.orig]
 
-  if(sum(vecchia.approx$obs)<length(vars)) {
+  if(sum(!obs.orig)>0) {
     # if exact prediction variances desired, compute using lincomb
     if(exact & vecchia.approx$ord.pred=='obspred'){
+      n.p=sum(!U.obj$obs)
+      n=nrow(V.ord)-n.p
       H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
-      vars.pred=vecchia_lincomb(H,vecchia.approx,V.ord)
-    } else vars.pred=vars[(sum(vecchia.approx$obs)+1):length(vars)]
+      vars.pred=vecchia_lincomb(H,U.obj,V.ord)
+    } else vars.pred=vars[!obs.orig]
   } else vars.pred=c()
-
 
   return(list(vars.obs=vars.obs,vars.pred=vars.pred))
 }
@@ -182,27 +201,35 @@ vecchia_var=function(vecchia.approx,V.ord,exact=FALSE){
 #' compute covariance matrix from V.ord
 #' Do not run this function for large n or n.p!!!
 #' @param preds: Object returned by vecchia_prediction()
-#' @param vecchia.approx: Object returned by vecchia_specify()
 #'
 #' @return Covariance matrix at all locations in original order
 #' @examples
 #' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5,locs.pred=(1:5)+.5)
-#' preds=vecchia_prediction=function(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
-#' V2covmat=function(preds,vecchia.approx)
+#' preds=vecchia_prediction(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+#' V2covmat=function(preds)
 #' @export
 
-V2covmat=function(preds,vecchia.approx){
+V2covmat=function(preds){
 
-  orig.order=order(vecchia.approx$ord)
-  W=as.matrix(rev.mat(preds$V.ord%*%Matrix::t(preds$V.ord))[orig.order,orig.order])
-  Sigma=solve(W)
-
-  n=sum(vecchia.approx$obs)
-  n.p=sum(!vecchia.approx$obs)
-  Sigma.obs=Sigma[1:n,1:n]
-  if(n.p>0) {
-    Sigma.pred=Sigma[n+(1:n.p),n+(1:n.p)]
-  } else Sigma.pred=matrix(nrow=0,ncol=0)
+  # compute joint covariance matrix
+  Sigma.ord=solve(as.matrix(rev.mat(preds$V.ord%*%Matrix::t(preds$V.ord))))  
+  
+  # for zero nugget, add zero rows/columns
+  if(length(preds$U.obj$zero.nugg)>0){
+    k=nrow(Sigma.ord)
+    l=length(preds$U.obj$zero.nugg$inds.z)
+    Sigma.ord=rbind(cbind(Sigma.ord,matrix(0,nrow=k,ncol=l)),
+                    matrix(0,nrow=l,ncol=k+l))
+  }
+  
+  # return to original ordering
+  orig.order=order(preds$U.obj$ord)
+  Sigma=Sigma.ord[orig.order,orig.order]
+  
+  # extract parts corresponding to obs and pred locs
+  obs.orig=preds$U.obj$obs[orig.order]
+  Sigma.obs=Sigma[obs.orig,obs.orig]
+  Sigma.pred=Sigma[!obs.orig,!obs.orig]
 
   return(list(Sigma.obs=Sigma.obs,Sigma.pred=Sigma.pred))
 }
