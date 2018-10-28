@@ -119,7 +119,7 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
     NNs[prev]=NNs[prev]+n # condition on latent y if possible
 
     ## create NN array
-    NNarray.z= cbind(1:n,matrix(nrow=n,ncol=m)) ## change this line once U_NZentries.cpp can handle NAs
+    NNarray.z= cbind(1:n,matrix(nrow=n,ncol=m))
     NNarray.y=cbind((1:n)+n,1:n,NNs)
     NNarray=rbind(NNarray.z,NNarray.y)
 

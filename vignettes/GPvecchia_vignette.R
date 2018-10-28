@@ -43,14 +43,14 @@ if(spatial.dim==1) {
 #####################   specify Vecchia approx    #######################
 # (this only has to be run once)
 m=20
-vecchia.approx=vecchia_specify(z,locs,m)
+vecchia.approx=vecchia_specify(locs,m)
 
 
 
 #####################   likelihood evaluation    #######################
 
 covparms=c(sig2,range,smooth)
-vecchia_likelihood(vecchia.approx,covparms,nuggets)
+vecchia_likelihood(z,vecchia.approx,covparms,nuggets)
 
 # ## compare to exact likelihood
 # library(mvtnorm)
@@ -74,12 +74,12 @@ n.p=nrow(locs.pred)
 
 ######  specify Vecchia approximation   #######
 m=20
-vecchia.approx=vecchia_specify(z,locs,m,locs.pred=locs.pred)
+vecchia.approx=vecchia_specify(locs,m,locs.pred=locs.pred)
 
 
 
 ######  carry out prediction   #######
-preds=vecchia_prediction(vecchia.approx,covparms,nuggets)
+preds=vecchia_prediction(z,vecchia.approx,covparms,nuggets)
 # returns a list with elements mu.pred,mu.obs,var.pred,var.obs,V.ord
 
 
@@ -117,7 +117,7 @@ if(spatial.dim==1) {
 
 
 ### plot entire predictive covariance matrix
-Sigma=V2covmat(preds,vecchia.approx)$Sigma.pred
+Sigma=V2covmat(preds)$Sigma.pred
 cov.range=quantile(rbind(Sigma,cov.exact.pred),c(.01,.99))
 par(mfrow=c(1,2))
 image.plot(cov.exact.pred,zlim=cov.range)
@@ -133,15 +133,15 @@ par(mfrow=c(1,1))
 H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
 
 # compute variances of Hy
-lincomb.vars=vecchia_lincomb(H,vecchia.approx,preds$V.ord)
+lincomb.vars=vecchia_lincomb(H,preds$U.obj,preds$V.ord)
 
 
 ### example: overall mean over space
 
 mean(preds$mu.pred)
-H=sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
 
 # compute entire covariance matrix of Hy (here, 1x1)
-lincomb.cov=vecchia_lincomb(H,vecchia.approx,preds$V.ord,cov.mat=TRUE)
+H=sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
+lincomb.cov=vecchia_lincomb(H,preds$U.obj,preds$V.ord,cov.mat=TRUE)
 
 
