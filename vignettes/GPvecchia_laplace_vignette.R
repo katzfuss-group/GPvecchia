@@ -60,14 +60,19 @@ if(spatial.dim==1) {
 
 #####################   specify Vecchia approx    #######################
 # (this only has to be run once)
-m=2
-vecchia.approx=vecchia_specify(z, locs, m)
+m=15
+if(spatial.dim==1){
+  vecchia.approx=vecchia_specify(locs,m)
+} else {
+  vecchia.approx=vecchia_specify(locs,m,cond.yz='zy')
+}
 
 #####################   prediction at observed locations    #######################
 
 covparms=c(sig2,range,smooth)
 # Perform inference on latent mean with Vecchia Laplace approximation
-posterior = calculate_posterior_VL(vecchia.approx, likelihood_model=data.distr, covparms,likparms = default_lh_params)
+posterior = calculate_posterior_VL(z,vecchia.approx,likelihood_model=data.distr,
+                                   covparms,likparms = default_lh_params)
 # Laplace approximation for comparison
 post_lap = calculate_posterior_laplace(z, data.distr, C = covfun(locs))
 

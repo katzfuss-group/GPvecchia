@@ -59,8 +59,8 @@ dev.off()
 #####################   specify Vecchia approx    #######################
 # (this only has to be run once)
 m=10
-vecchia.approx = vecchia_specify(coarse_z, coarse_locs, m, cond.yz = "zy")
-vecchia.approx.sgv = vecchia_specify(coarse_z, coarse_locs, m)
+vecchia.approx = vecchia_specify(coarse_locs, m, cond.yz = "zy")
+vecchia.approx.sgv = vecchia_specify(coarse_locs, m)
 #vecchia.approx.ll=vecchia_specify(z, locs, m, conditioning = "firstm")
 
 #####################   prediction at observed locations    ######################
@@ -69,10 +69,10 @@ covparms=c(1, .1, 1.5)
 
 
 ## Check:  W  = inv(Cov)
-posterior = calculate_posterior_VL(vecchia.approx, likelihood_model=data_distr,
+posterior = calculate_posterior_VL(coarse_z,vecchia.approx, likelihood_model=data_distr,
                                    covparms, likparms = default_lh_params,
                                    max.iter = 50, return_all = TRUE, prior_mean = 0)
-posterior.sgv = calculate_posterior_VL(vecchia.approx.sgv, likelihood_model=data_distr,
+posterior.sgv = calculate_posterior_VL(coarse_z,vecchia.approx.sgv, likelihood_model=data_distr,
                                        covparms, likparms = default_lh_params,
                                        max.iter = 50, return_all = TRUE, prior_mean = 0)
 

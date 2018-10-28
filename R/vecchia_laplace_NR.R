@@ -9,20 +9,14 @@
 
 
 # algorithm to find latent GP for non-gaussian likelihood
-calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian","logistic", "poisson", "gamma"),
-                                  covparms, likparms = list("alpha"=2, "sigma"=sqrt(.1)),
-                                  max.iter=50, convg = 1e-5, return_all = FALSE, y_init = NA, prior_mean = 0){
+calculate_posterior_VL = function(z,vecchia.approx,
+          likelihood_model=c("gaussian","logistic", "poisson", "gamma"),
+          covparms, likparms = list("alpha"=2, "sigma"=sqrt(.1)),
+          max.iter=50, convg = 1e-5, return_all = FALSE, y_init = NA,
+          prior_mean = rep(0,length(z))){
 
   zy.conditioning = (vecchia.approx$cond.yz=="zy")
   likelihood_model <- match.arg(likelihood_model)
-
-  # undo ordering - Vecchia code reorders
-  orig_ord = order(vecchia.approx$ord)
-
-  z = vecchia.approx$zord[orig_ord]
-  z = z[!is.na(z)] # for 'zy' ordering, z and loc duplicated
-  #locs = vecchia.approx$locsord[orig_ord,][1:length(z)]
-
 
   # pull out score and second derivative for readability
   model_funs = switch(likelihood_model,
@@ -35,33 +29,34 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
 
   # for logging purposes, output scenario
 
-  log_comment = print(paste("Running VL-NR for",likelihood_model, "with",
-                            ncol(vecchia.approx$U.prep$revNNarray)-1,"nbrs and sample size",length(z)))
+  log_comment = print(paste("Running VL-NR for",likelihood_model, "with m=",
+                ncol(vecchia.approx$U.prep$revNNarray)-1," and sample size",length(z)))
 
   # record duration of NR
   t_start = Sys.time()
 
   # init latent variable
   y_o = y_init
-  if(is.na(y_o)) y_o = rep(1, length(vecchia.approx$zord))
+  if(is.na(y_o)) y_o = prior_mean
 
   #points(locs[order(locs)], y_o[order(locs)], type = "l", col = alpha("black", .4))
   convgd = FALSE
   tot_iters = max.iter
   for( i in 1:max.iter){
+
     y_prev = y_o    # save y_prev for convergence test
+
+    # update pseudo-data and -variances
     D_inv = ell_dbl_prime(y_o, z)
     D = 1/diag(D_inv)
     u = ell_prime(y_o,z)
-    pseudo.data = matrix(D * u + y_o, ncol=1) - prior_mean
+    pseudo.data = D * u + y_o - prior_mean
     nuggets = D
-    # Update the pseudo data stored in the approximation
-    vecchia.approx$zord = pseudo.data[vecchia.approx$ord]
-    vecchia.approx$zord = vecchia.approx$zord[!is.na(vecchia.approx$zord)]
+
     # Update U matrix with new nuggets, make the prediction
-    U = createU(vecchia.approx,covparms,nuggets)
-    V.ord = U2V(U,vecchia.approx)
-    vecchia.mean = vecchia_mean(vecchia.approx,U,V.ord)
+    U.obj=createU(vecchia.approx,covparms,nuggets)
+    V.ord=U2V(U.obj)
+    vecchia.mean=vecchia_mean(pseudo.data,vecchia.approx,U.obj,V.ord)
     if( zy.conditioning){
       y_o = vecchia.mean$mu.pred + prior_mean # y treated as prediction
     }else{
@@ -74,7 +69,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
       # convergence failed due to machine precision?
       fail_comment = print(paste("VL-NR hit NA on iteration ",tot_iters,", convergence failed."))
 
-      y_o = rep(1, length(vecchia.approx$zord))
+      y_o = rep(1, length(z))
       tot_iters = -1
       break
     }
@@ -86,7 +81,6 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
   }
   t_end = Sys.time()
   LV_time = as.double(difftime(t_end, t_start, units = "secs"))
-  vec_likelihood = vecchia_likelihood(vecchia.approx,covparms,nuggets)
 
   if(return_all){
     # return additional information if needed, can be slow
@@ -97,6 +91,8 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
       V.ord = V.ord[1:n, 1:n]
       W = W[(n+1):(2*n), (n+1):(2*n)]
       vec_likelihood = NA # needs to be adjusted: run with SGV
+    } else {
+      vec_likelihood = vecchia_likelihood(pseudo.data,vecchia.approx,covparms,nuggets)
     }
 
     return (list("mean" = y_o, "sd" =sqrt(diag(solve(W))), "iter"=tot_iters,
@@ -104,7 +100,7 @@ calculate_posterior_VL = function(vecchia.approx, likelihood_model=c("gaussian",
                  "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time, "U" = U))
   }
   return (list("mean" = y_o, "cnvgd" = convgd, "runtime" = LV_time,
-               "iter" = tot_iters, "t"=pseudo.data, "D" = D, "vec_lh"=vec_likelihood))
+               "iter" = tot_iters, "t"=pseudo.data, "D" = D))
 }
 
 
