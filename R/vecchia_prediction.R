@@ -5,6 +5,7 @@
 #' @param nuggets: nugget
 #' @param var.exact: should prediction variances be computed exactly, or is a (faster) approximation acceptable
 #' @param covmodel: covariance model, 'matern' by default.
+#' @param return.values: either 'mean' only, 'meanvar', 'meanmat', or 'all'
 #'
 #' @return posterior mean and variances at observed and unobserved locations; V matrix
 #' @examples
@@ -12,7 +13,8 @@
 #' vecchia_prediction=function(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export
 
-vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,covmodel='matern') {
+vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
+                            covmodel='matern',return.values='all') {
 
   # create the U matrix
   U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
@@ -22,21 +24,32 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,covmodel
 
   # compute cholesky V for posterior inference
   V.ord=U2V(U.obj)
-  
-  if(length(U.obj$zero.nugg)>0) 
+
+  if(length(U.obj$zero.nugg)>0)
     print('Warning: Rows/cols of V have been removed for data with zero noise')
 
   # compute the posterior mean
   vecchia.mean=vecchia_mean(z,vecchia.approx,U.obj,V.ord)
 
-  # compute posterior variances
-  if(missing(var.exact)) var.exact = (sum(!vecchia.approx$obs)<2*1e4)
-  vars.vecchia=vecchia_var(vecchia.approx,U.obj,V.ord,exact=var.exact)
-
-  # return everything
+  # return what is requested
   return.list=list(mu.pred=vecchia.mean$mu.pred,mu.obs=vecchia.mean$mu.obs,
-                   var.pred=vars.vecchia$vars.pred,var.obs=vars.vecchia$vars.obs,
-                   V.ord=V.ord,U.obj=U.obj)
+                   var.pred=NULL,var.obs=NULL,V.ord=NULL,U.obj=NULL)
+
+  if(return.values=='meanmat' | return.values=='all'){
+    return.list$V.ord=V.ord; return.list$U.obj=U.obj
+  }
+
+  if(return.values=='meanvar' | return.values=='all'){
+
+    # compute posterior variances
+    if(missing(var.exact)) var.exact = (sum(!vecchia.approx$obs)<2*1e4)
+    vars.vecchia=vecchia_var(vecchia.approx,U.obj,V.ord,exact=var.exact)
+
+    return.list$var.pred=vars.vecchia$vars.pred
+    return.list$var.obs=vars.vecchia$vars.obs
+
+  }
+
   return(return.list)
 
 }
@@ -49,7 +62,7 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,covmodel
 U2V=function(U.obj){
 
   U.y=U.obj$U[U.obj$latent,]
-  
+
   if(vecchia.approx$ord.pred!='obspred'){
 
     W=Matrix::tcrossprod(U.y)
@@ -173,7 +186,7 @@ vecchia_var=function(vecchia.approx,U.obj,V.ord,exact=FALSE){
   if(length(U.obj$zero.nugg)>0){
     vars.ord=c(vars.ord,rep(0,length(U.obj$zero.nugg$inds.z)))
   }
-  
+
   # extract obs and pred parts; return to original ordering
   orig.order=order(U.obj$ord)
   vars=vars.ord[orig.order]
@@ -212,8 +225,8 @@ vecchia_var=function(vecchia.approx,U.obj,V.ord,exact=FALSE){
 V2covmat=function(preds){
 
   # compute joint covariance matrix
-  Sigma.ord=solve(as.matrix(rev.mat(preds$V.ord%*%Matrix::t(preds$V.ord))))  
-  
+  Sigma.ord=solve(as.matrix(rev.mat(preds$V.ord%*%Matrix::t(preds$V.ord))))
+
   # for zero nugget, add zero rows/columns
   if(length(preds$U.obj$zero.nugg)>0){
     k=nrow(Sigma.ord)
@@ -221,11 +234,11 @@ V2covmat=function(preds){
     Sigma.ord=rbind(cbind(Sigma.ord,matrix(0,nrow=k,ncol=l)),
                     matrix(0,nrow=l,ncol=k+l))
   }
-  
+
   # return to original ordering
   orig.order=order(preds$U.obj$ord)
   Sigma=Sigma.ord[orig.order,orig.order]
-  
+
   # extract parts corresponding to obs and pred locs
   obs.orig=preds$U.obj$obs[orig.order]
   Sigma.obs=Sigma[obs.orig,obs.orig]

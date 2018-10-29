@@ -53,14 +53,13 @@ calculate_posterior_VL = function(z,vecchia.approx,
     pseudo.data = D * u + y_o - prior_mean
     nuggets = D
 
-    # Update U matrix with new nuggets, make the prediction
-    U.obj=createU(vecchia.approx,covparms,nuggets)
-    V.ord=U2V(U.obj)
-    vecchia.mean=vecchia_mean(pseudo.data,vecchia.approx,U.obj,V.ord)
+    # make prediction
+    preds=vecchia_prediction(pseudo.data,vecchia.approx,covparms,
+                                    nuggets,return.values='meanmat')
     if( zy.conditioning){
-      y_o = vecchia.mean$mu.pred + prior_mean # y treated as prediction
+      y_o = preds$mu.pred + prior_mean # y treated as prediction
     }else{
-      y_o = vecchia.mean$mu.obs + prior_mean # SGV, firstm, etc
+      y_o = preds$mu.obs + prior_mean # SGV, firstm, etc
     }
     #print(sum(abs(V.ord%*%(y_o-y_prev)))) #newton increment-> reveals cycling
     #print(y_o)
@@ -85,6 +84,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   if(return_all){
     # return additional information if needed, can be slow
     orig.order=order(vecchia.approx$ord)
+    V.ord=preds$V.ord
     W = as(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
