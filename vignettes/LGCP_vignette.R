@@ -1,6 +1,6 @@
 
 # import VL code somehow
-#source("server/importer.R")
+source("server/importer.R")
 
 data_distr = "poisson"
 spatial.dim =2 # number of spatial dimensions
@@ -31,11 +31,17 @@ if(n <= 1e4) {
 pt_density = n^(1/spatial.dim)
 c = dom / pt_density
 z = rpois(n, c*exp(y))
-
+locs_1 = locs[which(z==1),]
+locs_2 = locs[which(z==2),]
+locs_3 = locs[which(z==3),]
+locs_11 = locs_1
+locs_22 = rbind(locs_2, locs_2)+rnorm(length(locs_2)*2)*c
+locs_33 = rbind(locs_3, locs_3, locs_3)+rnorm(length(locs_3)*3)*c
+pp_locs = rbind(locs_11, locs_22, locs_33)
 
 # aggregate and plot simulated data
-pdf("LGCP_2D_sample.pdf", height = 4, width = 10)
-par(mfrow=c(1,3))
+pdf("LGCP_2D_sample_v5.pdf", height = 4, width = 12)
+par(mfrow=c(1,3), mar = c(2.1,2.1,2.1,2.1))
 if(spatial.dim==1) {
 
   plot(locs,y, main = "latent")
@@ -50,11 +56,16 @@ if(spatial.dim==1) {
   coarse_idx = unique(down_sampled$ind)
   coarse_locs = cbind(down_sampled$x[coarse_idx[,1]], down_sampled$y[coarse_idx[,2]])
 
-  quilt.plot(locs,y, main = "Latent", nx =pt_density, ny = pt_density )
-  quilt.plot(locs,z, main = "Observed", nx=pt_density, ny = pt_density)
-  quilt.plot(coarse_locs, coarse_z, main = "Down-Sampled", nx=pt_density/2, ny = pt_density/2)
+  quilt.plot(locs,y, main = "Latent", nx =pt_density, ny = pt_density, axes = F )
+  par(xpd = TRUE, mar  = c(2.1,2.1,2.1,1.8))
+  plot(pp_locs, main = "Observed", pch= 20, xlab = NA, ylab = NA, axes = F, frame.plot = T, ylim = c(.02,.98), xlim = c(.02,.98))
+  par(xpd = TRUE, mar = c(2.1,2.1,2.1,2.1))
+  quilt.plot(coarse_locs, coarse_z, main = "Down-Sampled", nx=pt_density/2,
+             ny = pt_density/2, nlevel = 3, col = c(0,4,2), add.legend = FALSE, axes = F, frame.plot = T)
+  legend("bottomright", inset = c(0,0), legend = c("1", "2"), col = c(4,2), pch = 15)
 }
 dev.off()
+
 
 #####################   specify Vecchia approx    #######################
 # (this only has to be run once)
