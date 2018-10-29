@@ -41,7 +41,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
   #points(locs[order(locs)], y_o[order(locs)], type = "l", col = alpha("black", .4))
   convgd = FALSE
-  tot_iters = max.iter
+  tot_iters = 1
   for( i in 1:max.iter){
 
     y_prev = y_o    # save y_prev for convergence test
@@ -68,7 +68,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
       # convergence failed due to machine precision?
       fail_comment = print(paste("VL-NR hit NA on iteration ",tot_iters,", convergence failed."))
 
-      y_o = rep(1, length(z))
+      y_o = y_prev
       tot_iters = -1
       break
     }
@@ -77,6 +77,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
       tot_iters = i
       break
     }
+    tot_iters = tot_iters +1
   }
   t_end = Sys.time()
   LV_time = as.double(difftime(t_end, t_start, units = "secs"))
@@ -97,7 +98,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
     return (list("mean" = y_o, "sd" =sqrt(diag(solve(W))), "iter"=tot_iters,
                  "cnvgd" = convgd, "D" = D, "t"=pseudo.data, "V"=V.ord,
-                 "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time, "U" = U))
+                 "W" = W, "vec_lh"=vec_likelihood, "runtime" = LV_time))
   }
   return (list("mean" = y_o, "cnvgd" = convgd, "runtime" = LV_time,
                "iter" = tot_iters, "t"=pseudo.data, "D" = D))
@@ -188,7 +189,8 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   alpha = ifelse("alpha" %in% names(likparams),likparams$alpha, 2)
   gamma_hess = function(y_o, z)  sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x=z*exp(y_o))
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
-  gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(gamma(alpha)))
+  #gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(gamma(alpha))) # canonical link
+  gamma_llh = function(y_o, z) sum(-exp(y_o)*z + (alpha-1)*log(z) +alpha*y_o-n*log(gamma(alpha))) # log link
   return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh))
 }
 
