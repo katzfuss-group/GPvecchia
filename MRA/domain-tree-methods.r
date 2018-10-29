@@ -23,6 +23,6 @@ choose.M = function(n, m) {
   }
 
   if(sum(r)>m | sum(r*cumprod(J))<n) print ('ERROR')
-  else return(M, r)
+  else return(list(M=M, r=r))
 
 }

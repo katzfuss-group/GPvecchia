@@ -8,7 +8,7 @@ source("MRA/tree-plotting-methods.r")
 
 
 spatial.dim=2 # number of spatial dimensions
-n=200  # number of observed locs
+n=20  # number of observed locs
 m=4
 
 # simulate locations
@@ -24,8 +24,8 @@ locs = locs[ord,]
 
 
 
-ind.tree = domain.tree.J4(locs)
+ind.tree = domain.tree.J2(locs, m)
 knot.tree = knot.tree(ind.tree, 2)
-#plot.locs.tree(ind.tree, locs, knots=knot.tree)
+plot.locs.tree(ind.tree, locs, knots=knot.tree)
 
 getNNmatrix(knot.tree)

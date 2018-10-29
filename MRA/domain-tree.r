@@ -1,4 +1,5 @@
 source('MRA/tree-methods.r')
+source('MRA/domain-tree-methods.r')
 source('MRA/utility-functions.r')
 
 # findOrderedHierarchy = function(locs, r=NULL, m=NULL, M=NULL, J=NULL){
@@ -18,7 +19,7 @@ domain.tree.J4 = function( locs, r=2 ){
   points = seq(n)
 
   M = floor(log((n/r)*(J-1) + 1)/log(J))-1
-
+  if( M==0 ) stop('ERROR: M=0')
   addOnFirstRes = m - r*(1-J^M)/(1-J)
   grid.tree = list(r=points)
   inds = genInds(M)
@@ -49,17 +50,22 @@ domain.tree.J4 = function( locs, r=2 ){
 
 domain.tree.J2 = function( locs, m ){
 
-  n = length(locs)
+  n = length(locs)/ncol(locs)
   points = seq(n)
-  M = choose.M( n, m )
+  params = choose.M( n, m )
+  r = params$r; M=params$M
   grid.tree = list(r=points)
-  inds = genInds(M)
+  inds = genInds(M,J=c(2))
+
+
   for( ind in inds ) {
+
     if( child.id(ind)==1 ){
+
       par.inds = grid.tree[[parent(ind)]]
       par.locs = locs[par.inds,]
 
-      if( (res %% 2) == 1 ){
+      if( (res(ind) %% 2) == 1 ){
         x_split = quantile(par.locs[,1],0.5)
         reg1 = par.inds[which(par.locs[,1]<=x_split)]
         reg2 = par.inds[which(par.locs[,1]>x_split)]
@@ -74,6 +80,7 @@ domain.tree.J2 = function( locs, m ){
 
     grid.tree[[ind]] = subregs[[child.id(ind)]]
   }
+  return(grid.tree)
 }
 
 # findOrderedHierarchyFSA = function( locs, J ){

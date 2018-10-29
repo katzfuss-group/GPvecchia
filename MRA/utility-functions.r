@@ -35,7 +35,7 @@ genInds = function(M, J=c(4)){
     }
   }
 
-  inds = genIndices(M)
+  inds = genIndices(M,J)
   inds = sapply(inds, function(ind) paste(c("r", ind), collapse=""))
 
   lengths = sapply(inds, function(s) nchar(s))

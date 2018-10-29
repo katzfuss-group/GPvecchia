@@ -17,7 +17,7 @@ source("R/U_sparsity.R")
 Rcpp::sourceCpp('src/U_NZentries.cpp')
 
 spatial.dim=2 # number of spatial dimensions
-n=8  # number of observed locs
+n=20  # number of observed locs
 m=4
 
 # simulate locations
