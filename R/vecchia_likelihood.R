@@ -14,7 +14,6 @@
 ##  evaluation of the likelihood
 
 vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern') {
-
   # create the U matrix
   U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
 
@@ -29,14 +28,15 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
 
 ## remove missing data (NA)
 na.rm=function(){ # overwrites z and U.obj
+  p = parent.frame()
   if(any(is.na(z))){
-    ind.na=(((1:nrow(U.obj$U))[!U.obj$latent])[U.obj$ord.z])[is.na(z)]
-    if(any(apply(U.obj$U[,ind.na,drop=FALSE],2,nnzero)>2)) stop(
+    ind.na=(((1:nrow(p$U.obj$U))[!p$U.obj$latent])[p$U.obj$ord.z])[is.na(p$z)]
+    if(any(apply(p$U.obj$U[,ind.na,drop=FALSE],2,nnzero)>2)) stop(
       'NA data is conditioned upon')
-    U.obj$U <<- U.obj$U[-ind.na,-ind.na]
-    U.obj$latent <<- U.obj$latent[-ind.na]
-    U.obj$ord.z <<- order(order(U.obj$ord.z[U.obj$ord.z %in% which(!is.na(z))]))
-    z <<- z[!is.na(z)]
+    p$U.obj$U = p$U.obj$U[-ind.na,-ind.na]
+    p$U.obj$latent = p$U.obj$latent[-ind.na]
+    p$U.obj$ord.z = order(order(p$U.obj$ord.z[p$U.obj$ord.z %in% which(!is.na(p$z))]))
+    p$z = p$z[!is.na(p$z)]
   }
 }
 
