@@ -22,7 +22,6 @@
 # only has to be run once before repeated likelihood evals
 
 
-
 #vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning) {
 #
 #vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred, pred.cond, conditioning, mra.options) {
