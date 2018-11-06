@@ -13,23 +13,26 @@ source("R/ordering_functions.R")
 source("MRA/mraNN.r")
 source("R/whichCondOnLatent.R")
 source("R/U_sparsity.R")
+source("R/NN_kdtree.R")
 
 Rcpp::sourceCpp('src/U_NZentries.cpp')
 
-spatial.dim=2 # number of spatial dimensions
-n=20  # number of observed locs
-m=4
+
+
+spatial.dim=1 # number of spatial dimensions
+n=7  # number of observed locs
+m=3
 
 # simulate locations
-set.seed(10)
+#set.seed(11)
 if(spatial.dim==1){
   locs=matrix(runif(n),ncol=1)
 } else {
   locs = cbind(runif(n),runif(n))
 }
 
-sig2=1; range=.1; smooth=1.5
-me.var = 0.1
+sig2=1; range=.1; smooth=0.5
+me.var = 1e-2
 
 covparms =c(sig2,range,smooth)
 covfun <- function(locs) sig2*MaternFun(fields::rdist(locs),covparms)
@@ -38,25 +41,28 @@ nuggets=rep(me.var,n)
 
 # simulate observations
 if(n < 1e4) {
-  Sigma = covfun(locs)+ diag(nuggets)
+  Sigma = covfun(locs) + diag(nuggets)
   Sigma.c = chol(Sigma)
   z=as.numeric(t(Sigma.c)%*%rnorm(n))
 } else z=rnorm(n)
 
-
-V = vecchia_specify(z, locs, m, conditioning='mra')
+V = vecchia_specify(z, locs, m, conditioning='mra', J=2)
+#V = vecchia_specify(z, locs, m=1)
+#V= vecchia_specify(z, locs, m=4, ordering='maxmin')
 
 ##### likelihood evaluation #####
 covparms=c(sig2,range,smooth)
 vecchia_loglik = vecchia_likelihood(V,covparms,nuggets)
 
+
+
 # exact likelihood
-const = log(2*pi)
+const = dim(locs)[1]*log(2*pi)
 logdet = as.numeric(determinant(Sigma, logarithm = TRUE)$modulus)
-quad.form = as.numeric(t(z) %*% t(Sigma.c) %*% Sigma.c %*% z)
-neg2loglik = const + logdet + quad.form
-loglik = -neg2loglik/2
+quad.form2 = as.numeric(t(z) %*% solve(Sigma) %*% z)
+neg2loglike = const + logdet + quad.form2
+loglik = -neg2loglike/2
 
 
-print(loglik)
+print(loglik)# - vecchia_loglik)
 print(vecchia_loglik)

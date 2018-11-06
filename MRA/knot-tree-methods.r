@@ -5,8 +5,8 @@ getNNmatrix = function(knot.tree){
   neighbors = list()
 
   #fill out the list of neighbors for the root
-  neighbors[[1]] = c(1); cond.set=c(1); last.knot=1
-
+  root.ind = knot.tree[["r"]]
+  neighbors[[root.ind]] = c(root.ind); cond.set=c(root.ind); last.knot=root.ind
   for( knot in knot.tree[["r"]][-1]){
     cond.set = c(knot, cond.set)
     neighbors[[knot]] = cond.set
@@ -28,4 +28,21 @@ getNNmatrix = function(knot.tree){
   list2matrix(neighbors)
   NNarray = list2matrix(neighbors)
   return(NNarray)
+}
+
+
+ord.knot.tree = function(knt.tree){
+  ord = c()
+  nlocs = max(sapply(knt.tree, function(node) max(node)))
+  i=1
+  for( node in names(knt.tree) ){
+    node.locs = knt.tree[[node]]
+    if(length(node.locs)==0) next
+    n = min(length(node.locs), nlocs)
+    ord = c(ord, node.locs)
+    new.ind = seq(i, i+n-1)
+    knt.tree[[node]] = new.ind
+    i = i + n
+  }
+  return(list(knot.tree=knt.tree, ord=ord))
 }

@@ -22,8 +22,11 @@
 # only has to be run once before repeated likelihood evals
 
 
-vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred, pred.cond, conditioning) {
+#vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred, pred.cond, conditioning, mra.options) {
+vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred, pred.cond, conditioning, J=4) {
 
+
+  #browser()
   spatial.dim=ncol(locs)
   n=nrow(locs)
 
@@ -35,7 +38,9 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
 
   # for firstm conditioning, ordering must be maxmin to spread out fixed points
   if(conditioning == 'firstm') ordering='maxmin'
-  if(conditioning == 'mra') ordering=='maxmin'
+
+  # if conditioning is 'mra' then ordering should correspond to that
+  if(conditioning == 'mra') ordering='mra'
 
   ### order locs and z
 
@@ -45,10 +50,21 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
       ord=order_coordinate(locs)
     } else if(ordering=='maxmin'){
       ord = order_maxmin(locs)
+    } else if(ordering=='mra'){
+      ord_aux = order_coordinate(locs)
+      locs = matrix(locs[ord_aux,], ncol=1)
+      if( J==2 ) ind.tree = domain.tree.J2(locs, 3)
+      else if( J==4 ) ind.tree = domain.tree.J4(locs, 4)
+      else stop(paste(c("ERROR: partitioning domain into J=", J, " subregions not supported yet"), collapse=""))
+      knt.tree = knot.tree(ind.tree, 1, dim=ncol(locs))
+      plot.locs.tree(ind.tree, locs, knots=knt.tree)
+      mra.tree = ord.knot.tree(knt.tree)
+      ord = mra.tree$ord
+
     }
     zord=z[ord]
     locsord=locs[ord,,drop=FALSE]
-
+    print(locsord)
     obs=rep(TRUE,n)
     ordering.pred='general'
 
@@ -95,7 +111,7 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
       NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
     }
   } else if (conditioning == 'mra') {
-    NNarray = findOrderedNN_mra(locsord, m)
+    NNarray = getNNmatrix(mra.tree$knot.tree)
   }
 
   if(!missing(locs.pred) & pred.cond=='independent'){
