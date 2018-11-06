@@ -7,41 +7,61 @@
 #'
 #' @return (multivariate normal) loglikelihood implied by the Vecchia approximation
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5)
-#' vecchia_likelihood=function(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia.approx=vecchia_specify(locs,m=5)
+#' vecchia_likelihood(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export
 
 ##  evaluation of the likelihood
 
-vecchia_likelihood=function(vecchia.approx,covparms,nuggets,covmodel='matern') {
-  U=createU(vecchia.approx,covparms,nuggets,covmodel)
-  vecchia_likelihood_U(vecchia.approx,U)
+vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern') {
+  # create the U matrix
+  U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
+
+  # remove NAs in data and U
+  na.rm()
+
+  # compute the loglikelihood
+  vecchia_likelihood_U(z,U.obj)
 }
 
 
 
+## remove missing data (NA)
+na.rm=function(){ # overwrites z and U.obj
+  p = parent.frame()
+  if(any(is.na(z))){
+    ind.na=(((1:nrow(p$U.obj$U))[!p$U.obj$latent])[p$U.obj$ord.z])[is.na(p$z)]
+    if(any(apply(p$U.obj$U[,ind.na,drop=FALSE],2,nnzero)>2)) stop(
+      'NA data is conditioned upon')
+    p$U.obj$U = p$U.obj$U[-ind.na,-ind.na]
+    p$U.obj$latent = p$U.obj$latent[-ind.na]
+    p$U.obj$ord.z = order(order(p$U.obj$ord.z[p$U.obj$ord.z %in% which(!is.na(p$z))]))
+    p$z = p$z[!is.na(p$z)]
+  }
+}
+
+
 ## evaluate vecchia likelihood based on U
 
-vecchia_likelihood_U=function(vecchia.approx,U) {
+vecchia_likelihood_U=function(z,U.obj) {
   ### output: loglikelihood (for z)
 
-  y.ind=vecchia.approx$U.prep$y.ind
+  U=U.obj$U
+  latent=U.obj$latent
+  zord=z[U.obj$ord.z]
 
-  # constants
-  n.y=length(y.ind)
-  n.z=nrow(U)-n.y
-  const=n.z*log(2*pi)
+  # constant
+  const=sum(!latent)*log(2*pi)
 
   # numerator
-  #z1=t(U[-y.ind,])%*%vecchia.approx$zord      ## t(U[-y.ind,]) does not work when put in package
-  z1=Matrix::crossprod(U[-y.ind,],vecchia.approx$zord) ## crossprod(x,y) = t(x)%*%y
+  z1=Matrix::crossprod(U[!latent,],zord)
   quadform.num=sum(z1^2)
-  logdet.num=-2*sum(log(Matrix::diag(U))) ## base::diag(U) cause error when put in package: Error in diag(U) : no method for coercing this S4 class to a vector
+  logdet.num=-2*sum(log(Matrix::diag(U)))
 
   # denominator
-  U.y=U[y.ind,]
+  U.y=U[latent,]
   z2=as.numeric(U.y%*%z1)
-  V.ord=U2V(U,vecchia.approx)
+  V.ord=U2V(U.obj)
   z3=solve(V.ord,rev(z2),system='L')
   quadform.denom=sum(z3^2)
   logdet.denom=-2*sum(log(diag(V.ord)))
@@ -55,4 +75,4 @@ vecchia_likelihood_U=function(vecchia.approx,U) {
 
 
 ## function to reverse-order a matrix
-rev.mat=function(mat) mat[nrow(mat):1,ncol(mat):1]
+rev.mat=function(mat) mat[nrow(mat):1,ncol(mat):1,drop=FALSE]

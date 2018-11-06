@@ -14,7 +14,7 @@
 #' @return An object that specifies the vecchia approximation for later use in likelihood
 #' evaluation or prediction.
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5)
+#' locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=2)
 #' @export
 
 # specify the vecchia approximation, prepare U
@@ -22,6 +22,9 @@
 # only has to be run once before repeated likelihood evals
 
 
+
+#vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning) {
+#
 #vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred, pred.cond, conditioning, mra.options) {
 vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred, pred.cond, conditioning, J=4) {
 
@@ -62,7 +65,7 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
       ord = mra.tree$ord
 
     }
-    zord=z[ord]
+    ord.z=ord
     locsord=locs[ord,,drop=FALSE]
     print(locsord)
     obs=rep(TRUE,n)
@@ -91,7 +94,7 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
       }
       ord=c(ord.obs,ord.pred+n)
     }
-    zord=z[ord.obs]
+    ord.z=ord.obs
     locsord=locs.all[ord,,drop=FALSE]
     obs=observed.obspred[ord]
 
@@ -145,10 +148,10 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
     ## specify neighbors
     NNs=FNN::get.knn(locsord,m-1)$nn.index
     prev=NNs<matrix(rep(1:n,m-1),nrow=n)
-    NNs[prev]=NNs[prev]+n
+    NNs[prev]=NNs[prev]+n # condition on latent y if possible
 
     ## create NN array
-    NNarray.z=NNarray # cbind(1:n,matrix(nrow=n,ncol=m)) ## change this line once U_NZentries.cpp can handle NAs
+    NNarray.z= cbind(1:n,matrix(nrow=n,ncol=m))
     NNarray.y=cbind((1:n)+n,1:n,NNs)
     NNarray=rbind(NNarray.z,NNarray.y)
 
@@ -166,7 +169,8 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
 
 
   ### object that specifies the vecchia approximation
-  vecchia.approx=list(zord=zord,locsord=locsord,obs=obs,ord=ord,ord.pred=ordering.pred,U.prep=U.prep)
+  vecchia.approx=list(locsord=locsord,obs=obs,ord=ord,ord.z=ord.z,ord.pred=ordering.pred,
+                      U.prep=U.prep,cond.yz=cond.yz)
   # U.prep has attributes: revNNarray,revCond,n.cores,size,rowpointers,colindices,y.ind)
 
   return(vecchia.approx)

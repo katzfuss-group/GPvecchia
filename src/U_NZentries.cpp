@@ -174,6 +174,52 @@ arma::uvec get_idx_vals(int n0, int m, const arma::uvec inds){
 
 
 // [[Rcpp::export]]
+int get_nonzero_count(int k, int m){
+  int n0;
+  if (k < m){
+    n0=k+1;
+  } else {
+    n0=m+1;
+  }
+  return n0;
+}
+
+// [[Rcpp::export]]
+int get_nonzero_count_general(const arma::uvec inds){
+  //Rcpp defaults NA to 0, so look for values !=0
+  int nonzero_counter = 0;
+  for(uword idx = 0; idx <inds.n_elem; idx++ ){
+    if(inds.at(idx)!=0){nonzero_counter++;}
+  }
+  return nonzero_counter;
+}
+
+// [[Rcpp::export]]
+arma::uvec get_idx_vals_general(int n0, const arma::uvec inds){
+  //Rcpp defaults NA to 0, so look for values !=0
+  arma::uvec inds00(n0);
+  int nonzero_counter = 0;
+  for(uword idx = 0; idx <inds.n_elem; idx++ ){
+    if(inds.at(idx)!=0){
+      inds00.at(nonzero_counter) = inds.at(idx)-1;// shift the indices by -1
+      nonzero_counter++;
+      }
+  }
+  return inds00;
+}
+
+
+// [[Rcpp::export]]
+arma::uvec get_idx_vals(int n0, int m, const arma::uvec inds){
+  arma::uvec inds00;//
+  inds00=inds(span(m+1-n0,m))-ones<uvec>(n0);// shift the indices by -1
+  return inds00;
+}
+
+
+
+
+// [[Rcpp::export]]
 List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& revNNarray,const arma::mat& revCondOnLatent,const arma::vec& nuggets,const arma::vec& nuggets_obsord, std::string COV, const arma::vec covparms){
   // initialize the output matrix
   int m= revNNarray.n_cols-1;
@@ -188,6 +234,7 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
   arma::vec onevec;//
   arma::vec M;//
   arma::mat dist;//
+//int n_extras; // number of try-catches executed
   int k;//
   mat Zentries=zeros(2*n);
   int attempt;
@@ -207,17 +254,10 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
      inds=revNNarray.row(k).t();
      revCon_row=revCondOnLatent.row(k).t();
 
-    //if (k < m){
-    //  n0=k+1;
-    //} else {
-    //  n0=m+1;
-    //}
-    // inds00=inds(span(m+1-n0,m))-ones<uvec>(n0);// shift the indices by -1
-
-    n0 = get_nonzero_count_general(inds); // for general case
-    inds00 = get_idx_vals_general(n0, inds);
-
-
+     //n0 = get_nonzero_count(k,m); // for original SGV case
+    // inds00 = get_idx_vals(n0, m, inds);
+     n0 = get_nonzero_count_general(inds); // for general case
+     inds00 = get_idx_vals_general(n0, inds);
 
 // extract locations
      //locs0=locs.rows(inds00); // to extract multiple rows from matrix
