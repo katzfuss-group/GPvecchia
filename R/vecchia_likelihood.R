@@ -29,7 +29,7 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
 ## remove missing data (NA)
 na.rm=function(){ # overwrites z and U.obj
   p = parent.frame()
-  if(any(is.na(z))){
+  if(any(is.na(p$z))){
     ind.na=(((1:nrow(p$U.obj$U))[!p$U.obj$latent])[p$U.obj$ord.z])[is.na(p$z)]
     if(any(apply(p$U.obj$U[,ind.na,drop=FALSE],2,nnzero)>2)) stop(
       'NA data is conditioned upon')
