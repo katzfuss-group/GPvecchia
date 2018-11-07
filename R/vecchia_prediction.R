@@ -63,7 +63,7 @@ U2V=function(U.obj){
 
   U.y=U.obj$U[U.obj$latent,]
 
-  if(vecchia.approx$ord.pred!='obspred'){
+  if(U.obj$ord.pred=='obspred'){
 
     W=Matrix::tcrossprod(U.y)
     W.rev=rev.mat(W)
