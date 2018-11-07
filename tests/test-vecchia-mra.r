@@ -46,13 +46,13 @@ if(n < 1e4) {
   z=as.numeric(t(Sigma.c)%*%rnorm(n))
 } else z=rnorm(n)
 
-V = vecchia_specify(z, locs, m, conditioning='mra', J=2)
+V = vecchia_specify(locs, m, conditioning='mra', J=2)
 #V = vecchia_specify(z, locs, m=1)
 #V= vecchia_specify(z, locs, m=4, ordering='maxmin')
 
 ##### likelihood evaluation #####
 covparms=c(sig2,range,smooth)
-vecchia_loglik = vecchia_likelihood(V,covparms,nuggets)
+vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets)
 
 
 
