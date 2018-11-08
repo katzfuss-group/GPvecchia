@@ -14,25 +14,28 @@ source("MRA/mraNN.r")
 source("R/whichCondOnLatent.R")
 source("R/U_sparsity.R")
 source("R/NN_kdtree.R")
+source("MRA/mra-tree.r")
 
 Rcpp::sourceCpp('src/U_NZentries.cpp')
 
 
 
-spatial.dim=1 # number of spatial dimensions
-n=7  # number of observed locs
-m=3
+spatial.dim=2 # number of spatial dimensions
+n=16  # number of observed locs
+m=2
 
 # simulate locations
-#set.seed(11)
+#set.seed(1988)
 if(spatial.dim==1){
   locs=matrix(runif(n),ncol=1)
+  #ord = order_coordinate((locs))
+  #locs = matrix(locs[ord])
 } else {
   locs = cbind(runif(n),runif(n))
 }
 
 sig2=1; range=.1; smooth=0.5
-me.var = 1e-2
+me.var = 1e-8
 
 covparms =c(sig2,range,smooth)
 covfun <- function(locs) sig2*MaternFun(fields::rdist(locs),covparms)
@@ -46,9 +49,11 @@ if(n < 1e4) {
   z=as.numeric(t(Sigma.c)%*%rnorm(n))
 } else z=rnorm(n)
 
-V = vecchia_specify(z, locs, m, conditioning='mra', J=2)
-#V = vecchia_specify(z, locs, m=1)
-#V= vecchia_specify(z, locs, m=4, ordering='maxmin')
+
+V = vecchia_specify(locs, m, conditioning='mra', J=2)
+#V = vecchia_specify(locs, m=1)
+#V = vecchia_specify(locs, m=4, ordering='maxmin')
+
 
 ##### likelihood evaluation #####
 covparms=c(sig2,range,smooth)

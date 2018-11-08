@@ -14,8 +14,10 @@
 ##  evaluation of the likelihood
 
 vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern') {
+
   # create the U matrix
   U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
+
 
   # remove NAs in data and U
   na.rm()
@@ -44,8 +46,8 @@ na.rm=function(){ # overwrites z and U.obj
 ## evaluate vecchia likelihood based on U
 
 vecchia_likelihood_U=function(z,U.obj) {
-  ### output: loglikelihood (for z)
 
+  ### output: loglikelihood (for z)
   U=U.obj$U
   latent=U.obj$latent
   zord=z[U.obj$ord.z]

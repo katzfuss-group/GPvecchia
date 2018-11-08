@@ -13,7 +13,7 @@ exactCase = TRUE
 if( exactCase ) {
   spatial.dim = 1
   exact = TRUE
-  n = 7; m=3; r=1
+  n=3; m=2; r=1
 } else {
   spatial.dim=1 # number of spatial dimensions
   n=14 # number of observed locs

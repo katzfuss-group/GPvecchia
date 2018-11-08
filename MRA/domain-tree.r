@@ -72,7 +72,6 @@ domain.tree.J2 = function( locs, m ){
   grid.tree = list(r=points)
   inds = genInds(M,J=c(2))
 
-
   for( ind in inds ) {
 
     if( child.id(ind)==1 ){
@@ -92,8 +91,8 @@ domain.tree.J2 = function( locs, m ){
         }
       } else if(ncol(locs)==1 ) {
         x_split = quantile(par.locs, 0.5)
-        reg1 = par.inds[which(par.locs<=x_split)]
-        reg2 = par.inds[which(par.locs>x_split)]
+        reg1 = par.inds[which(par.locs<x_split)]
+        reg2 = par.inds[which(par.locs>=x_split)]
       }
       subregs = list(reg1, reg2)
     }

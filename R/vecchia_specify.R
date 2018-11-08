@@ -53,20 +53,12 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
     } else if(ordering=='maxmin'){
       ord = order_maxmin(locs)
     } else if(ordering=='mra'){
-      ord_aux = order_coordinate(locs)
-      locs = matrix(locs[ord_aux,], ncol=1)
-      if( J==2 ) ind.tree = domain.tree.J2(locs, 3)
-      else if( J==4 ) ind.tree = domain.tree.J4(locs, 4)
-      else stop(paste(c("ERROR: partitioning domain into J=", J, " subregions not supported yet"), collapse=""))
-      knt.tree = knot.tree(ind.tree, 1, dim=ncol(locs))
-      plot.locs.tree(ind.tree, locs, knots=knt.tree)
-      mra.tree = ord.knot.tree(knt.tree)
-      ord = mra.tree$ord
-
+      mra = mra.tree(locs, J, m)
+      ord = mra$ord
     }
+
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
-    print(locsord)
     obs=rep(TRUE,n)
     ordering.pred='general'
 
@@ -99,21 +91,26 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
 
 
   }
+  print(ord)
 
 
-  ### obtain nearest neighbors
-  if(spatial.dim==1) {
-    NNarray=findOrderedNN_kdtree2(locsord,m)
-  } else NNarray <- find_ordered_nn(locsord,m)
+  if( conditioning == 'mra' ){
+    NNarray = getNNmatrix(mra$tree)
+    print(NNarray)
+  } else {
 
-  ### condition on first m neighbors if specified
-  if(conditioning == 'firstm'){
-    first_m = NNarray[m+1,2:(m+1)]
-    if (m+2<=n){  # if m=n-1, nothing to replace
-      NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
+    ### obtain nearest neighbors
+    if(spatial.dim==1) {
+      NNarray=findOrderedNN_kdtree2(locsord,m)
+    } else NNarray <- find_ordered_nn(locsord,m)
+
+    ### condition on first m neighbors if specified
+    if(conditioning == 'firstm'){
+      first_m = NNarray[m+1,2:(m+1)]
+      if (m+2<=n){  # if m=n-1, nothing to replace
+        NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
+      }
     }
-  } else if (conditioning == 'mra') {
-    NNarray = getNNmatrix(mra.tree$knot.tree)
   }
 
   if(!missing(locs.pred) & pred.cond=='independent'){
@@ -165,7 +162,6 @@ vecchia_specify=function(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred
 
   ### determine the sparsity structure of U
   U.prep=U_sparsity( locsord, NNarray, obs, Cond )
-
 
   ### object that specifies the vecchia approximation
   vecchia.approx=list(locsord=locsord,obs=obs,ord=ord,ord.z=ord.z,ord.pred=ordering.pred,

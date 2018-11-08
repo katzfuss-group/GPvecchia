@@ -13,7 +13,7 @@ knot.tree = function(locs.tree, r, dim=2){
   if( exact ) print("exact representation available!")
 
     for( ind in names(locs.tree) ){
-
+      #browser()
       node.locs = locs.tree[[ind]]
       available = intersect(node.locs, remaining[[parent(ind)]])
 
@@ -21,7 +21,6 @@ knot.tree = function(locs.tree, r, dim=2){
 
       else {                                          # if not at the last resolution:
         if( exact ){  #spectial case when we place knots at the split points in 1d
-          #browser()
           children = Filter(function(s) startsWith(s, ind) && nchar(s)==nchar(ind)+1, names(locs.tree))
           knts = c()
           for( child in children[-1] ){
