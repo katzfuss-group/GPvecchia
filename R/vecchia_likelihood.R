@@ -63,7 +63,7 @@ vecchia_likelihood_U=function(z,U.obj) {
   # denominator
   U.y=U[latent,]
   z2=as.numeric(U.y%*%z1)
-  V.ord=U2V(U.obj)
+  V.ord=U2V(U.obj,ord.pred=parent.frame()$vecchia.approx$ord.pred )
   z3=solve(V.ord,rev(z2),system='L')
   quadform.denom=sum(z3^2)
   logdet.denom=-2*sum(log(diag(V.ord)))

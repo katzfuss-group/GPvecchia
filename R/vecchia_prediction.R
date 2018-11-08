@@ -59,11 +59,11 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
 
 ######  compute V for posterior inference   #######
 
-U2V=function(U.obj){
+U2V=function(U.obj, ord.pred){
 
   U.y=U.obj$U[U.obj$latent,]
 
-  if(vecchia.approx$ord.pred!='obspred'){
+  if(ord.pred!='obspred'){
 
     W=Matrix::tcrossprod(U.y)
     W.rev=rev.mat(W)
