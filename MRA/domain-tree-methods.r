@@ -4,8 +4,9 @@ source('MRA/tree-methods.r')
 
 choose.M = function(n, m) {
 
-  M=0
+  M=1
   while(2^(M+1)/(M+1) <= n/m) M=M+1
+
 
   ## for very small m:
   if(M+1>m) {

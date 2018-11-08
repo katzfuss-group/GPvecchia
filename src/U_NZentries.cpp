@@ -173,6 +173,7 @@ arma::uvec get_idx_vals(int n0, int m, const arma::uvec inds){
 
 
 
+
 // [[Rcpp::export]]
 List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& revNNarray,const arma::mat& revCondOnLatent,const arma::vec& nuggets,const arma::vec& nuggets_obsord, std::string COV, const arma::vec covparms){
   // initialize the output matrix
@@ -207,15 +208,9 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
      inds=revNNarray.row(k).t();
      revCon_row=revCondOnLatent.row(k).t();
 
-    //if (k < m){
-    //  n0=k+1;
-    //} else {
-    //  n0=m+1;
-    //}
-    // inds00=inds(span(m+1-n0,m))-ones<uvec>(n0);// shift the indices by -1
 
-    n0 = get_nonzero_count_general(inds); // for general case
-    inds00 = get_idx_vals_general(n0, inds);
+     n0 = get_nonzero_count_general(inds); // for general case
+     inds00 = get_idx_vals_general(n0, inds);
 
 
 

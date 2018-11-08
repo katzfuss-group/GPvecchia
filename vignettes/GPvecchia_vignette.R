@@ -143,4 +143,3 @@ mean(preds$mu.pred)
 # compute entire covariance matrix of Hy (here, 1x1)
 H=sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
 lincomb.cov=vecchia_lincomb(H,preds$U.obj,preds$V.ord,cov.mat=TRUE)
-
