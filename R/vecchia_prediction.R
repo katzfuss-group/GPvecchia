@@ -63,7 +63,11 @@ U2V=function(U.obj, ord.pred){
 
   U.y=U.obj$U[U.obj$latent,]
 
+#<<<<<<< HEAD
   if(ord.pred!='obspred'){
+#=======
+#  if(U.obj$ord.pred=='obspred'){
+#>>>>>>> 869c188bdc9078e148eb359ec539040ee480af7e
 
     W=Matrix::tcrossprod(U.y)
     W.rev=rev.mat(W)
