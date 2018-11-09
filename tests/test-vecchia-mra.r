@@ -20,7 +20,7 @@ Rcpp::sourceCpp('src/U_NZentries.cpp')
 
 
 
-spatial.dim=1 # number of spatial dimensions
+spatial.dim=2 # number of spatial dimensions
 n=16  # number of observed locs
 m=2
 

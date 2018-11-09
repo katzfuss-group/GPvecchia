@@ -80,7 +80,7 @@ findOrderedNN <- function( locs, m ){
   n <- dim(locs)[1]
   NNarray <- matrix(NA,n,m+1)
   for(j in 1:n ){
-    distvec <- c(fields::rdist(locs[1:j,,drop=FALSE],locs[j,,drop=FALSE]) )
+    distvec <- c(rdist(locs[1:j,,drop=FALSE],locs[j,,drop=FALSE]) )
     NNarray[j,1:min(m+1,j)] <- order(distvec)[1:min(m+1,j)]
   }
   NNarray
