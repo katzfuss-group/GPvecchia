@@ -26,9 +26,14 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   }
 
   # call Rcpp function to create the nonzero entries of U
-  U.entries=U_NZentries(vecchia.approx$U.prep$n.cores,n,vecchia.approx$locsord,
-          vecchia.approx$U.prep$revNNarray,vecchia.approx$U.prep$revCond,
-          nuggets.all.ord,nuggets.ord,covmodel,covparms)
+  if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
+                                                    vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+                                                    nuggets.all.ord, nuggets.ord, covmodel[ord,ord], covparms)
+  else if(is.character(covmodel)) U.entries=U_NZentries(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
+                                                    vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+                                                    nuggets.all.ord, nuggets.ord, covmodel, covparms)
+  else stop("argument 'covmodel' type not supported")
+
 
   # create sparse U matrix
   not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))

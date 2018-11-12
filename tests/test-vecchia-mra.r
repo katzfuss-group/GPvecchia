@@ -20,8 +20,8 @@ Rcpp::sourceCpp('src/U_NZentries.cpp')
 
 
 
-spatial.dim=1 # number of spatial dimensions
-n=16  # number of observed locs
+spatial.dim=2 # number of spatial dimensions
+n=15  # number of observed locs
 m=2
 
 # simulate locations
@@ -51,15 +51,12 @@ if(n < 1e4) {
 
 
 V = vecchia_specify(locs, m, conditioning='mra', J=2)
-#V = vecchia_specify(locs, m=1)
-#V = vecchia_specify(locs, m=4, ordering='maxmin')
 
 
 ##### likelihood evaluation #####
 covparms=c(sig2,range,smooth)
-vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets)
-
-
+vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets,covmodel=Sigma)
+#vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets,covmodel='matern')
 
 # exact likelihood
 const = dim(locs)[1]*log(2*pi)

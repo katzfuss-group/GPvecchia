@@ -87,12 +87,10 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
 
 
   }
-  print(ord)
 
 
   if( conditioning == 'mra' ){
     NNarray = getNNmatrix(mra$tree)
-    print(NNarray)
   } else {
 
     ### obtain nearest neighbors
