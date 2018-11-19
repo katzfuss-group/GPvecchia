@@ -28,6 +28,35 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
 
 
 
+### Wrapper for VL version of vecchia_likelihood #####
+vecchia_laplace_likelihood<- function(posterior,vecchia.approx,covparms,covmodel='matern') {
+
+  m = ncol(vecchia.approx$U.prep$revNNarray)-1
+  locs = vecchia.approx$locsord
+
+  # get pseudodata and nuggets from the latent y discovered by VL
+  z_pseudo = posterior$t
+  nuggets_pseudo = posterior$D
+
+  # create an approximation to llh using interweaved ordering
+  vecchia_approx_IW = vecchia_specify(locs, m)
+  pseudo_marginal_loglik_vecchia = vecchia_likelihood(z_pseudo, vecchia_approx_IW,
+                                                      covparms,nuggets_pseudo, covmodel)
+
+  # get true model log likelihood
+  true_llh = posterior$true_llh
+
+  # get gaussian (pseudo-data) approximate log likelihood
+  pseudo_cond_loglik = sum(dnorm(z_pseudo,mean = posterior$mean, sd =sqrt(nuggets_pseudo), log = TRUE))
+
+  # combine three log likelihood terms
+  loglik_vecchia = pseudo_marginal_loglik_vecchia + true_llh - pseudo_cond_loglik
+
+  return(loglik_vecchia)
+}
+
+
+
 ## remove missing data (NA)
 na.rm=function(){ # overwrites z and U.obj
   p = parent.frame()

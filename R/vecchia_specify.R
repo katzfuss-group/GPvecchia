@@ -87,7 +87,6 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
 
 
   }
-  print(ord)
 
 
   if( conditioning == 'mra' ){

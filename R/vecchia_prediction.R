@@ -56,6 +56,35 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
 
 
 
+######  wrapper for VL version w/pseudo-data   #######
+
+vecchia_laplace_prediction=function(vl_posterior, vecchia.approx, covparms, var.exact,
+                                    covmodel='matern',return.values='all') {
+  # perform vecchia_prediction with pseudo-data
+  z_pseudo = vl_posterior$t
+  nuggets_pseudo = vl_posterior$D
+  preds=vecchia_prediction(z_pseudo, vecchia.approx, covparms, nuggets_pseudo,
+                           TRUE, covmodel, return.values)
+  data_preds = list()
+
+  # Convert predicted mean (median) to data scale
+  data_preds$data.pred <- vl_posterior$data_link(preds$mu.pred)
+  data_preds$data.obs <- vl_posterior$data_link(preds$mu.obs)
+
+  # Convert predicted variance (via quantiles) to data scale
+  data_preds$data_pred_upper_quantile = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.pred,
+                                                                sd = sqrt(preds$var.pred)))
+  data_preds$data_pred_lower_quantile = vl_posterior$data_link(qnorm(p=.05, mean = preds$mu.pred,
+                                                                sd = sqrt(preds$var.pred)))
+  data_preds$data_obs_upper_quantiles = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.obs,
+                                                                sd = sqrt(preds$var.obs)))
+  data_preds$data_obs_lower_quantiles = vl_posterior$data_link(qnorm(p=.05, mean = preds$mu.obs,
+                                                                sd = sqrt(preds$var.obs)))
+
+  return(c(preds, data_preds))
+}
+
+
 
 ######  compute V for posterior inference   #######
 
@@ -63,11 +92,7 @@ U2V=function(U.obj){
 
   U.y=U.obj$U[U.obj$latent,]
 
-#<<<<<<< HEAD
-#  if(ord.pred!='obspred'){
-#=======
   if(U.obj$ord.pred!='obspred'){
-#>>>>>>> 869c188bdc9078e148eb359ec539040ee480af7e
 
     W=Matrix::tcrossprod(U.y)
     W.rev=rev.mat(W)
