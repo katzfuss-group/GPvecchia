@@ -29,7 +29,15 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
 
 
 ### Wrapper for VL version of vecchia_likelihood #####
-vecchia_laplace_likelihood<- function(posterior,vecchia.approx,covparms,covmodel='matern') {
+vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparms,
+                                      likparms = list("alpha"=2, "sigma"=sqrt(.1)),
+                                      covmodel='matern', max.iter=50, convg = 1e-5,
+                                      return_all = FALSE, y_init = NA,
+                                      prior_mean = rep(0,length(z))) {
+
+
+  posterior = calculate_posterior_VL(z,vecchia.approx, likelihood_model, covparms, likparms,
+                         max.iter, convg, return_all, y_init, prior_mean)
 
   m = ncol(vecchia.approx$U.prep$revNNarray)-1
   locs = vecchia.approx$locsord
@@ -39,7 +47,10 @@ vecchia_laplace_likelihood<- function(posterior,vecchia.approx,covparms,covmodel
   nuggets_pseudo = posterior$D
 
   # create an approximation to llh using interweaved ordering
-  vecchia_approx_IW = vecchia_specify(locs, m)
+  vecchia_approx_IW = vecchia.approx
+  if(vecchia.approx$cond.yz == "zy"){
+    vecchia_approx_IW = vecchia_specify(locs, m)
+  }
   pseudo_marginal_loglik_vecchia = vecchia_likelihood(z_pseudo, vecchia_approx_IW,
                                                       covparms,nuggets_pseudo, covmodel)
 
