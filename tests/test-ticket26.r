@@ -53,7 +53,7 @@ test.scenarios[[3]] = list(m = 10, M=1) # FSA
 test.scenarios[[4]] = list(m = 10) # the simplest the user can do
 test.scenarios[[5]] = list(m = 2, r=c(5), M=1) # like 1 but J not specified
 test.scenarios[[6]] = list(m = 4, r=c(0, 4)) # indep. blocks
-
+test.scenarios[[7]] = list(m=3, r=2, J=2, M=2) # an MRA case that didn't work
 
 
 ##### run tests #####

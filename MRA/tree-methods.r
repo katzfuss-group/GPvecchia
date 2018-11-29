@@ -4,7 +4,8 @@ source('MRA/utility-functions.r')
 parent = function(id){
   if( nchar(id) > 1){
     new_id = strsplit(id, "_")[[1]]
-    return(new_id[1:length(new_id)-1])
+    assembly.elements = new_id[1:length(new_id)-1]
+    return(paste(assembly.elements, collapse="_"))
   } else {
     return(id)
   }

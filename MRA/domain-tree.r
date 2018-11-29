@@ -87,7 +87,6 @@ domain.tree.J2 = function( locs, mra.options ){
 
   for( ind in inds ) {
     if( child.id(ind)==1 ){
-
       par.inds = grid.tree[[parent(ind)]]
       par.locs = locs[par.inds,]
 
