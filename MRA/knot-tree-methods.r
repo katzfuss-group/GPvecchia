@@ -1,21 +1,43 @@
 source('MRA/tree-methods.r')
 
+getNKnt = function(r, ind){
+  if( length(r)==1 ) {
+    r
+  } else {
+    m = res(ind)
+    if(m+1>length(r)){
+      r[length(r)]
+    } else
+      r[m+1]
+  }
+}
+
+
+
 getNNmatrix = function(knot.tree){
 
   neighbors = list()
-
   #fill out the list of neighbors for the root
-  root.ind = knot.tree[["r"]]
-  neighbors[[root.ind]] = c(root.ind); cond.set=c(root.ind); last.knot=root.ind
-  for( knot in knot.tree[["r"]][-1]){
-    cond.set = c(knot, cond.set)
-    neighbors[[knot]] = cond.set
-    last.knot = knot
+
+  #find the root(s) of the tree
+  min.length = min(sapply(names(knot.tree), function(n) nchar(n)))
+  roots = which(sapply(names(knot.tree), nchar)==min.length)
+
+  for( root.no in roots ){
+    root = names(knot.tree)[root.no]
+    root.ind = knot.tree[[root]][1]
+    neighbors[[root.ind]] = c(root.ind); cond.set=c(root.ind); last.knot=root.ind
+    for( knot in knot.tree[[root]][-1]){
+      cond.set = c(knot, cond.set)
+      neighbors[[knot]] = cond.set
+      last.knot = knot
+    }
   }
+
 
   # once the first knot is handled, fill out the list
   # for the remaining knots
-  for( ind in names(knot.tree)[-1] ){
+  for( ind in names(knot.tree)[-roots] ){
     knots = knot.tree[[ind]]
     parent.knots = knot.tree[[parent(ind)]]
     last.knot = parent.knots[length(parent.knots)]

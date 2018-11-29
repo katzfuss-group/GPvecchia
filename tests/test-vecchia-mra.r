@@ -49,8 +49,8 @@ if(n < 1e4) {
   z=as.numeric(t(Sigma.c)%*%rnorm(n))
 } else z=rnorm(n)
 
-
-V = vecchia_specify(locs, m, conditioning='mra', J=2)
+mra.options = list(r=c(10), M=1)
+V = vecchia_specify(locs, 20, conditioning='mra', mra.options=mra.options)
 
 
 ##### likelihood evaluation #####

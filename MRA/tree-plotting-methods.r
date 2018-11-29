@@ -65,15 +65,15 @@ plot.tree.2d = function(locs.tree, locs, knots){
   colors = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928')
   nc = length(colors)
 
-  m = 0
+  m = -1
   for( ind in names(locs.tree) ){
     node.points = locs.tree[[ind]]
     if(length(node.points)==0) next
-    if(nchar(ind)>m){
-      m=nchar(ind)
+    if(res(ind)>m){
+      m=res(ind)
       plot(locs[node.points,1], locs[node.points,2], col=colors[1], pch=16,
            xlim=c(0, 1), ylim=c(0, 1), xlab="", ylab="",
-           main=paste(c("resolution=", m-1), collapse=""))
+           main=paste(c("resolution=", m), collapse=""))
     } else {
       points(locs[node.points,1], locs[node.points,2], col=colors[1], pch=16)
     }

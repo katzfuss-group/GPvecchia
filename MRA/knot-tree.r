@@ -2,18 +2,37 @@ source('MRA/tree-methods.r')
 source('MRA/knot-tree-methods.r')
 
 
+domain.tree.FSA = function(locs, r){
+  domain.tree=list(r=seq(nrow(locs)))
+  for( idx in 1:(nrow(locs)-r) ){
+    locs.idx = idx + r
+    id = paste("r",idx,sep="_")
+    domain.tree[[id]] = locs.idx
+  }
+
+  D = fields::rdist(locs[-(1:r),], locs[1:r,])
+  knot.regions = apply(D, 2, which.min)
+  for( knot.idx in seq(r,1)) {
+    region = knot.regions[knot.idx]
+    region.id = paste("r", region, sep="_")
+    domain.tree[[region.id]] = c(knot.idx, domain.tree[[region.id]])
+
+  }
+  return(domain.tree)
+}
+
+
 knot.tree = function(locs.tree, r, dim=2){
 
   M = get.M(locs.tree)
   Jm = get.Jm(locs.tree)
-
   knots = list()
   remaining = list(r=locs.tree[["r"]])
-  exact = all(Jm==Jm[1]) && Jm[1]==r+1 && dim==1
+  exact = all(Jm==Jm[1]) && length(r)==1 && Jm[1]==r+1 && dim==1
+
   if( exact ) print("exact representation available!")
 
     for( ind in names(locs.tree) ){
-      #browser()
       node.locs = locs.tree[[ind]]
       available = intersect(node.locs, remaining[[parent(ind)]])
 
@@ -30,8 +49,8 @@ knot.tree = function(locs.tree, r, dim=2){
           }
           knots[[ind]] = knts
         } else {
-          #browser()
-          knots[[ind]] = available[1:min(r, length(available))]
+          no_knots = getNKnt(r, ind)
+          if(no_knots)  knots[[ind]] = available[1:min(no_knots, length(available))]
         }
       }
 

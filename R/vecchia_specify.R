@@ -22,8 +22,8 @@
 # only has to be run once before repeated likelihood evals
 
 
-
-vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, J=4) {
+vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, mra.options=NULL) {
+#vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, J=4) {
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
@@ -38,7 +38,7 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
   if(conditioning == 'firstm') ordering='maxmin'
 
   # if conditioning is 'mra' then ordering should correspond to that
-  if(conditioning == 'mra') ordering='mra'
+  #if(conditioning == 'mra') ordering='mra'
 
   ### order locs and z
 
@@ -90,7 +90,9 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
 
 
   if( conditioning == 'mra' ){
-    NNarray = getNNmatrix(mra$tree)
+    mra.params = get.mra.params2(n, m, mra.options)
+    NNarray = findOrderedNN_mra(locs, mra.params)
+    #NNarray = getNNmatrix(mra$tree)
   } else {
 
     ### obtain nearest neighbors

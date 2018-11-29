@@ -5,17 +5,23 @@ source("MRA/knot-tree.r")
 source("MRA/tree-plotting-methods.r")
 
 
-findOrderedNN_mra = function(locs, J, r=2){
+findOrderedNN_mra = function(locs, mra.params){
 
-  if( J==2 ) ind.tree = domain.tree.J2(locs, 3)
-  else if( J==4 ) ind.tree = domain.tree.J4(locs, 4)
-  else stop(paste(c("ERROR: partitioning domain into J=", J, " subregions not supported yet"), collapse=""))
+  n = length(locs)/ncol(locs)
 
-  knt.tree = knot.tree(ind.tree, 1, dim=ncol(locs))
-  #plot.locs.tree(ind.tree, locs, knots=knt.tree)
+  if( mra.params[['M']]==0 ) ind.tree = domain.tree.indep(locs, mra.params)
+  else {
+    if((length(mra.params$r)==2 && mra.params$r[2]==0) || (mra.params$J!=2 && mra.params$J!=4)){
+      if( mra.params$M>1) warning("When J is neither 2 nor 4 we always set M to 1 and use the Full scale approximation")
+      ind.tree = domain.tree.FSA(locs, mra.params$r[1])
+    } else if( mra.params[['J']]==2 ) ind.tree = domain.tree.J2(locs, mra.params)
+    else if( mra.params[['J']]==4 ) ind.tree = domain.tree.J4(locs, mra.params)
+  }
 
-  mra.tree = ord.knot.tree(knot.tree)
-  mat = getNNmatrix(mra.tree$knot.tree)
+  knt.tree = knot.tree(ind.tree, mra.params[['r']], dim=ncol(locs))
+  plot.locs.tree(ind.tree, locs, knots=knt.tree)
+
+  mat = getNNmatrix(knt.tree)
 
   return(mat)
 }
