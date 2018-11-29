@@ -1,3 +1,5 @@
+source('MRA/tree-methods.r')
+
 plot.locs.tree = function(locs.tree, locs, knots=NULL){
   if( ncol(locs)==2 ) plot.tree.2d(locs.tree, locs, knots)
   if( ncol(locs)==1 ) plot.tree.1d(locs.tree, locs, knots)
@@ -27,10 +29,10 @@ plot.locsord = function(locsord, col = "#000000", col2="#FFFFFF"){
 
 plot.tree.1d = function(locs.tree, locs, knots) {
 
-  colors = c('#e7298a','#377eb8','#4daf4a')#'#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928')
+  colors = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928')
   nc = length(colors)
 
-  m = 0
+  m = -1
   M = get.M(locs.tree)
   oldpar = par(mfrow=c(M+1, 1))
 
@@ -39,11 +41,11 @@ plot.tree.1d = function(locs.tree, locs, knots) {
   for( ind in names(locs.tree) ){
     node.points = locs.tree[[ind]]
     if( length(node.points)==0) next
-    if( nchar(ind) > m){
-      m=nchar(ind)
+    if( res(ind) > m){
+      m=res(ind)
       plot(locs[node.points], rep(0.1, length(node.points)), col=colors[1], pch=15,
            ylim=c(0, .5), xlim=xlim, yaxt="n",
-           xlab="", ylab="", main=paste(c("resolution=", m-1), collapse=""))
+           xlab="", ylab="", main=paste(c("resolution=", m), collapse=""))
     } else {
       points(locs[node.points], rep(0.1, length(node.points)), col=colors[1], pch=15)
     }

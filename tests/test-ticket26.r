@@ -20,7 +20,7 @@ Rcpp::sourceCpp('src/U_NZentries.cpp')
 
 
 set.seed(1988)
-spatial.dim=2 # number of spatial dimensions
+spatial.dim=1 # number of spatial dimensions
 n=20  # number of observed locs
 
 # simulate locations
