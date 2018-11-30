@@ -46,72 +46,18 @@ genInds = function(M, J=c(4)){
 
 
 
-get.mra.params2 = function(n,m, opts){
+## plots ordered locations such that color intensity is decreasing with order
+plot.locsord = function(locsord, col = "#000000", col2="#FFFFFF"){
 
-  params = list(m=opts$m)
-  if(is.null(opts$J)) {
-    J=2
-    warning("J not specified. Setting J=2")
-  } else J=opts$J
-  if(is.null(opts$M) ){
-    if(is.null(opts$r)) {
-      M = 0
-      while(J^(M+1)/(M+1) <= n/m ) M=M+1
-      if(M+1>m){
-        M = m-1
-        r = rep(1,M+1)
-        J = c(1, rep(2, M-1), ceiling((n-sum(2^(0:M-1)))/2^(M-1)))
-      } else {
-        J = c(1, rep(2,M))
-        r = rep(ceiling(m/(M+1)), M+1)
-        l = M
-        while(sum(r)>m) {
-          r[l]=r[l]-1
-          l=l-1
-        }
-      }
-    } else {
-      r = opts$r
-      if(length(r)>1) M=length(r)-1
-      else if(length(J)>1) M=length(J)
-      else M = floor((log(n/r)*(J-1)+1)/log(J))-1
-    }
-  } else if(is.null(opts$r)) {
-    M = opts$M
-    r = floor(m/M)
-  } else {
-    warning("M, r set for MRA. Parameter m will be overridden")
-    M = opts$M; r = opts$r
-  }
-  params[['J']] = J; params[['M']] = M; params[['r']] = r
+  nlocs = length(locsord)/ncol(locsord)
+  vals = seq(nlocs)
+  #collist = grey.colors(nlocs, start=0.2, end=0.95)
 
-  return(params)
-}
-
-
-
-## figures out the parameters to pass to the function creating the NNmatrix with mra conditioning
-## based on the mra.options list provided by the user
-get.mra.params = function(n, m, opts){
-  params = list(r=opts$r,M=opts$M, m=m, J=opts$J)
-
-  if(!is.null(m) && 'J' %in% names(opts) && 'r' %in% names(opts) && 'M' %in% names(opts)) {
-
-    if(length(opts$r)>opts$M) stop("The r vector has to have length at most M-1")
+  colf = function(f){
+    color = rgb((1-f)*(t(col2rgb(col))) + f*(t(col2rgb(col2))), maxColorValue = 255)
+    return(color)
   }
 
-  if(is.null(opts$J)) params$J=2
-
-  if(is.null(opts$M) && 'J' %in% names(opts) && 'r' %in% names(opts) && length(opts$r)==1){
-    M = floor(log((n/r)*(J-1) + 1)/log(J))
-  } else if (!is.null(opts[['M']])){
-    if(is.null(opts$r) && opts[['M']]==1 ){
-      params$J=floor(2*n/m - 1)
-      params$r=m %/% 2
-    } else if(opts$M==1 && length(opts$r)==2 && opts$r[2]==0){
-      params$J=n-opts$r[1]
-    }
-  }
-
-  return(params)
+  collist = sapply(vals/nlocs, colf)
+  fields::quilt.plot(locsord, vals, col=collist)
 }
