@@ -10,18 +10,17 @@ source("R/vecchia_likelihood.R")
 source("R/vecchia_prediction.R")
 source("R/RcppExports.R")
 source("R/ordering_functions.R")
-source("MRA/mraNN.r")
+source("R/MRA/mraNN.r")
 source("R/whichCondOnLatent.R")
 source("R/U_sparsity.R")
 source("R/NN_kdtree.R")
-source("MRA/mra-tree.r")
 
 Rcpp::sourceCpp('src/U_NZentries.cpp')
 
 
 set.seed(1988)
 spatial.dim=1 # number of spatial dimensions
-n=20  # number of observed locs
+n=200  # number of observed locs
 
 # simulate locations
 if(spatial.dim==1){
@@ -47,7 +46,7 @@ if(n < 1e4) {
 
 ##### specify tests #####
 test.scenarios = vector("list", 6)
-test.scenarios[[1]] = list(m=3, r=4, J=2, M=1) # normal MRA
+test.scenarios[[1]] = list(m=10, r=4, J=2, M=2) # normal MRA
 test.scenarios[[2]] = list(r=c(5,0)) # low-rank
 test.scenarios[[3]] = list(m = 10, M=1) # FSA
 test.scenarios[[4]] = list(m = 10) # the simplest the user can do
@@ -55,7 +54,18 @@ test.scenarios[[5]] = list(m = 2, r=c(5), M=1) # like 1 but J not specified
 test.scenarios[[6]] = list(m = 4, r=c(0, 4)) # indep. blocks
 test.scenarios[[7]] = list(m=3, r=2, J=2, M=2) # an MRA case that didn't work
 
+# values obtained from verified runs of the tests
+# answers = c(
+#   -16.4636835006451,
+#   -22.4847597626423,
+#   -16.5221542862629,
+#   -19.1256294397091,
+#   -16.4087289718365,
+#   -16.4654724744534,
+#   -16.4087289718365
+# )
 
+problems = c()
 ##### run tests #####
 for(scen.no in 1:length(test.scenarios)){
   print(paste("===== scenario ", scen.no," =====", sep=""))
@@ -67,6 +77,10 @@ for(scen.no in 1:length(test.scenarios)){
   covparms=c(sig2,range,smooth)
   #vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets,covmodel=Sigma)
   vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets,covmodel='matern')
+  # if(abs(vecchia_loglik-answers[scen.no])>1e-10) {
+  #   #print(paste("Test ", scen.no, " passed!", sep=""))
+  #   problems = c(problems, scen.no)
+  # }
 
   # exact likelihood
   const = dim(locs)[1]*log(2*pi)
@@ -79,3 +93,6 @@ for(scen.no in 1:length(test.scenarios)){
   print(paste("True: ",loglik,sep=""))
   print(paste("Vecchia: ", vecchia_loglik, sep=""))
 }
+# if(length(problems)==0) {
+#   print("all tests passed!")
+# } else print(paste("problems in tests:", problems, sep=" "))

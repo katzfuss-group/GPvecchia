@@ -27,7 +27,6 @@ domain.tree.J4 = function( locs, mra.options ){
   M = floor(log((n/r)*(J-1) + 1)/log(J)) # not sure if -1 should be left in or out
   #M = floor(log((n/r)*(J-1) + 1)/log(J)) - 1
   if( M==0 ) stop(paste(c('ERROR: n=', n, ' points is not enough for J=4 and r=', r,' basis functions'), collapse=""))
-  addOnFirstRes = m - r*(1-J^M)/(1-J)
   grid.tree = list(r=points)
   inds = genInds(M)
 
