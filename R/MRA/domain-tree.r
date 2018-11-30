@@ -1,6 +1,3 @@
-source('MRA/tree-methods.r')
-source('MRA/utility-functions.r')
-
 domain.tree.FSA = function(locs, r){
   domain.tree=list(r=seq(nrow(locs)))
   for( idx in 1:(nrow(locs)-r) ){

@@ -1,6 +1,3 @@
-source('MRA/utility-functions.r')
-
-
 parent = function(id){
   if( nchar(id) > 1){
     new_id = strsplit(id, "_")[[1]]

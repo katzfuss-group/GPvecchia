@@ -1,7 +1,3 @@
-source('MRA/tree-methods.r')
-source('MRA/knot-tree-methods.r')
-
-
 knot.tree = function(locs.tree, r, dim=2){
 
   M = get.M(locs.tree)

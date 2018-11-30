@@ -1,8 +1,7 @@
-#setwd("/home/marcin/GPvecchia")
-source("MRA/domain-tree.r")
-source("MRA/knot-tree.r")
-source("MRA/tree-methods.r")
-source("MRA/utility-functions.r")
+source("R/MRA/domain-tree.r")
+source("R/MRA/knot-tree.r")
+source("R/MRA/tree-methods.r")
+source("R/MRA/utility-functions.r")
 
 
 choose.M = function(n, m) {
