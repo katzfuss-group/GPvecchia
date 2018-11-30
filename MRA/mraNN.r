@@ -3,11 +3,12 @@
 source("MRA/domain-tree.r")
 source("MRA/knot-tree.r")
 source("MRA/tree-plotting-methods.r")
+source("MRA/utility-functions.r")
 
-
-findOrderedNN_mra = function(locs, mra.params){
+findOrderedNN_mra = function(locs, m, mra.options){
 
   n = length(locs)/ncol(locs)
+  mra.params = get.mra.params2(n, m, mra.options)
 
   if( mra.params[['M']]==0 ) ind.tree = domain.tree.indep(locs, mra.params)
   else {
