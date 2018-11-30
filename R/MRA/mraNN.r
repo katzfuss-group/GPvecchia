@@ -42,7 +42,6 @@ get.mra.params = function(n,m, opts){
   if(is.null(opts$M) ){
     if(is.null(opts$r)) {
       pars = choose.M(n,m)
-      browser()
       r = pars$r; M = pars$M; J = pars$J
     } else {
       r = opts$r
@@ -79,8 +78,8 @@ findOrderedNN_mra = function(locs, m, mra.options){
 
   knt.tree = knot.tree(ind.tree, mra.params[['r']], dim=ncol(locs))
   plot.locs.tree(ind.tree, locs, knots=knt.tree)
-
   mat = getNNmatrix(knt.tree)
+  print(paste("effective m is ", ncol(mat)-1, sep=""))
 
   return(mat)
 }
