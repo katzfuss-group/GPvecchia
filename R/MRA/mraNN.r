@@ -35,6 +35,12 @@ choose.M = function(n, m) {
 get.mra.params = function(n,m, opts){
 
   params = list(m=opts$m)
+
+  # plotting: yes/no
+  if(is.null(opts$plots) || opts$plots==FALSE) params$plots=FALSE
+  else params$plots=TRUE
+
+
   if(is.null(opts$J)) {
     J=2
     warning("J not specified. Setting J=2")
@@ -77,7 +83,7 @@ findOrderedNN_mra = function(locs, m, mra.options){
   else if( mra.params[['J']]==4 ) ind.tree = domain.tree.J4(locs, mra.params)
 
   knt.tree = knot.tree(ind.tree, mra.params[['r']], dim=ncol(locs))
-  plot.locs.tree(ind.tree, locs, knots=knt.tree)
+  if(mra.params$plots==TRUE)  plot.locs.tree(ind.tree, locs, knots=knt.tree)
   mat = getNNmatrix(knt.tree)
   print(paste("effective m is ", ncol(mat)-1, sep=""))
 
