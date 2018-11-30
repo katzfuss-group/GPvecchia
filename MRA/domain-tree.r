@@ -1,25 +1,25 @@
 source('MRA/tree-methods.r')
-source('MRA/domain-tree-methods.r')
 source('MRA/utility-functions.r')
 
-# findOrderedHierarchy = function(locs, r=NULL, m=NULL, M=NULL, J=NULL){
-#
-#   if( is.null(r) && is.null(m) && is.null(M)) print("partitioning the domain requires m, r, J or M")
-#
-#   if(J==4) {
-#
-#   }
-#
-# }
+domain.tree.FSA = function(locs, r){
+  domain.tree=list(r=seq(nrow(locs)))
+  for( idx in 1:(nrow(locs)-r) ){
+    locs.idx = idx + r
+    id = paste("r",idx,sep="_")
+    domain.tree[[id]] = locs.idx
+  }
 
-#
-domain.tree.indep = function(locs, mra.options ){
-  m = mra.options[['m']]
-  n = length(locs)/ncol(locs)
-  K = ceiling(n/m)
-  centers = locs[1:K]
-  return(1)
+  D = fields::rdist(locs[-(1:r),], locs[1:r,])
+  knot.regions = apply(D, 2, which.min)
+  for( knot.idx in seq(r,1)) {
+    region = knot.regions[knot.idx]
+    region.id = paste("r", region, sep="_")
+    domain.tree[[region.id]] = c(knot.idx, domain.tree[[region.id]])
+
+  }
+  return(domain.tree)
 }
+
 
 
 domain.tree.J4 = function( locs, mra.options ){
@@ -113,21 +113,21 @@ domain.tree.J2 = function( locs, mra.options ){
   return(grid.tree)
 }
 
-domain.tree.FSA = function( locs, mra.options ){
-
-  J = mra.options[['J']]
-  n = length(locs)/ncol(locs)
-  points = seq(n)
-  M = 1
-  grid.tree = list(r=points)
-  centers = locs[1:J,]
-
-  D = fields::rdist(locs[-seq(J),], centers)
-  cents = apply(D, 1, which.min)
-  for( j in 1:J){
-    ind = paste("r", j, sep="")
-    grid.tree[[ind]] = c(j, J + which(cents==j))
-  }
-
-  return(grid.tree)
-}
+# domain.tree.FSA = function( locs, mra.options ){
+#
+#   J = mra.options[['J']]
+#   n = length(locs)/ncol(locs)
+#   points = seq(n)
+#   M = 1
+#   grid.tree = list(r=points)
+#   centers = locs[1:J,]
+#
+#   D = fields::rdist(locs[-seq(J),], centers)
+#   cents = apply(D, 1, which.min)
+#   for( j in 1:J){
+#     ind = paste("r", j, sep="")
+#     grid.tree[[ind]] = c(j, J + which(cents==j))
+#   }
+#
+#   return(grid.tree)
+# }

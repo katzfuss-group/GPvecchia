@@ -2,26 +2,6 @@ source('MRA/tree-methods.r')
 source('MRA/knot-tree-methods.r')
 
 
-domain.tree.FSA = function(locs, r){
-  domain.tree=list(r=seq(nrow(locs)))
-  for( idx in 1:(nrow(locs)-r) ){
-    locs.idx = idx + r
-    id = paste("r",idx,sep="_")
-    domain.tree[[id]] = locs.idx
-  }
-
-  D = fields::rdist(locs[-(1:r),], locs[1:r,])
-  knot.regions = apply(D, 2, which.min)
-  for( knot.idx in seq(r,1)) {
-    region = knot.regions[knot.idx]
-    region.id = paste("r", region, sep="_")
-    domain.tree[[region.id]] = c(knot.idx, domain.tree[[region.id]])
-
-  }
-  return(domain.tree)
-}
-
-
 knot.tree = function(locs.tree, r, dim=2){
 
   M = get.M(locs.tree)
@@ -57,4 +37,59 @@ knot.tree = function(locs.tree, r, dim=2){
       remaining[[ind]] = setdiff(remaining[[parent(ind)]], knots[[ind]])
     }
   return(knots)
+}
+
+
+
+
+getNKnt = function(r, ind){
+  if( length(r)==1 ) {
+    r
+  } else {
+    m = res(ind)
+    if(m+1>length(r)){
+      r[length(r)]
+    } else
+      r[m+1]
+  }
+}
+
+
+
+getNNmatrix = function(knot.tree){
+
+  neighbors = list()
+  #fill out the list of neighbors for the root
+
+  #find the root(s) of the tree
+  min.length = min(sapply(names(knot.tree), function(n) nchar(n)))
+  roots = which(sapply(names(knot.tree), nchar)==min.length)
+
+  for( root.no in roots ){
+    root = names(knot.tree)[root.no]
+    root.ind = knot.tree[[root]][1]
+    neighbors[[root.ind]] = c(root.ind); cond.set=c(root.ind); last.knot=root.ind
+    for( knot in knot.tree[[root]][-1]){
+      cond.set = c(knot, cond.set)
+      neighbors[[knot]] = cond.set
+      last.knot = knot
+    }
+  }
+
+
+  # once the first knot is handled, fill out the list
+  # for the remaining knots
+  for( ind in names(knot.tree)[-roots] ){
+    knots = knot.tree[[ind]]
+    parent.knots = knot.tree[[parent(ind)]]
+    last.knot = parent.knots[length(parent.knots)]
+    cond.set = neighbors[[parent.knots[length(parent.knots)]]]
+    for( knot in knots) {
+      cond.set = c(knot, cond.set)
+      neighbors[[knot]] = cond.set
+    }
+  }
+  list2matrix(neighbors)
+  NNarray = list2matrix(neighbors)
+  return(NNarray)
 }
