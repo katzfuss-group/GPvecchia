@@ -77,7 +77,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // U_NZentries
-List U_NZentries(int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, std::string COV, const arma::vec covparms);
+List U_NZentries_mat(int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, arma::mat& COV, const arma::vec covparms);
 RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP COVSEXP, SEXP covparmsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -94,6 +94,26 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms));
     return rcpp_result_gen;
 END_RCPP
+}
+
+// U_NZentries
+List U_NZentries(int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, std::string COV, const arma::vec covparms);
+RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP COVSEXP, SEXP covparmsSEXP) {
+  BEGIN_RCPP
+  Rcpp::RObject rcpp_result_gen;
+  Rcpp::RNGScope rcpp_rngScope_gen;
+  Rcpp::traits::input_parameter< int >::type Ncores(NcoresSEXP);
+  Rcpp::traits::input_parameter< int >::type n(nSEXP);
+  Rcpp::traits::input_parameter< const arma::mat& >::type locs(locsSEXP);
+  Rcpp::traits::input_parameter< const arma::umat& >::type revNNarray(revNNarraySEXP);
+  Rcpp::traits::input_parameter< const arma::mat& >::type revCondOnLatent(revCondOnLatentSEXP);
+  Rcpp::traits::input_parameter< const arma::vec& >::type nuggets(nuggetsSEXP);
+  Rcpp::traits::input_parameter< const arma::vec& >::type nuggets_obsord(nuggets_obsordSEXP);
+  Rcpp::traits::input_parameter< std::string >::type COV(COVSEXP);
+  Rcpp::traits::input_parameter< const arma::vec >::type covparms(covparmsSEXP);
+  rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms));
+  return rcpp_result_gen;
+  END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {

@@ -1,25 +1,32 @@
-source('MRA/tree-methods.r')
-source('MRA/domain-tree-methods.r')
-source('MRA/utility-functions.r')
+domain.tree.FSA = function(locs, r){
+  domain.tree=list(r=seq(nrow(locs)))
+  for( idx in 1:(nrow(locs)-r) ){
+    locs.idx = idx + r
+    id = paste("r",idx,sep="_")
+    domain.tree[[id]] = locs.idx
+  }
 
-# findOrderedHierarchy = function(locs, r=NULL, m=NULL, M=NULL, J=NULL){
-#
-#   if( is.null(r) && is.null(m) && is.null(M)) print("partitioning the domain requires m, r, J or M")
-#
-#   if(J==4) {
-#
-#   }
-#
-# }
+  D = fields::rdist(locs[-(1:r),], locs[1:r,])
+  knot.regions = apply(D, 2, which.min)
+  for( knot.idx in seq(r,1)) {
+    region = knot.regions[knot.idx]
+    region.id = paste("r", region, sep="_")
+    domain.tree[[region.id]] = c(knot.idx, domain.tree[[region.id]])
 
-domain.tree.J4 = function( locs, r=2 ){
+  }
+  return(domain.tree)
+}
 
-  r = 2; J = 4; n = length(locs)/ncol(locs)
+
+
+domain.tree.J4 = function( locs, mra.options ){
+
+  r = mra.options[['r']]; J = 4; n = length(locs)/ncol(locs)
   points = seq(n)
 
-  M = floor(log((n/r)*(J-1) + 1)/log(J))-1
-  if( M==0 ) stop(paste(c('ERROR: n=', n, ' points is not enough for J=4 and r=', r, ' basis functions'), collapse=""))
-  addOnFirstRes = m - r*(1-J^M)/(1-J)
+  M = floor(log((n/r)*(J-1) + 1)/log(J)) # not sure if -1 should be left in or out
+  #M = floor(log((n/r)*(J-1) + 1)/log(J)) - 1
+  if( M==0 ) stop(paste(c('ERROR: n=', n, ' points is not enough for J=4 and r=', r,' basis functions'), collapse=""))
   grid.tree = list(r=points)
   inds = genInds(M)
 
@@ -63,19 +70,19 @@ domain.tree.J4 = function( locs, r=2 ){
 
 
 
-domain.tree.J2 = function( locs, m ){
+domain.tree.J2 = function( locs, mra.options ){
 
   n = length(locs)/ncol(locs)
   points = seq(n)
-  params = choose.M( n, m )
-  r = params$r; M=params$M
+
+  r = mra.options[['r']]
+  J = mra.options[['J']]
+  M = mra.options[['M']]
   grid.tree = list(r=points)
   inds = genInds(M,J=c(2))
 
   for( ind in inds ) {
-
     if( child.id(ind)==1 ){
-
       par.inds = grid.tree[[parent(ind)]]
       par.locs = locs[par.inds,]
 
@@ -102,13 +109,21 @@ domain.tree.J2 = function( locs, m ){
   return(grid.tree)
 }
 
-# findOrderedHierarchyFSA = function( locs, J ){
+# domain.tree.FSA = function( locs, mra.options ){
 #
-#   n = length(locs)
+#   J = mra.options[['J']]
+#   n = length(locs)/ncol(locs)
 #   points = seq(n)
 #   M = 1
 #   grid.tree = list(r=points)
-#   inds =
+#   centers = locs[1:J,]
 #
+#   D = fields::rdist(locs[-seq(J),], centers)
+#   cents = apply(D, 1, which.min)
+#   for( j in 1:J){
+#     ind = paste("r", j, sep="")
+#     grid.tree[[ind]] = c(j, J + which(cents==j))
+#   }
 #
+#   return(grid.tree)
 # }
