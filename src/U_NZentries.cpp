@@ -262,13 +262,15 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
 #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
     for (k = 0; k < nnp; k++) {
 
-      //<<<<<<< HEAD
+     /*<<<<<<< HEAD*/
+     inds=revNNarray.row(k).t();
+     revCon_row=revCondOnLatent.row(k).t();
      //n0 = get_nonzero_count(k,m); // for original SGV case
-    // inds00 = get_idx_vals(n0, m, inds);
+     // inds00 = get_idx_vals(n0, m, inds);
      n0 = get_nonzero_count_general(inds); // for general case
      inds00 = get_idx_vals_general(n0, inds);
 
-// extract locations
+     // extract locations
      //locs0=locs.rows(inds00); // to extract multiple rows from matrix
      //revCond = revCon_row(span(m+1-n0,m));
      // "%" indicates element-wise multiplication
