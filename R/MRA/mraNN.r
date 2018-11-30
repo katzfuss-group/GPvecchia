@@ -13,9 +13,9 @@ choose.M = function(n, m) {
   if(M+1>m) {
     M=m-1
     r=rep(1,M+1)
-    J=c(1,rep(2,M-1),ceiling((n-sum(2^(0:(M-1))))/2^(M-1)))
+    J=c(rep(2,M-1),ceiling((n-sum(2^(0:(M-1))))/2^(M-1)))
   } else{
-    J=c(1,rep(2,M))
+    J=c(rep(2,M))
 
     ## choose r based on m
     r=rep(ceiling(m/(M+1)),M+1)
@@ -42,27 +42,8 @@ get.mra.params = function(n,m, opts){
   if(is.null(opts$M) ){
     if(is.null(opts$r)) {
       pars = choose.M(n,m)
-      # M = 0
-      # while(J^(M+1)/(M+1) <= n/m ) M=M+1
-      # if(M+1>m){
-      #   M = m-1
-      #   r = rep(1,M+1)
-      #   J = c(1, rep(2, M-1), ceiling((n-sum(2^(0:M-1)))/2^(M-1)))
-      # } else {
-      #   J = c(1, rep(2,M))
-      #   r = rep(ceiling(m/(M+1)), M+1)
-      #   l = M
-      #   while(sum(r)>m) {
-      #     r[l]=r[l]-1
-      #     l=l-1
-      #   }
-      # }
-      #print(paste(r, " vs. ", pars$r, sep=""))
-      r = pars$r
-      M = pars$M
-      J = pars$J
-      print(J)
-      #print(paste(r, " vs. ", pars$M, sep=""))
+      browser()
+      r = pars$r; M = pars$M; J = pars$J
     } else {
       r = opts$r
       if(length(r)>1) M=length(r)-1
