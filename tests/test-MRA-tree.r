@@ -7,7 +7,7 @@ source("MRA/knot-tree.r")
 source("MRA/tree-plotting-methods.r")
 source("MRA/mraNN.r")
 
-exactCase = TRUE
+exactCase = FALSE
 
 #exact case
 if( exactCase ) {
@@ -16,15 +16,15 @@ if( exactCase ) {
   n=3; m=2; r=1
 } else {
   spatial.dim=1 # number of spatial dimensions
-  n=14 # number of observed locs
+  n=8 # number of observed locs
   m=3; r=2
 }
 
 # simulate locations
-#set.seed(10)
+set.seed(10)
 if(spatial.dim==1){
   locs=matrix(runif(n),ncol=1)
-  if( exact ) {
+  if( exactCase ) {
     ord = order_coordinate((locs))
     locs = matrix(locs[ord])
   }
@@ -34,9 +34,9 @@ if(spatial.dim==1){
   locs = locs[ord,]
 }
 
-ind.tree = domain.tree.J2(locs, m)
-knt.tree = knot.tree(ind.tree, r, dim=1)
-plot.locs.tree(ind.tree, locs, knots=knt.tree)
+#ind.tree = domain.tree.J2(locs, m)
+#knt.tree = knot.tree(ind.tree, r, dim=1)
+#plot.locs.tree(ind.tree, locs, knots=knt.tree)
 #mra.tree = ord.knot.tree(knt.tree)
 
 #print(mra.tree$knot.tree)
@@ -44,6 +44,7 @@ plot.locs.tree(ind.tree, locs, knots=knt.tree)
 
 
 
-#NNarray = getNNmatrix(mra.tree$knot.tree)
+#Narray = getNNmatrix(mra.tree$knot.tree)
 #print(NNarray)
-#NNarray = findOrderedNN_mra(locs, J=2, r=1)
+NNarray = findOrderedNN_mra(locs, J=4, r=1)
+print(NNarray)

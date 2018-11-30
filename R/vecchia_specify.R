@@ -22,23 +22,28 @@
 # only has to be run once before repeated likelihood evals
 
 
-
-vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, J=4) {
+vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, mra.options=NULL) {
+#vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, J=4) {
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
 
   # default options
-  if(missing(ordering)){ ordering = (if(spatial.dim==1) 'coord' else 'maxmin') }
+  if(missing(ordering)){
+    if(spatial.dim==1 && conditioning!='mra') {
+      ordering = 'coord'
+    } else ordering = 'maxmin'
+  }
   if(missing(cond.yz)){ cond.yz = (if(missing(locs.pred)) 'SGV' else 'SGVT') }
   if(missing(pred.cond)){ pred.cond='general' }
   if(missing(conditioning)){ conditioning='NN' }
+
 
   # for firstm conditioning, ordering must be maxmin to spread out fixed points
   if(conditioning == 'firstm') ordering='maxmin'
 
   # if conditioning is 'mra' then ordering should correspond to that
-  if(conditioning == 'mra') ordering='mra'
+  #if(conditioning == 'mra') ordering='mra'
 
   ### order locs and z
 
@@ -48,11 +53,7 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
       ord=order_coordinate(locs)
     } else if(ordering=='maxmin'){
       ord = order_maxmin(locs)
-    } else if(ordering=='mra'){
-      mra = mra.tree(locs, J, m)
-      ord = mra$ord
     }
-
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
     obs=rep(TRUE,n)
@@ -90,8 +91,7 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
 
 
   if( conditioning == 'mra' ){
-    NNarray = getNNmatrix(mra$tree)
-    print(NNarray)
+    NNarray = findOrderedNN_mra(locsord, m, mra.options)
   } else {
 
     ### obtain nearest neighbors
