@@ -58,8 +58,8 @@ getNNmatrix = function(knot.tree){
   #fill out the list of neighbors for the root
 
   #find the root(s) of the tree
-  min.length = min(sapply(names(knot.tree), function(n) nchar(n)))
-  roots = which(sapply(names(knot.tree), nchar)==min.length)
+  min.length = min(sapply(names(knot.tree), res))
+  roots = which(sapply(names(knot.tree), res)==min.length)
 
   for( root.no in roots ){
     root = names(knot.tree)[root.no]

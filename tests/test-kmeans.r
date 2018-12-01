@@ -42,8 +42,8 @@ equal.kmeans3 = function(locs, size){
     new.regions = vector("list", 2**power)
     for( reg.id in 1:length(regions)) {
       region = regions[[reg.id]]
-      locs.in.region = locs[region,]
       if(ncol(locs)==2 && (power %% 2)==1) d=1 else d=2
+      locs.in.region = matrix(locs[region,], ncol=ncol(locs))
       cutoff = quantile(locs.in.region[,d], 0.5)
       new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] <= cutoff)]
       new.regions[[2*reg.id]] = region[which(locs.in.region[,d] > cutoff)]

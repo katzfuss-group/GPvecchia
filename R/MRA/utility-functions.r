@@ -61,3 +61,40 @@ plot.locsord = function(locsord, col = "#000000", col2="#FFFFFF"){
   collist = sapply(vals/nlocs, colf)
   fields::quilt.plot(locsord, vals, col=collist)
 }
+
+
+cluster.equal = function(locs, size, K=NULL){
+
+  n = nrow(locs)
+  if(!is.null(K)) size = round(n/K)
+  else K = n/size
+
+  J = 2**ceiling(log(K,2))
+  if(!K==J){
+    warning(paste("the number of subregions fo the original domain is ", K, " but has to be a power of 2. Setting J=", J, sep=""))
+  }
+  regions = list(seq(1:nrow(locs)))
+  for(power in 1:log(J,2)){
+    new.regions = vector("list", 2**power)
+    for( reg.id in 1:length(regions)) {
+      region = regions[[reg.id]]
+      if(ncol(locs)==2 && (power %% 2)==1) d=2 else d=1
+      locs.in.region = matrix(locs[region,], ncol=ncol(locs))
+      cutoff = quantile(locs.in.region[,d], 0.5)
+      new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] <= cutoff)]
+      new.regions[[2*reg.id]] = region[which(locs.in.region[,d] > cutoff)]
+    }
+    regions = new.regions
+  }
+
+  ## return data in a format consistent with kmeans clustering
+  clusters = rep(0, nrow(locs))
+  id = 1
+  for(region in regions){
+    clusters[region] = id
+    id = id + 1
+  }
+  if( any(table(clusters)>size))  stop("something went wrong with clustering. Some clusters are too big")
+  return(clusters)
+}
+

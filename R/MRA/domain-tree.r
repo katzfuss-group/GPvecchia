@@ -1,7 +1,8 @@
-domain.tree.FSA = function(locs, r){
+domain.tree.low.rank = function(locs, mra.params){
+  r = mra.params$r[1]
   domain.tree=list(r=seq(nrow(locs)))
-  for( idx in 1:(nrow(locs)-r) ){
-    locs.idx = idx + r
+  for( idx in (r+1):nrow(locs) ){
+    locs.idx = idx
     id = paste("r",idx,sep="_")
     domain.tree[[id]] = locs.idx
   }
@@ -109,21 +110,25 @@ domain.tree.J2 = function( locs, mra.options ){
   return(grid.tree)
 }
 
-# domain.tree.FSA = function( locs, mra.options ){
-#
-#   J = mra.options[['J']]
-#   n = length(locs)/ncol(locs)
-#   points = seq(n)
-#   M = 1
-#   grid.tree = list(r=points)
-#   centers = locs[1:J,]
-#
-#   D = fields::rdist(locs[-seq(J),], centers)
-#   cents = apply(D, 1, which.min)
-#   for( j in 1:J){
-#     ind = paste("r", j, sep="")
-#     grid.tree[[ind]] = c(j, J + which(cents==j))
-#   }
-#
-#   return(grid.tree)
-# }
+
+domain.tree.FSA = function( locs, mra.options ){
+
+  J = mra.options[['J']]
+  n = length(locs)/ncol(locs)
+  points = seq(n)
+  M = 1
+  grid.tree = list(r=points)
+
+  clusters = cluster.equal(locs, K=J)
+
+  #centers = locs[1:J,]
+  #D = fields::rdist(locs[-seq(J),], centers)
+  #cents = apply(D, 1, which.min)
+  for( j in 1:max(clusters)){
+    ind = paste("r", j, sep="_")
+    grid.tree[[ind]] = which(clusters==j)
+    #grid.tree[[ind]] = c(j, J + which(cents==j))
+  }
+
+  return(grid.tree)
+}
