@@ -39,7 +39,7 @@ genInds = function(M, J=c(4)){
   inds = genIndices(M,J)
   inds = sapply(inds, function(ind) paste("r", ind, sep="_"))
 
-  lengths = sapply(inds, function(s) nchar(s))
+  lengths = sapply(inds, function(s) res(s))
   ord = order(lengths)
   return(inds[ord])
 }
@@ -66,7 +66,7 @@ plot.locsord = function(locsord, col = "#000000", col2="#FFFFFF"){
 cluster.equal = function(locs, size, K=NULL){
 
   n = nrow(locs)
-  if(!is.null(K)) size = round(n/K)
+  if(!is.null(K)) size = ceiling(n/K)
   else K = n/size
 
   J = 2**ceiling(log(K,2))
@@ -86,7 +86,6 @@ cluster.equal = function(locs, size, K=NULL){
     }
     regions = new.regions
   }
-
   ## return data in a format consistent with kmeans clustering
   clusters = rep(0, nrow(locs))
   id = 1

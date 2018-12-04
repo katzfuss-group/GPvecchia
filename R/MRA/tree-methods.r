@@ -40,6 +40,27 @@ get.Jm = function(tree, m=NULL){
   return(Js)
 }
 
+get.rm = function(knot.tree){
+  M = get.M(knot.tree)
+  all.knots = names(knot.tree)
+  rs = rep(0, M)
+  for( ind in all.knots ){
+    m = res(ind)
+    if(m==M) next
+    r = length(knot.tree[[ind]])
+    #print(paste("ind: ", ind, ", r: ", r, sep=""))
+    if(rs[m+1]==0) rs[m+1]=r
+    else if(rs[m+1]!=r) {
+      warning("different number of knots for subregions of the same resolution")
+    }
+  }
+  return(rs)
+}
+
+
+
+
+
 
 #### plotting methods ####
 

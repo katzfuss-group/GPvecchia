@@ -22,9 +22,14 @@
 # only has to be run once before repeated likelihood evals
 
 
-vecchia_specify=function(locs,m=0,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, mra.options=NULL) {
+vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, mra.options=NULL) {
 #vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, J=4) {
 
+  if(m==-1) {
+    if(conditioning=='mra' && !is.null(mra.options) &&  !is.null(mra.options$J) && !is.null(mra.options$r) && !is.null(mra.options$J))
+      warning("m not defined; using MRA parameters")
+    else stop("m not defined")
+  }
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
@@ -92,7 +97,8 @@ vecchia_specify=function(locs,m=0,ordering,cond.yz,locs.pred,ordering.pred,pred.
 
 
   if( conditioning == 'mra' ){
-    NNarray = findOrderedNN_mra(locsord, m, mra.options)
+    NNarray = findOrderedNN_mra(locsord, mra.options, m)
+    if(!hasArg(m)) m = ncol(NNarray)-1
   } else {
 
     ### obtain nearest neighbors

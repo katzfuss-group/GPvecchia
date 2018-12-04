@@ -71,6 +71,17 @@ domain.tree.J4 = function( locs, mra.options ){
 
 
 
+get.inds.from.children = function(ind, tree){
+  inds = c()
+  for(node in names(tree)){
+    if(parent(node)==ind){
+      inds=c(inds,tree[[node]])
+    }
+  }
+  return(inds)
+}
+
+
 domain.tree.J2 = function( locs, mra.options ){
 
   n = length(locs)/ncol(locs)
@@ -80,31 +91,35 @@ domain.tree.J2 = function( locs, mra.options ){
   J = mra.options[['J']]
   M = mra.options[['M']]
   grid.tree = list(r=points)
-  inds = genInds(M,J=c(2))
-
+  inds = genInds(M,J=J)
   for( ind in inds ) {
     if( child.id(ind)==1 ){
       par.inds = grid.tree[[parent(ind)]]
       par.locs = locs[par.inds,]
-
-      if( ncol(locs)==2 ){
-        if( (res(ind) %% 2) == 1 ) {
-          x_split = quantile(par.locs[,1],0.5)
-          reg1 = par.inds[which(par.locs[,1]<=x_split)]
-          reg2 = par.inds[which(par.locs[,1]>x_split)]
-        } else {
-          y_split = quantile(par.locs[,2],0.5)
-          reg1 = par.inds[which(par.locs[,2]<=y_split)]
-          reg2 = par.inds[which(par.locs[,2]>y_split)]
+      print(sort(par.locs))
+      if(ncol(locs)==1) par.locs = matrix(par.locs, ncol=1)
+      if(res(ind)==M && J[M]!=2) {
+        clusters = cluster.equal(par.locs, K=J[M])
+        subregs = sapply(seq(max(clusters)), function(i) par.inds[which(clusters==i)])
+      } else {
+        if( ncol(locs)==2 ){
+          if( (res(ind) %% 2) == 1 ) {
+            x_split = quantile(par.locs[,1],0.5)
+            reg1 = par.inds[which(par.locs[,1]<=x_split)]
+            reg2 = par.inds[which(par.locs[,1]>x_split)]
+          } else {
+            y_split = quantile(par.locs[,2],0.5)
+            reg1 = par.inds[which(par.locs[,2]<=y_split)]
+            reg2 = par.inds[which(par.locs[,2]>y_split)]
+          }
+        } else if(ncol(locs)==1 ) {
+          x_split = quantile(par.locs, 0.5)
+          reg1 = par.inds[which(par.locs<x_split)]
+          reg2 = par.inds[which(par.locs>=x_split)]
         }
-      } else if(ncol(locs)==1 ) {
-        x_split = quantile(par.locs, 0.5)
-        reg1 = par.inds[which(par.locs<x_split)]
-        reg2 = par.inds[which(par.locs>=x_split)]
+        subregs = list(reg1, reg2)
       }
-      subregs = list(reg1, reg2)
     }
-
     grid.tree[[ind]] = subregs[[child.id(ind)]]
   }
   return(grid.tree)

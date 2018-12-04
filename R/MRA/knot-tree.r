@@ -13,14 +13,12 @@ knot.tree = function(locs.tree, r, dim=2){
       available = intersect(node.locs, remaining[[parent(ind)]])
 
       if(res(ind)==M ) knots[[ind]] = available       # if we are at the last resolution, everything is a knot
-
       else {                                          # if not at the last resolution:
         if( exact ){  #spectial case when we place knots at the split points in 1d
           children = Filter(function(s) startsWith(s, ind) && nchar(s)==nchar(ind)+1, names(locs.tree))
           knts = c()
           for( child in children[-1] ){
             locs.child.available = intersect(locs.tree[[child]], available)
-
             knts = c(knts, locs.child.available[1])
           }
           knots[[ind]] = knts
