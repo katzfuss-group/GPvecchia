@@ -27,7 +27,6 @@ calculate_posterior_VL = function(z,vecchia.approx,
                                   max.iter=50, convg = 1e-5, return_all = FALSE, y_init = NA,
                                   prior_mean = rep(0,length(z))){
 
-  zy.conditioning = (vecchia.approx$cond.yz=="zy")
   likelihood_model <- match.arg(likelihood_model)
 
   # pull out score and second derivative for readability
@@ -53,7 +52,6 @@ calculate_posterior_VL = function(z,vecchia.approx,
   y_o = y_init
   if(any(is.na(y_o))) y_o = prior_mean
 
-  #points(locs[order(locs)], y_o[order(locs)], type = "l", col = alpha("black", .4))
   convgd = FALSE
   tot_iters = 1
   for( i in 1:max.iter){
@@ -69,11 +67,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     # make prediction
     preds=vecchia_prediction(pseudo.data,vecchia.approx,covparms,
                              nuggets,return.values='meanmat')
-    if( zy.conditioning){
-      y_o = preds$mu.pred + prior_mean # y treated as prediction
-    }else{
-      y_o = preds$mu.obs + prior_mean # SGV, firstm, etc
-    }
+    y_o = preds$mu.obs + prior_mean
 
     if(is.na(max(abs(y_o-y_prev)))){
       # convergence failed due to machine precision?
@@ -99,7 +93,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     V.ord=preds$V.ord
     # if ZY_liklihood works, dont need W or V?
     W = as(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
-    if (zy.conditioning){
+    if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
       V.ord = V.ord[1:n, 1:n]
       W = W[(n+1):(2*n), (n+1):(2*n)]
