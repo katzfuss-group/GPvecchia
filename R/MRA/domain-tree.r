@@ -97,9 +97,9 @@ domain.tree.J2 = function( locs, mra.options ){
       par.inds = grid.tree[[parent(ind)]]
       par.locs = locs[par.inds,]
       if(ncol(locs)==1) par.locs = matrix(par.locs, ncol=1)
-      if(res(ind)==M && J[M]!=2) {
+      if(res(ind)==M && length(J)>=M && J[M]!=2) {
         clusters = cluster.equal(par.locs, K=J[M])
-        subregs = sapply(seq(max(clusters)), function(i) par.inds[which(clusters==i)])
+        subregs = sapply(seq(J[M]), function(i) par.inds[which(clusters==i)])
       } else {
         if( ncol(locs)==2 ){
           if( (res(ind) %% 2) == 1 ) {

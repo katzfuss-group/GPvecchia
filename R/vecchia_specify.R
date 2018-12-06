@@ -25,10 +25,10 @@
 vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, mra.options=NULL) {
 #vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,conditioning, J=4) {
 
-  if(m==-1) {
+  if(m==-1 || is.null(m)) {
     if(conditioning=='mra' && !is.null(mra.options) &&  !is.null(mra.options$J) && !is.null(mra.options$r) && !is.null(mra.options$J))
       warning("m not defined; using MRA parameters")
-    else stop("m not defined")
+    else if(is.null(mra.options$r)) stop("neither m nor r defined!")
   }
 
   spatial.dim=ncol(locs)

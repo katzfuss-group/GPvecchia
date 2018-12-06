@@ -75,6 +75,7 @@ getNNmatrix = function(knot.tree){
   # for the remaining knots
   for( ind in names(knot.tree)[-roots] ){
     knots = knot.tree[[ind]]
+    if(all(is.na(knots))) next()
     parent.knots = knot.tree[[parent(ind)]]
     last.knot = parent.knots[length(parent.knots)]
     cond.set = neighbors[[parent.knots[length(parent.knots)]]]

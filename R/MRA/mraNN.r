@@ -13,7 +13,7 @@ choose.M = function(n, m) {
   if(M+1>m) {
     M=m-1
     r=rep(1,M+1)
-    J=c(rep(2,M-1),ceiling((n-sum(2^(0:(M-1))))/2^(M-1)))
+    J=c(rep(2,M-1),2**ceiling(log((n-sum(2^(0:(M-1))))/2^(M-1),2)))
   } else{
     J=c(rep(2,M))
 
@@ -27,7 +27,8 @@ choose.M = function(n, m) {
   }
 
   ### check that choices are valid
-  if(sum(r)>m | sum(r*cumprod(J))<n) print('ERROR')
+  #if(sum(r)>m | sum(r*cumprod(J))<n) print('ERROR')
+  if(sum(r)>m | sum(r*cumprod(c(1,J)))<n) print('ERROR')
   else return(list(M=M, r=r, J=J))
 }
 
@@ -43,8 +44,8 @@ get.mra.params = function(n,opts,m){
 
   # set J first
   if(is.null(opts$J) && is.null(opts$M)) {
-    if(opts$r[1]==0 && length(opts$r)==2) J = round(n/opts$r[2]) #needed for independent block
-    else if(length(opts$r)==2 && opts$r[2]==1) J = n-opts$r[1] #needed for low-rank
+    if(opts$r[1]==0 && length(opts$r)==2) J = 2**ceiling(log(n/opts$r[2],2)) #needed for independent block
+    else if(length(opts$r)==2 && opts$r[2]==1) J = 2**ceiling(log(n-opts$r[1],2)) #needed for low-rank
     else J=2
     warning("J not specified. Setting J=",J)
   } else J=opts$J
@@ -66,14 +67,6 @@ get.mra.params = function(n,opts,m){
     if(is.null(opts$J)){
       last.J = 2**(ceiling(log((n - r*(2^M-1))/r, 2)) - (M-1))
       J = c(rep(2, M-1), last.J)
-      #J = c(rep(2,M-1))
-      #last.Js = rep(2, ceiling(log(round((n - r*(2^M-1))/r),2))-M)
-      #if(length(last.Js)){
-      #  J = c(rep(2, M-1), last.Js)
-      #  if(length(r)>1) r = c(r, rep(0, length(last.Js)-1), r[length(r)])
-      #  else r = c(rep(r, M+1), rep(0, length(last.Js)-1), r[length(r)])
-      #}
-      #M = M+length(last.Js)
     }
   } else {
     if( m>0 ) warning("M, r set for MRA. If parameter m was given, it will be overridden")
@@ -93,8 +86,6 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
 
   n = length(locs)/ncol(locs)
   mra.params = get.mra.params(n, mra.options, m)
-  #print(mra.params)
-
 
   if(mra.params$J!=2 && mra.params$J!=4){
     if( mra.params$M>1) warning("When J is neither 2 nor 4 we always set M to 1 and use the Full scale approximation")
