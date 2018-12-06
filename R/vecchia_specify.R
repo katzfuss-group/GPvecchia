@@ -5,7 +5,7 @@
 #' repeated likelihood evaluations.
 #' @param locs: nxd matrix of observed locs
 #' @param ordering: options are 'coord' or 'maxmin'
-#' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', and 'zy'
+#' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', 'RVP', and 'zy'
 #' @param ordering.pred: options are 'obspred' or 'general'
 #' @param pred.cond: prediction conditioning, options are 'general' or 'independent'
 #' @param conditioning: conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
@@ -39,9 +39,10 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
   if(missing(ordering)){
     if(spatial.dim==1) {ordering = 'coord'} else ordering = 'maxmin'
   }
-  if(missing(cond.yz)){ cond.yz = (if(missing(locs.pred)) 'SGV' else 'SGVT') }
-  if(missing(pred.cond)){ pred.cond='general' }
-  if(missing(conditioning)){ conditioning='NN' }
+  if(missing(cond.yz)){
+    cond.yz = (if(missing(locs.pred) | spatial.dim==1) 'SGV' else 'zy') }
+  if(missing(pred.cond)) pred.cond='general'
+  if(missing(conditioning)) conditioning='NN'
   if(conditioning=='firstm'){
     conditioning='mra'
     mra.options=list(r=c(m,0),M=1)
@@ -122,35 +123,43 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
     Cond=rbind(whichCondOnLatent(NNarray[1:n,]),matrix(TRUE,nrow=n.p,ncol=m+1))
   } else if(cond.yz=='y'){
     Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=TRUE
-  } else if(cond.yz=='zy'){
+  } else if(cond.yz=='RVP'){
     Cond=(NNarray>n); Cond[,1]=TRUE
-  } else {  # cond.yz=='z'
+  } else if(cond.yz=='z'){
     Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=FALSE; Cond[,1]=TRUE
-  }
+  } else if(cond.yz=='zy'){ ### "trick" code into response-latent ('zy') ordering
 
-  if(cond.yz=='zy' & missing(locs.pred)){
+    ## reset variables
+    obs=c(rep(TRUE,n),rep(FALSE,nrow(locsord)))
+    ord=c(ord[1:n],ord+n)
+    locsord=rbind(locsord[1:n,,drop=FALSE],locsord)
 
     ## specify neighbors
-    NNs=FNN::get.knn(locsord,m-1)$nn.index
-    prev=NNs<matrix(rep(1:n,m-1),nrow=n)
+    NNs=FNN::get.knn(locsord[1:n,,drop=FALSE],m-1)$nn.index
+    prev=(NNs<matrix(rep(1:n,m-1),nrow=n))
     NNs[prev]=NNs[prev]+n # condition on latent y if possible
 
     ## create NN array
-    NNarray.z= cbind(1:n,matrix(nrow=n,ncol=m))
+    NNarray.z=cbind(1:n,matrix(nrow=n,ncol=m))
     NNarray.y=cbind((1:n)+n,1:n,NNs)
-    NNarray=rbind(NNarray.z,NNarray.y)
+    if(missing(locs.pred)){
+      NNarray.yp=matrix(nrow=0,ncol=m+1)
+      ordering.pred='obspred'
+    } else {
+      if(ordering.pred!='obspred') print('Warning: ZY only implemented for obspred ordering')
+      NNarray.yp=NNarray[n+(1:n.p),]+n
+    }
+    NNarray=rbind(NNarray.z,NNarray.y,NNarray.yp)
 
-    ## set other variables appropriately
+    ## conditioning
     Cond=(NNarray>n); Cond[,1]=TRUE
-    obs=rep(c(TRUE,FALSE),each=n)
-    locsord=rbind(locsord,locsord)
-    ord=c(ord,ord+n)
-    ordering.pred='obspred'
 
-  }
+  } else stop(paste0("cond.yz='",cond.yz,"' not defined"))
+
 
   ### determine the sparsity structure of U
   U.prep=U_sparsity( locsord, NNarray, obs, Cond )
+
 
   ### object that specifies the vecchia approximation
   vecchia.approx=list(locsord=locsord,obs=obs,ord=ord,ord.z=ord.z,ord.pred=ordering.pred,

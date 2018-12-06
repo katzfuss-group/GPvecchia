@@ -134,6 +134,7 @@ H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
 
 # compute variances of Hy
 lincomb.vars=vecchia_lincomb(H,preds$U.obj,preds$V.ord)
+plot(preds$var.pred,lincomb.vars)
 
 
 ### example: overall mean over space
