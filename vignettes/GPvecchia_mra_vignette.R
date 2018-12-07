@@ -44,8 +44,8 @@ if(n < 1e4) {
 
 
 
-mra.options = list(plots=TRUE, M=2)
-V = vecchia_specify(locs, m=6, conditioning='mra', mra.options=mra.options)
+mra.options = list(plots=TRUE, r=c(0,11))
+V = vecchia_specify(locs, m=6, conditioning='mra')#, mra.options=mra.options)
 
 ##### likelihood evaluation #####
 covparms=c(sig2,range,smooth)

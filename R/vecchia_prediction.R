@@ -10,7 +10,7 @@
 #' @return posterior mean and variances at observed and unobserved locations; V matrix
 #' @examples
 #' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia.approx=vecchia_specify(locs,m=5,locs.pred=(1:5)+.5)
-#' vecchia_prediction=function(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+#' vecchia_prediction(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export
 
 vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
