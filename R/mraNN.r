@@ -65,7 +65,7 @@ get.mra.params = function(n,opts,m){
     M = opts$M
     r = ceiling(m/(M+1))
     if(is.null(opts$J)){
-      last.J = 2**(ceiling(log((n - r*(2^M-1))/r, 2)) - (M-1))
+      last.J = 2**(ceiling(base::log((n - r*(2^M-1))/r, 2)) - (M-1))
       J = c(rep(2, M-1), last.J)
     }
   } else {
