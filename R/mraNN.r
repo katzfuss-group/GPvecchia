@@ -1,7 +1,7 @@
-source("R/domain-tree.r")
-source("R/knot-tree.r")
-source("R/tree-methods.r")
-source("R/utility-functions.r")
+#source("R/domain-tree.r")
+#source("R/knot-tree.r")
+#source("R/tree-methods.r")
+#source("R/utility-functions.r")
 
 
 choose.M = function(n, m) {
