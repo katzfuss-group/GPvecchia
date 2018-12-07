@@ -100,21 +100,36 @@ domain.tree.J2 = function( locs, mra.options ){
       if(res(ind)==M && length(J)>=M && J[M]!=2) {
         clusters = cluster.equal(par.locs, K=J[M])
         subregs = sapply(seq(J[M]), function(i) par.inds[which(clusters==i)])
-      } else {
+      } else {#if(res(ind)<M) {
         if( ncol(locs)==2 ){
           if( (res(ind) %% 2) == 1 ) {
-            x_split = quantile(par.locs[,1],0.5)
-            reg1 = par.inds[which(par.locs[,1]<=x_split)]
-            reg2 = par.inds[which(par.locs[,1]>x_split)]
+            if(length(par.inds)>1) {
+              x_split = quantile(par.locs[,1],0.5)
+              reg1 = par.inds[which(par.locs[,1]<=x_split)]
+              reg2 = par.inds[which(par.locs[,1]>x_split)]
+            } else {
+              reg1 = par.inds
+              reg2 = c()
+            }
           } else {
-            y_split = quantile(par.locs[,2],0.5)
-            reg1 = par.inds[which(par.locs[,2]<=y_split)]
-            reg2 = par.inds[which(par.locs[,2]>y_split)]
+            if(length(par.inds)>1) {
+              y_split = quantile(par.locs[,2],0.5)
+              reg1 = par.inds[which(par.locs[,2]<=y_split)]
+              reg2 = par.inds[which(par.locs[,2]>y_split)]
+            } else {
+              reg1 = par.inds
+              reg2 = c()
+            }
           }
         } else if(ncol(locs)==1 ) {
-          x_split = quantile(par.locs, 0.5)
-          reg1 = par.inds[which(par.locs<x_split)]
-          reg2 = par.inds[which(par.locs>=x_split)]
+          if(length(par.inds)>1) {
+            x_split = quantile(par.locs,0.5)
+            reg1 = par.inds[which(par.locs<=x_split)]
+            reg2 = par.inds[which(par.locs>x_split)]
+          } else {
+            reg1 = par.inds
+            reg2 = c()
+          }
         }
         subregs = list(reg1, reg2)
       }

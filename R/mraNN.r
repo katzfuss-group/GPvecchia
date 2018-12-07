@@ -13,7 +13,8 @@ choose.M = function(n, m) {
   if(M+1>m) {
     M=m-1
     r=rep(1,M+1)
-    J=c(rep(2,M-1),2**ceiling(base::log((n-sum(2^(0:(M-1))))/2^(M-1),2)))
+    last.J = 2**ceiling(base::log((n-sum(2^(0:(M-1))))/2^(M-1),2))
+    J=c(rep(2,max(M-1,0)),last.J)
   } else{
     J=c(rep(2,M))
 
@@ -86,6 +87,7 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
 
   n = length(locs)/ncol(locs)
   mra.params = get.mra.params(n, mra.options, m)
+  print(mra.params)
 
   if(mra.params$J!=2 && mra.params$J!=4){
     if( mra.params$M>1) warning("When J is neither 2 nor 4 we always set M to 1 and use the Full scale approximation")

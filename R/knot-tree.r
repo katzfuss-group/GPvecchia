@@ -61,6 +61,7 @@ getNNmatrix = function(knot.tree){
 
   for( root.no in roots ){
     root = names(knot.tree)[root.no]
+    if( length(knot.tree[[root]])==0) next()
     root.ind = knot.tree[[root]][1]
     neighbors[[root.ind]] = c(root.ind); cond.set=c(root.ind); last.knot=root.ind
     for( knot in knot.tree[[root]][-1]){
