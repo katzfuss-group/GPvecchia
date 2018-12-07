@@ -299,7 +299,7 @@ V2covmat=function(preds){
 
   # extract parts corresponding to obs and pred locs
   if(preds$U.obj$cond.yz=='zy'){
-    n.o=length(z)
+    n.o=length(preds$U.obj$ord.z)
     Sigma.obs=Sigma[n.o+(1:n.o),n.o+(1:n.o)]
     Sigma.pred=Sigma[(2*n.o+1):nrow(Sigma),(2*n.o+1):nrow(Sigma)]
   } else {
