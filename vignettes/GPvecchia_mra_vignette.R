@@ -3,19 +3,7 @@ library(GpGp)
 library(parallel)
 library(Matrix)
 
-setwd("/home/marcin/GPvecchia")
-source("R/vecchia_specify.R")
-source("R/createU.R")
-source("R/vecchia_likelihood.R")
-source("R/vecchia_prediction.R")
-source("R/RcppExports.R")
-source("R/ordering_functions.R")
-source("R/mraNN.r")
-source("R/whichCondOnLatent.R")
-source("R/U_sparsity.R")
-source("R/NN_kdtree.R")
-
-Rcpp::sourceCpp('src/U_NZentries.cpp')
+library(GPvecchia)
 
 
 set.seed(1988)
