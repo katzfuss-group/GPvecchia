@@ -380,13 +380,13 @@ orderMaxMinFast <- function( locs, numpropose ){
   orderinds <- rep(0L,n)
   # pick a center point
   mp <- matrix(colMeans(locs),1,d)
-  distmp <- rdist(locs,mp)
+  distmp <- fields::rdist(locs,mp)
   ordermp <- order(distmp)
   orderinds[1] = ordermp[1]
   remaininginds <- remaininginds[remaininginds!=orderinds[1]]
   for( j in 2:(n-1) ){
     randinds <- sample(remaininginds,min(numpropose,length(remaininginds)))
-    distarray <-  rdist(locs[orderinds[1:j-1],,drop=FALSE],locs[randinds,,drop=FALSE])
+    distarray <-  fields::rdist(locs[orderinds[1:j-1],,drop=FALSE],locs[randinds,,drop=FALSE])
     bestind <- which(matrixStats::colMins(distarray) ==  max( matrixStats::colMins( distarray ) )) 
     orderinds[j] <- randinds[bestind[1]]    
     remaininginds <- remaininginds[remaininginds!=orderinds[j]]
@@ -468,7 +468,7 @@ orderMaxMinLocal <- function(locs){
         
         # figure out which remaining point (in 'rem') has maximum minimum
         # distance to the already selected points (in 'used')
-        distmat <- rdist(locs[rem,,drop=FALSE],locs[used,,drop=FALSE])
+        distmat <- fields::rdist(locs[rem,,drop=FALSE],locs[used,,drop=FALSE])
         #mindist <- apply(distmat,1,min)  # too slow
         mindist <- rowMins(distmat)
         whichind <- which( mindist == max(mindist) )[1]

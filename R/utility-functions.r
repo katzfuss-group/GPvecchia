@@ -1,4 +1,3 @@
-library(fields)
 ## Converts a list of numeric vectors to an n x m matrix,
 ## where n is the length of the list and m is the length
 ## of the longest vector. Rows wth shorter vectors are

@@ -107,7 +107,7 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
     if(ordering.pred=='obspred'){
       NNarray.pred <- array(dim=c(n.p,m+1))
       for(j in 1:n.p){
-        dists=rdist(locsord[n+j,,drop=FALSE],locsord[1:n,,drop=FALSE])
+        dists=fields::rdist(locsord[n+j,,drop=FALSE],locsord[1:n,,drop=FALSE])
         m.nearest.obs=sort(order(dists)[1:m],decreasing=TRUE)
         NNarray.pred[j,]=c(n+j,m.nearest.obs)
       }
