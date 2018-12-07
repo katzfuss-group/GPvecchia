@@ -13,7 +13,7 @@ choose.M = function(n, m) {
   if(M+1>m) {
     M=m-1
     r=rep(1,M+1)
-    J=c(rep(2,M-1),2**ceiling(log((n-sum(2^(0:(M-1))))/2^(M-1),2)))
+    J=c(rep(2,M-1),2**ceiling(base::log((n-sum(2^(0:(M-1))))/2^(M-1),2)))
   } else{
     J=c(rep(2,M))
 
@@ -44,8 +44,8 @@ get.mra.params = function(n,opts,m){
 
   # set J first
   if(is.null(opts$J) && is.null(opts$M)) {
-    if(opts$r[1]==0 && length(opts$r)==2) J = 2**ceiling(log(n/opts$r[2],2)) #needed for independent block
-    else if(length(opts$r)==2 && opts$r[2]==1) J = 2**ceiling(log(n-opts$r[1],2)) #needed for low-rank
+    if(opts$r[1]==0 && length(opts$r)==2) J = 2**ceiling(base::log(n/opts$r[2],2)) #needed for independent block
+    else if(length(opts$r)==2 && opts$r[2]==1) J = 2**ceiling(base::log(n-opts$r[1],2)) #needed for low-rank
     else J=2
     warning("J not specified. Setting J=",J)
   } else J=opts$J

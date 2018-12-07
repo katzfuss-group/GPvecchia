@@ -69,12 +69,12 @@ cluster.equal = function(locs, size, K=NULL){
   if(!is.null(K)) size = ceiling(n/K)
   else K = n/size
 
-  J = 2**ceiling(log(K,2))
+  J = 2**ceiling(base::log(K,2))
   if(!K==J){
     warning(paste("the number of subregions fo the original domain is ", K, " but has to be a power of 2. Setting J=", J, sep=""))
   }
   regions = list(seq(1:nrow(locs)))
-  for(power in 1:log(J,2)){
+  for(power in 1:base::log(J,2)){
     new.regions = vector("list", 2**power)
     for( reg.id in 1:length(regions)) {
       region = regions[[reg.id]]

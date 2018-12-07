@@ -20,7 +20,7 @@ Rcpp::sourceCpp('src/U_NZentries.cpp')
 
 set.seed(1988)
 spatial.dim=1 # number of spatial dimensions
-n=150  # number of observed locs
+n=900  # number of observed locs
 
 # simulate locations
 if(spatial.dim==1){
@@ -45,7 +45,7 @@ if(n < 1e4) {
 
 
 mra.options = list(plots=TRUE, r=c(0,11))
-V = vecchia_specify(locs, m=6, conditioning='mra')#, mra.options=mra.options)
+V = vecchia_specify(locs, m=10, conditioning='mra', mra.options=mra.options)
 
 ##### likelihood evaluation #####
 covparms=c(sig2,range,smooth)
