@@ -48,7 +48,6 @@ get.mra.params = function(n,opts,m){
     if(opts$r[1]==0 && length(opts$r)==2) J = 2**ceiling(base::log(n/opts$r[2],2)) #needed for independent block
     else if(length(opts$r)==2 && opts$r[2]==1) J = 2**ceiling(base::log(n-opts$r[1],2)) #needed for low-rank
     else J=2
-    warning("J not specified. Setting J=",J)
   } else J=opts$J
 
   # set M and r
@@ -87,7 +86,6 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
 
   n = length(locs)/ncol(locs)
   mra.params = get.mra.params(n, mra.options, m)
-  print(mra.params)
 
   if(mra.params$J!=2 && mra.params$J!=4){
     if( mra.params$M>1) warning("When J is neither 2 nor 4 we always set M to 1 and use the Full scale approximation")
