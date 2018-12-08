@@ -81,17 +81,23 @@ cluster.equal = function(locs, size, K=NULL){
       locs.in.region = matrix(locs[region,], ncol=ncol(locs))
       cutoff = quantile(locs.in.region[,d], 0.5)
       new.regions[[2*reg.id]] = region[which(locs.in.region[,d] > cutoff)]
-      new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] <= cutoff)]
-      # new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] < cutoff)]
-      # on.the.border = which(locs.in.region[,d]==cutoff)
-      # if(length(on.the.border)>0){
-      #
-      #   one.side = on.the.border[1:floor(length(on.the.border)/2)]
-      #   other.side = on.the.border[-(1:floor(length(on.the.border)/2))]
-      #
-      #   new.regions[[2*reg.id-1]] = c(new.regions[[2*reg.id-1]], region[one.side])
-      #   new.regions[[2*reg.id]] = c(new.regions[[2*reg.id]], region[other.side])
-      # }
+      new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] < cutoff)]
+
+      on.the.border = region[which(locs.in.region[,d]==cutoff)]
+      len.diff = length(new.regions[[2*reg.id]]) - length(new.regions[[2*reg.id-1]])
+      if(len.diff > 0 ){
+        new.regions[[2*reg.id-1]] = c(new.regions[[2*reg.id-1]], on.the.border[1:len.diff])
+        on.the.border = on.the.border[-(1:len.diff)]
+      } else if(len.diff < 0 ){
+        new.regions[[2*reg.id]] = c(new.regions[[2*reg.id]], on.the.border[1:-len.diff])
+        on.the.border = on.the.border[-(1:-len.diff)]
+      }
+      if(length(on.the.border)>0){
+        one.side = on.the.border[1:floor(length(on.the.border)/2)]
+        other.side = on.the.border[-(1:floor(length(on.the.border)/2))]
+        new.regions[[2*reg.id-1]] = c(new.regions[[2*reg.id-1]], one.side)
+        new.regions[[2*reg.id]] = c(new.regions[[2*reg.id]], other.side)
+      }
     }
     regions = new.regions
   }

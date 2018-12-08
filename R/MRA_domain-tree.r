@@ -23,13 +23,14 @@ domain.tree.low.rank = function(locs, mra.params){
 domain.tree.J4 = function( locs, mra.options ){
 
   r = mra.options[['r']]; J = 4; n = length(locs)/ncol(locs)
+  M = mra.options[['M']]
   points = seq(n)
 
-  M = floor(log((n/r)*(J-1) + 1)/log(J)) # not sure if -1 should be left in or out
+  #M = floor(log((n/r)*(J-1) + 1)/log(J)) # not sure if -1 should be left in or out
   #M = floor(log((n/r)*(J-1) + 1)/log(J)) - 1
-  if( M==0 ) stop(paste(c('ERROR: n=', n, ' points is not enough for J=4 and r=', r,' basis functions'), collapse=""))
+  #if( M==0 ) stop(paste(c('ERROR: n=', n, ' points is not enough for J=4 and r=', r,' basis functions'), collapse=""))
   grid.tree = list(r=points)
-  inds = genInds(M)
+  inds = genInds(M, J)
 
   for( ind in inds){
 
