@@ -106,6 +106,7 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
   if(eff.m > 100) print(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))
 
   print(paste("MRA params: m=",eff.m, ", J=", paste(get.Jm(ind.tree), collapse=","), ", r=", paste(get.rm(knt.tree), collapse=","), ", M=", get.M(ind.tree), sep=""))
+  #if(eff.m>m) stop("Something went wrong. Effective m is too big")
 
   return(mat)
 }

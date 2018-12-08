@@ -80,8 +80,18 @@ cluster.equal = function(locs, size, K=NULL){
       if(ncol(locs)==2 && (power %% 2)==1) d=2 else d=1
       locs.in.region = matrix(locs[region,], ncol=ncol(locs))
       cutoff = quantile(locs.in.region[,d], 0.5)
-      new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] <= cutoff)]
       new.regions[[2*reg.id]] = region[which(locs.in.region[,d] > cutoff)]
+      new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] <= cutoff)]
+      # new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] < cutoff)]
+      # on.the.border = which(locs.in.region[,d]==cutoff)
+      # if(length(on.the.border)>0){
+      #
+      #   one.side = on.the.border[1:floor(length(on.the.border)/2)]
+      #   other.side = on.the.border[-(1:floor(length(on.the.border)/2))]
+      #
+      #   new.regions[[2*reg.id-1]] = c(new.regions[[2*reg.id-1]], region[one.side])
+      #   new.regions[[2*reg.id]] = c(new.regions[[2*reg.id]], region[other.side])
+      # }
     }
     regions = new.regions
   }
@@ -92,7 +102,7 @@ cluster.equal = function(locs, size, K=NULL){
     clusters[region] = id
     id = id + 1
   }
-  if( any(table(clusters)>size))  stop("something went wrong with clustering. Some clusters are too big")
+  if( any(table(clusters)>size))  warning(paste("Something might be wrong with clustering. Max cluster size is ", max(table(clusters)), " and should be ", size, sep=""))
   return(clusters)
 }
 
