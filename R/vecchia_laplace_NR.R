@@ -98,14 +98,12 @@ calculate_posterior_VL = function(z,vecchia.approx,
       V.ord = V.ord[1:n, 1:n]
       W = W[(n+1):(2*n), (n+1):(2*n)]
     }
-    # generate likelihood approx
-    true_llh = model_funs$llh(y_o, z)
-    optional_data = list( "V"=V.ord, "W" = W, "true_llh"=true_llh)
+    optional_data = list( "V"=V.ord, "W" = W)
   }
 
   posterior_data = list("mean" = y_o, "cnvgd" = convgd, "runtime" = LV_time,
                         "iter" = tot_iters, "t"=pseudo.data, "D" = D,
-                        "prediction" = preds, "data_link"=link_fun)
+                        "prediction" = preds, "data_link"=link_fun, "model_llh"=  model_funs$llh)
 
   return ( c(posterior_data, optional_data))
 }

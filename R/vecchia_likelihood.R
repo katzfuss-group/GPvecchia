@@ -42,7 +42,7 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
 vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparms,
                                       likparms = list("alpha"=2, "sigma"=sqrt(.1)),
                                       covmodel='matern', max.iter=50, convg = 1e-5,
-                                      return_all = TRUE, y_init = NA,
+                                      return_all = FALSE, y_init = NA,
                                       prior_mean = rep(0,length(z)),
                                       vecchia.approx.IW = NA) {
 
@@ -70,7 +70,7 @@ vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparm
                                                       covparms,nuggets_pseudo, covmodel)
 
   # get true model log likelihood
-  true_llh = posterior$true_llh
+  true_llh = posterior$model_llh(posterior$mean, z)
 
   # get gaussian (pseudo-data) approximate log likelihood
   pseudo_cond_loglik = sum(dnorm(z_pseudo,mean = posterior$mean, sd =sqrt(nuggets_pseudo), log = TRUE))
