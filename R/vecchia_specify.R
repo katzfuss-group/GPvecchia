@@ -25,11 +25,6 @@
 vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,
                          conditioning, mra.options=NULL) {
 
-  if(m==-1 || is.null(m)) {
-    if(conditioning=='mra' && !is.null(mra.options) &&  !is.null(mra.options$J) && !is.null(mra.options$r) && !is.null(mra.options$J))
-      warning("m not defined; using MRA parameters")
-    else if(is.null(mra.options$r)) stop("neither m nor r defined!")
-  }
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
@@ -48,6 +43,11 @@ vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.co
   }
   if(conditioning=='mra') ordering='maxmin'
 
+  if(m==-1 || is.null(m)) {
+    if(conditioning=='mra' && !is.null(mra.options) &&  !is.null(mra.options$J) && !is.null(mra.options$r) && !is.null(mra.options$J))
+      warning("m not defined; using MRA parameters")
+    else if(is.null(mra.options$r)) stop("neither m nor r defined!")
+  }
 
   ### order locs and z
 
