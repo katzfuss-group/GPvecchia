@@ -62,9 +62,10 @@ plot.locsord = function(locsord, col = "#000000", col2="#FFFFFF"){
 }
 
 
-cluster.equal = function(locs, size, K=NULL){
+cluster.equal = function(locs, size, K=NULL, dim.start=2){
 
   n = nrow(locs)
+  if(is.null(n)) return(c(1))
   if(!is.null(K)) size = ceiling(n/K)
   else K = n/size
 
@@ -77,7 +78,7 @@ cluster.equal = function(locs, size, K=NULL){
     new.regions = vector("list", 2**power)
     for( reg.id in 1:length(regions)) {
       region = regions[[reg.id]]
-      if(ncol(locs)==2 && (power %% 2)==1) d=2 else d=1
+      if(ncol(locs)==2 && (power %% 2)==1) d=2*(dim.start==2)+1*(dim.start==1) else if(ncol(locs)==2) d=2*(dim.start==1)+1*(dim.start==2) else d=1
       locs.in.region = matrix(locs[region,], ncol=ncol(locs))
       cutoff = quantile(locs.in.region[,d], 0.5)
       new.regions[[2*reg.id]] = region[which(locs.in.region[,d] > cutoff)]

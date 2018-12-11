@@ -22,7 +22,7 @@
 # only has to be run once before repeated likelihood evals
 
 
-vecchia_specify=function(locs,m,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,
+vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,
                          conditioning, mra.options=NULL) {
 
   if(m==-1 || is.null(m)) {

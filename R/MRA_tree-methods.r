@@ -26,6 +26,17 @@ get.M = function(tree){
   return(M)
 }
 
+find.path = function(ind, tree){
+  path = names(Filter(function(node) ind %in% node, tree))
+  return(path)
+}
+
+
+get.knots.m = function(m, tree){
+  knots = Filter(function(ind) res(ind)==m, names(tree))
+  return(knots)
+}
+
 
 get.Jm = function(tree, m=NULL){
   M = get.M(tree)

@@ -6,8 +6,15 @@
 
 choose.M = function(n, m) {
 
+  if(m==1){
+    return(list(r=1, J=2**ceiling(base::log(n-1, 2)), M=1))
+  }
+
+
+
   M=1
-  while(2^(M+1)/(M+1) <= n/m) M=M+1
+  #while(2^(M+1)/(M+1) <= n/m) M=M+1
+  while(2^(M)/(M) <= n/m) M=M+1
 
   ## for very small m:
   if(M+1>m) {
@@ -20,10 +27,10 @@ choose.M = function(n, m) {
 
     ## choose r based on m
     r=rep(ceiling(m/(M+1)),M+1)
-    l=M
+    l=1
     while(sum(r)>m) {
       r[l]=r[l]-1
-      l=l-1
+      l=l+1
     }
   }
 
@@ -48,7 +55,8 @@ get.mra.params = function(n,opts,m){
     if(opts$r[1]==0 && length(opts$r)==2) J = 2**ceiling(base::log(n/opts$r[2],2)) #needed for independent block
     else if(length(opts$r)==2 && opts$r[2]==1) J = 2**ceiling(base::log(n-opts$r[1],2)) #needed for low-rank
     else J=2
-  } else J=opts$J
+  } else if(is.null(opts$M)) J=2**ceiling(base::log(opts$J, 2))
+  else J=2
 
   # set M and r
   if(is.null(opts$M) ){
@@ -69,8 +77,9 @@ get.mra.params = function(n,opts,m){
       J = c(rep(2, M-1), last.J)
     }
   } else {
+    M = opts$M; r = opts$r;
+    if(!is.null(J)) J=2**ceiling(base::log(opts$J, 2))
     if( m>0 ) warning("M, r set for MRA. If parameter m was given, it will be overridden")
-    M = opts$M; r = opts$r
   }
   params[['J']] = J; params[['M']] = M; params[['r']] = r
   return(params)
@@ -86,27 +95,16 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
 
   n = length(locs)/ncol(locs)
   mra.params = get.mra.params(n, mra.options, m)
+  ind.tree = domain.tree(locs, mra.params)
 
-  if(mra.params$J!=2 && mra.params$J!=4){
-    if( mra.params$M>1) warning("When J is neither 2 nor 4 we always set M to 1 and use the Full scale approximation")
-    if(length(mra.params$r)==2 && mra.params$r[2]==1) ind.tree = domain.tree.low.rank(locs, mra.params)
-    else ind.tree = domain.tree.FSA(locs, mra.params)
-  #} else if( all(mra.params[['J']]==2) ) ind.tree = domain.tree.J2(locs, mra.params)
-  #else if( all(mra.params[['J']]==4) ) ind.tree = domain.tree.J4(locs, mra.params)
-  #else stop(paste("J of the form c(", paste(mra.params$J, collapse=","), ") not supported. Try using a scalar J.", sep=""))
-  } else if( any(mra.params[['J']]==2) ) ind.tree = domain.tree.J2(locs, mra.params)
-  else if( all(mra.params[['J']]==4) ) ind.tree = domain.tree.J4(locs, mra.params)
-  else stop(paste("J of the form c(", paste(mra.params$J, collapse=","), ") not supported. Try using a scalar J.", sep=""))
 
   knt.tree = knot.tree(ind.tree, mra.params[['r']], dim=ncol(locs))
   if(mra.params$plots==TRUE)  plot.locs.tree(ind.tree, locs, knots=knt.tree)
   mat = getNNmatrix(knt.tree)
   eff.m = ncol(mat)-1
-  #print(paste("effective m: ", eff.m-1, sep=""))
-  if(eff.m > 100) print(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))
 
+  if(eff.m > 100) print(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))
   print(paste("MRA params: m=",eff.m, ", J=", paste(get.Jm(ind.tree), collapse=","), ", r=", paste(get.rm(knt.tree), collapse=","), ", M=", get.M(ind.tree), sep=""))
-  #if(eff.m>m) stop("Something went wrong. Effective m is too big")
 
   return(mat)
 }
