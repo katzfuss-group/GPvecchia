@@ -408,6 +408,27 @@ simulateGrid <- function(nvec,jittersize=0){
   locs <- gridlocs + u
 }
 
+# I think this is what expand.grid does. So maybe this should be updated
+# to simply call that function.
+createGrid <- function(nvec){
+
+  if(missing(nvec) || length(nvec) == 0) stop("Must supply grid dimensions")
+  d <- length(nvec)
+  n <- prod(nvec)
+  gridlocs <- matrix(0,n,d)
+  for(j in 1:d){
+    perm <- (1:d)[-j]
+    perm <- c(j,perm)
+    tempvec <- nvec[-j]
+    tempvec <- c(nvec[j],tempvec)
+    a1 <- ((1:nvec[j])-1/2)/nvec[j]
+    a2 <- rep(a1,n/nvec[j])
+    a3 <- array(a2,tempvec)
+    a4 <- aperm(a3,perm)
+    gridlocs[,j] <- c(a4)
+  }
+  gridlocs
+}
 
 # this is the O(n log n) algorithm for finding an AMMD ordering
 # break domain into grid boxes, then order the grid boxes with
