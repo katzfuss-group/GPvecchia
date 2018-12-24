@@ -38,8 +38,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   if(missing(ordering)){
     if(spatial.dim==1) {ordering = 'coord'} else ordering = 'maxmin'
   }
-  if(missing(cond.yz)){
-    cond.yz = (if(missing(locs.pred) | spatial.dim==1) 'SGV' else 'zy') }
   if(missing(pred.cond)) pred.cond='general'
   if(missing(conditioning)) conditioning='NN'
   if(conditioning=='firstm'){
@@ -47,6 +45,11 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     mra.options=list(r=c(m,0),M=1)
   }
   if(conditioning=='mra') ordering='maxmin'
+  if(missing(cond.yz)){
+    if (conditioning=='mra') { cond.yz='y'
+    } else if(missing(locs.pred) | spatial.dim==1 ){ cond.yz = 'SGV'
+    } else cond.yz = 'zy'
+  }
 
 
   ### order locs and z
