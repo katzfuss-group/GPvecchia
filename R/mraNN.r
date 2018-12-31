@@ -10,8 +10,6 @@ choose.M = function(n, m) {
     return(list(r=1, J=2**ceiling(base::log(n-1, 2)), M=1))
   }
 
-
-
   M=1
   #while(2^(M+1)/(M+1) <= n/m) M=M+1
   while(2^(M)/(M) <= n/m) M=M+1
@@ -43,7 +41,6 @@ choose.M = function(n, m) {
 
 
 get.mra.params = function(n,opts,m){
-
   params = list(m=m)
 
   # plotting: yes/no
@@ -81,7 +78,7 @@ get.mra.params = function(n,opts,m){
     if(!is.null(J)) J=2**ceiling(base::log(opts$J, 2))
     if( m>0 ) warning("M, r set for MRA. If parameter m was given, it will be overridden")
   }
-  params[['J']] = J; params[['M']] = M; params[['r']] = r
+  params[['J']] = if(length(J==1)) rep(J,M) else J; params[['M']] = M; params[['r']] = if(length(r==1)) rep(r,M+1)
   return(params)
 }
 
@@ -95,16 +92,12 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
 
   n = length(locs)/ncol(locs)
   mra.params = get.mra.params(n, mra.options, m)
-  ind.tree = domain.tree(locs, mra.params)
+  knt.tree = knot.tree(locs, mra.params)
 
-
-  knt.tree = knot.tree(ind.tree, mra.params[['r']], dim=ncol(locs))
-  if(mra.params$plots==TRUE)  plot.locs.tree(ind.tree, locs, knots=knt.tree)
   mat = getNNmatrix(knt.tree)
   eff.m = ncol(mat)-1
 
   if(eff.m > 100) print(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))
-  print(paste("MRA params: m=",eff.m, ", J=", paste(get.Jm(ind.tree), collapse=","), ", r=", paste(get.rm(knt.tree), collapse=","), ", M=", get.M(ind.tree), sep=""))
-
+  print(paste("MRA params: m=",eff.m, ", J=", paste(get.Jm(knt.tree), collapse=","), ", r=", paste(get.rm(knt.tree), collapse=","), ", M=", get.M(knt.tree), sep=""))
   return(mat)
 }

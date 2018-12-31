@@ -1,4 +1,4 @@
-knot.tree = function(locs.tree, r, dim=2){
+knot.tree.old = function(locs.tree, r, dim=2){
 
   M = get.M(locs.tree)
   Jm = get.Jm(locs.tree)
@@ -32,6 +32,48 @@ knot.tree = function(locs.tree, r, dim=2){
     }
   return(knots)
 }
+
+
+
+
+
+
+knot.tree = function(locs, mra.params){
+  knots = list()
+  J = mra.params$J; M = mra.params$M; r = mra.params$r
+
+  remaining = list()
+  remaining[["r"]] = seq(n)
+
+  while(length(remaining)>0){
+    id = names(remaining)[1]
+    m = res(id)
+    reg.inds = remaining[[id]]
+
+    if(m<M){
+      r.eff = min(r[m+1], length(reg.inds))
+      if(r.eff>0) {
+        knots[[id]] = reg.inds[seq(r.eff)]
+        reg.inds = reg.inds[-seq(r.eff)]
+      }
+      reg.locs = locs[reg.inds,]
+
+      if( length(reg.locs)==0 ) clusters = c()
+      else{
+        clusters =  cluster.equal(reg.locs, K=J[m+1], dim.start=m%%2+1)
+      }
+      for(child.no in 1:J[m+1]){
+        child.id = paste(c(id, child.no), collapse="_")
+        remaining[[child.id]] = reg.inds[clusters==child.no]
+      }
+    } else {
+      knots[[id]] = reg.inds
+    }
+    remaining = remaining[-1]
+  }
+  return(knots)
+}
+
 
 
 
