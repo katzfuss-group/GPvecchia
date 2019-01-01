@@ -5,7 +5,7 @@
 #' repeated likelihood evaluations.
 #' @param locs: nxd matrix of observed locs
 #' @param ordering: options are 'coord' or 'maxmin'
-#' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', 'RVP', and 'zy'
+#' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'
 #' @param ordering.pred: options are 'obspred' or 'general'
 #' @param pred.cond: prediction conditioning, options are 'general' or 'independent'
 #' @param conditioning: conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
@@ -18,7 +18,7 @@
 #' @export
 
 # specify the vecchia approximation, prepare U
-# this fct does not depend on parameter values
+# this fct does not depend on data or parameter values
 # only has to be run once before repeated likelihood evals
 
 
@@ -91,11 +91,10 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     locsord=locs.all[ord,,drop=FALSE]
     obs=observed.obspred[ord]
 
-
   }
 
 
-  ### obtain nearest neighbors
+  ### obtain conditioning sets
   if( conditioning == 'NN'){
     if(spatial.dim==1) {
       NNarray=findOrderedNN_kdtree2(locsord,m)
@@ -125,11 +124,10 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     Cond=rbind(whichCondOnLatent(NNarray[1:n,]),matrix(TRUE,nrow=n.p,ncol=m+1))
   } else if(cond.yz=='y'){
     Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=TRUE
-  } else if(cond.yz=='RVP'){
-    Cond=(NNarray>n); Cond[,1]=TRUE
   } else if(cond.yz=='z'){
     Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=FALSE; Cond[,1]=TRUE
-  } else if(cond.yz=='zy'){ ### "trick" code into response-latent ('zy') ordering
+  } else if(cond.yz %in% c('RVP','LK','zy')){
+    ### "trick" code into response-latent ('zy') ordering
 
     ## reset variables
     obs=c(rep(TRUE,n),rep(FALSE,nrow(locsord)))
@@ -138,8 +136,10 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
     ## specify neighbors
     NNs=FNN::get.knn(locsord[1:n,,drop=FALSE],m-1)$nn.index
-    prev=(NNs<matrix(rep(1:n,m-1),nrow=n))
-    NNs[prev]=NNs[prev]+n # condition on latent y if possible
+    if(cond.yz %in% c('RVP','zy')){
+      prev=(NNs<matrix(rep(1:n,m-1),nrow=n))
+      NNs[prev]=NNs[prev]+n # condition on latent y.obs if possible
+    }
 
     ## create NN array
     NNarray.z=cbind(1:n,matrix(nrow=n,ncol=m))
@@ -149,12 +149,18 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
       ordering.pred='obspred'
     } else {
       if(ordering.pred!='obspred') print('Warning: ZY only implemented for obspred ordering')
-      NNarray.yp=NNarray[n+(1:n.p),]+n
+      if(cond.yz=='zy'){
+        NNarray.yp=NNarray[n+(1:n.p),]+n
+      } else {
+        NNarray.yp=NNarray[n+(1:n.p),]
+        NNarray.yp[NNarray.yp>n]=NNarray.yp[NNarray.yp>n]+n
+      }
     }
     NNarray=rbind(NNarray.z,NNarray.y,NNarray.yp)
 
     ## conditioning
     Cond=(NNarray>n); Cond[,1]=TRUE
+    cond.yz='zy'
 
   } else stop(paste0("cond.yz='",cond.yz,"' not defined"))
 
