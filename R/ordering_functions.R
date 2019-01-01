@@ -83,6 +83,29 @@ order_middleout <- function( locs, lonlat = FALSE ){
     return(orderinds)
 }
 
+#' Outside-in ordering
+#'
+#' Return the ordering of locations decreasing in their
+#' distance to the average location.  Reverses middleout.
+#'
+#' @inheritParams order_dist_to_point
+#'
+#' @return A vector of indices giving the ordering, i.e.
+#' the first element of this vector is the index of the location farthest from the center.
+#' @examples
+#' n <- 100             # Number of locations
+#' d <- 2               # dimension of domain
+#' locs <- matrix( runif(n*d), n, d )
+#' ord <- order_outsidein(locs)
+#' @export
+order_outsidein <- function( locs, lonlat = FALSE ){
+  orderinds_rev <- order_middleout(locs, lonlat)
+  orderinds = rev(orderinds_rev)
+  return(orderinds)
+}
+
+
+
 
 #' Sorted coordinate ordering
 #'
