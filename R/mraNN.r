@@ -42,7 +42,6 @@ choose.M = function(n, m) {
 
 get.mra.params = function(n,opts,m){
   params = list(m=m)
-
   # plotting: yes/no
   if(is.null(opts$plots) || opts$plots==FALSE) params$plots=FALSE
   else params$plots=TRUE
@@ -78,7 +77,7 @@ get.mra.params = function(n,opts,m){
     if(!is.null(J)) J=2**ceiling(base::log(opts$J, 2))
     if( m>0 ) warning("M, r set for MRA. If parameter m was given, it will be overridden")
   }
-  params[['J']] = if(length(J==1)) rep(J,M) else J; params[['M']] = M; params[['r']] = if(length(r==1)) rep(r,M+1)
+  params[['J']] = if(length(J)==1) rep(J,M) else J; params[['M']] = M; params[['r']] = if(length(r)==1) rep(r,M+1) else r
   return(params)
 }
 
