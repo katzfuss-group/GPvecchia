@@ -95,7 +95,8 @@ getNKnt = function(r, ind){
 
 
 
-getNNmatrix = function(knot.tree,m){
+# getNNmatrix = function(knot.tree,m){
+getNNmatrix = function(knot.tree){
 
   neighbors = list()
   #fill out the list of neighbors for the root
@@ -133,13 +134,13 @@ getNNmatrix = function(knot.tree,m){
   list2matrix(neighbors)
   NNarray = list2matrix(neighbors)
 
-  #sometimes effective m is less than m. If so, we need to add columns
-  #to ensure NNarray has m+1 columns
-  if(ncol(NNarray)<m){
-    Ncols = ncol(NNarray)
-    padding = matrix(rep(NA, (m+1-Ncols)*nrow(NNarray)), ncol=m+1-Ncols)
-    NNarray = cbind(NNarray, padding)
-  }
+  # #sometimes effective m is less than m. If so, we need to add columns
+  # #to ensure NNarray has m+1 columns
+  # if(ncol(NNarray)<m){
+  #   Ncols = ncol(NNarray)
+  #   padding = matrix(rep(NA, (m+1-Ncols)*nrow(NNarray)), ncol=m+1-Ncols)
+  #   NNarray = cbind(NNarray, padding)
+  # }
 
   return(NNarray)
 }

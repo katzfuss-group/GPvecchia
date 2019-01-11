@@ -93,7 +93,8 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
   mra.params = get.mra.params(n, mra.options, m)
   knt.tree = knot.tree(locs, mra.params)
 
-  mat = getNNmatrix(knt.tree,m)
+  # mat = getNNmatrix(knt.tree,m)
+  mat = getNNmatrix(knt.tree)
   eff.m = ncol(mat)-1
 
   if(eff.m > 100) print(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))

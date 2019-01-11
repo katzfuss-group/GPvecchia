@@ -262,17 +262,11 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
 #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
     for (k = 0; k < nnp; k++) {
 
-     /*<<<<<<< HEAD*/
      inds=revNNarray.row(k).t();
      revCon_row=revCondOnLatent.row(k).t();
-     //n0 = get_nonzero_count(k,m); // for original SGV case
-     // inds00 = get_idx_vals(n0, m, inds);
      n0 = get_nonzero_count_general(inds); // for general case
      inds00 = get_idx_vals_general(n0, inds);
 
-     // extract locations
-     //locs0=locs.rows(inds00); // to extract multiple rows from matrix
-     //revCond = revCon_row(span(m+1-n0,m));
      // "%" indicates element-wise multiplication
      nug=nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m))); // vec is vec, cannot convert to mat
     if (locs.n_cols==1){
@@ -280,23 +274,6 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
     } else {
       dist=calcPWD2(locs.rows(inds00));
     }
-    /*=======
-      // extract a row to work with
-      inds=revNNarray.row(k).t();
-      revCon_row=revCondOnLatent.row(k).t();
-
-
-      n0 = get_nonzero_count_general(inds); // for general case
-      inds00 = get_idx_vals_general(n0, inds);
-
-      nug=nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m))); // vec is vec, cannot convert to mat
-      if (locs.n_cols==1){
-        dist=calcPWD1(locs.rows(inds00));
-      } else {
-        dist=calcPWD2(locs.rows(inds00));
-      }
-      >>>>>>> ticket26*/
-
 
 #pragma omp critical
 {

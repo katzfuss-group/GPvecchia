@@ -123,7 +123,8 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   } else if(cond.yz=='SGVT'){
     Cond=rbind(whichCondOnLatent(NNarray[1:n,]),matrix(TRUE,nrow=n.p,ncol=m+1))
   } else if(cond.yz=='y'){
-    Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=TRUE
+    Cond=matrix(NA,nrow(NNarray),ncol(NNarray)); Cond[!is.na(NNarray)]=TRUE
+    #Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=FALSE; Cond[,1]=TRUE
   } else if(cond.yz=='z'){
     Cond=matrix(NA,nrow(NNarray),m+1); Cond[!is.na(NNarray)]=FALSE; Cond[,1]=TRUE
   } else if(cond.yz %in% c('RVP','LK','zy')){
