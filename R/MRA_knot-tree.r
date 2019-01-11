@@ -1,3 +1,6 @@
+library(dequer)
+
+
 knot.tree.old = function(locs.tree, r, dim=2){
 
   M = get.M(locs.tree)
