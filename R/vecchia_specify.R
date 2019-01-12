@@ -31,6 +31,25 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     else if(is.null(mra.options$r)) stop("neither m nor r defined!")
   }
 
+
+  # The fully independent case with no conditioning
+  if(m==0){
+    if(!missing(locs.pred)) cat("Attempting to make predictions with m=0.  Prediction ignored")
+    ord = 1:n
+    ord.z=ord
+    locsord=locs[ord,,drop=FALSE]
+    NNarray= matrix(cbind(ord, rep(NA, nrow(locs))), ncol=2)
+    Cond=matrix(NA,n,2); Cond[,1]=T
+    obs=rep(TRUE,n)
+    ### determine the sparsity structure of U
+    U.prep=U_sparsity( locsord, NNarray, obs, Cond )
+    ### object that specifies the vecchia approximation
+    vecchia.approx=list(locsord=locsord, obs=obs, ord=ord, ord.z=ord.z, ord.pred='general',
+                        U.prep=U.prep, cond.yz=FALSE)
+    return(vecchia.approx)
+  }
+
+
   spatial.dim=ncol(locs)
   n=nrow(locs)
 
@@ -57,7 +76,9 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   if(missing(locs.pred)){  # no prediction
 
     if(ordering=='coord') { ord=order_coordinate(locs)
-      } else if(ordering=='maxmin'){ ord = order_maxmin(locs) }
+    } else if(ordering=='maxmin'){ ord = order_maxmin(locs)
+    } else if(ordering=='outsidein'){order = order_outsidein(locs)}
+
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
     obs=rep(TRUE,n)
