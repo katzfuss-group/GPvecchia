@@ -14,8 +14,9 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
 
   # turn nugget into necessary format
   if(length(nuggets)==1) nuggets=rep(nuggets,n)
-  nuggets.all=c(nuggets,rep(0,sum(!obs)))
-  nuggets.all.ord=nuggets.all[ord] # ordered nuggets for all locs
+  nuggets.all=c(nuggets,rep(0,sum(latent)-n))
+  if(vecchia.approx$cond.yz=='zy'){ ord.all=c(ord[1:n],ord+n) } else { ord.all=ord }
+  nuggets.all.ord=nuggets.all[ord.all] # ordered nuggets for all locs
   nuggets.ord=nuggets.all[vecchia.approx$ord.z]# ordered nuggets for observed locs
   zero.nuggets=any(nuggets==0)
 
@@ -41,6 +42,14 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   allLentries=c(Lentries, U.entries$Zentries)
   U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
                 x=allLentries,dims=c(size,size))
+
+  # for zy ordering, remove rows/columns corresponding to dummy y's
+  if(vecchia.approx$cond.yz=='zy') {
+    dummy=2*(1:n)-1
+    U=U[-dummy,-dummy]
+    latent=latent[-dummy]
+    obs=obs[-((1:n)+n)]
+  }
 
   # remove rows/columns corresponding to zero nugget and store related info
   zero.nugg=list()

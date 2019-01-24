@@ -29,7 +29,7 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
     print('Warning: Rows/cols of V have been removed for data with zero noise')
 
   # compute the posterior mean
-  vecchia.mean=vecchia_mean(z,vecchia.approx,U.obj,V.ord)
+  vecchia.mean=vecchia_mean(z,U.obj,V.ord)
 
   # return what is requested
   return.list=list(mu.pred=vecchia.mean$mu.pred,mu.obs=vecchia.mean$mu.obs,
@@ -92,7 +92,11 @@ U2V=function(U.obj){
 
   U.y=U.obj$U[U.obj$latent,]
 
-  if(U.obj$ord.pred!='obspred'){
+  if(U.obj$cond.yz=='zy') {
+
+    V.ord=rev.mat(U.y[,U.obj$latent,drop=FALSE])
+
+  } else if(U.obj$ord.pred!='obspred'){
 
     W=Matrix::tcrossprod(U.y)
     W.rev=rev.mat(W)
@@ -128,7 +132,7 @@ U2V=function(U.obj){
 
 ######  posterior mean (predictions)   #######
 
-vecchia_mean=function(z,vecchia.approx,U.obj,V.ord){
+vecchia_mean=function(z,U.obj,V.ord){
 
   U=U.obj$U
 
@@ -149,15 +153,9 @@ vecchia_mean=function(z,vecchia.approx,U.obj,V.ord){
   # extract obs and pred parts; return to original ordering
   orig.order=order(U.obj$ord)
   mu=mu.ord[orig.order]
-  if(vecchia.approx$cond.yz=='zy'){
-    n.o=length(z)
-    mu.obs=mu[n.o+(1:n.o)]
-    mu.pred=mu[(2*n.o+1):length(mu)]
-  } else {
-    obs.orig=U.obj$obs[orig.order]
-    mu.obs=mu[obs.orig]
-    mu.pred=mu[!obs.orig]
-  }
+  obs.orig=U.obj$obs[orig.order]
+  mu.obs=mu[obs.orig]
+  mu.pred=mu[!obs.orig]
 
   return(list(mu.obs=mu.obs,mu.pred=mu.pred))
 }
@@ -185,9 +183,6 @@ vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
   ord=U.obj$ord
   if(length(U.obj$zero.nugg)>0){
     ord=order(order(ord[1:(length(ord)-length(U.obj$zero.nugg$inds.U))]))
-  }
-  if(U.obj$cond.yz=='zy'){
-    H=cbind(sparseMatrix(c(),c(),dims=c(nrow(H),length(U.obj$ord.z))),H)
   }
   H.tt=Matrix::t(H[,rev(ord),drop=FALSE])
   temp=Matrix::solve(V.ord,H.tt)
@@ -229,36 +224,32 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
   orig.order=order(U.obj$ord)
   vars=vars.ord[orig.order]
 
+  # extract obs and pred variances
+  obs.orig=U.obj$obs[orig.order]
+  vars.obs=vars[obs.orig]
+  vars.pred=vars[!obs.orig]
 
-  ### extract obs and pred variances
-  if(U.obj$cond.yz!='zy'){
+  # if exact variances are desired:
+  if(exact & U.obj$ord.pred=='obspred'){
 
-    obs.orig=U.obj$obs[orig.order]
-    vars.obs=vars[obs.orig]
-    if(sum(!obs.orig)>0) {
-      # if exact prediction variances desired, compute using lincomb
-      if(exact & U.obj$ord.pred=='obspred'){
-        n.p=sum(!U.obj$obs)
-        n=nrow(V.ord)-n.p
-        H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
-        vars.pred=vecchia_lincomb(H,U.obj,V.ord)
-      } else vars.pred=vars[!obs.orig]
-    } else vars.pred=c()
+    n=sum(U.obj$obs)
+    n.p=sum(!U.obj$obs)
+    H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)
 
-  } else {
+    if(U.obj$cond.yz!='zy'){
+      
+      if(sum(!obs.orig)>0) {
+        vars.pred=vecchia_lincomb(H[(n+1):(n+n.p),],U.obj,V.ord)
+      } else vars.pred=c()
 
-    n=length(U.obj$ord.z)
-    n.p=length(vars)-2*n
-    if(!exact){
-      vars.obs=vars[n+(1:n)]
-      vars.pred= (if(n.p>0) vars[2*n+(1:n.p)] else c())
     } else {
-      H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)
+
       vars.exact=vecchia_lincomb(H,U.obj,V.ord)
       vars.obs=vars.exact[1:n]
       vars.pred= (if(n.p>0) vars.exact[n+(1:n.p)] else c())
+      
     }
-
+    
   }
 
   return(list(vars.obs=vars.obs,vars.pred=vars.pred))
@@ -298,15 +289,9 @@ V2covmat=function(preds){
   Sigma=Sigma.ord[orig.order,orig.order]
 
   # extract parts corresponding to obs and pred locs
-  if(preds$U.obj$cond.yz=='zy'){
-    n.o=length(preds$U.obj$ord.z)
-    Sigma.obs=Sigma[n.o+(1:n.o),n.o+(1:n.o)]
-    Sigma.pred=Sigma[(2*n.o+1):nrow(Sigma),(2*n.o+1):nrow(Sigma)]
-  } else {
-    obs.orig=preds$U.obj$obs[orig.order]
-    Sigma.obs=Sigma[obs.orig,obs.orig]
-    Sigma.pred=Sigma[!obs.orig,!obs.orig]
-  }
+  obs.orig=preds$U.obj$obs[orig.order]
+  Sigma.obs=Sigma[obs.orig,obs.orig]
+  Sigma.pred=Sigma[!obs.orig,!obs.orig]
 
   return(list(Sigma.obs=Sigma.obs,Sigma.pred=Sigma.pred))
 }

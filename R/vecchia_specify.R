@@ -31,7 +31,9 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     else if(is.null(mra.options$r)) stop("neither m nor r defined!")
   }
 
-
+  spatial.dim=ncol(locs)
+  n=nrow(locs)
+  
   # The fully independent case with no conditioning
   if(m==0){
     if(!missing(locs.pred)) cat("Attempting to make predictions with m=0.  Prediction ignored")
@@ -49,10 +51,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     return(vecchia.approx)
   }
 
-
-  spatial.dim=ncol(locs)
-  n=nrow(locs)
-
+  
   # default options
   if(missing(ordering)){
     if(spatial.dim==1) {ordering = 'coord'} else ordering = 'maxmin'
@@ -153,7 +152,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
     ## reset variables
     obs=c(rep(TRUE,n),rep(FALSE,nrow(locsord)))
-    ord=c(ord[1:n],ord+n)
     locsord=rbind(locsord[1:n,,drop=FALSE],locsord)
 
     ## specify neighbors
