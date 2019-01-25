@@ -75,7 +75,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   if(missing(locs.pred)){  # no prediction
 
     if(ordering=='coord') { ord=order_coordinate(locs)
-    } else if(ordering=='maxmin'){ ord = order_maxmin(locs)
+    } else if(ordering=='maxmin'){ ord = order_maxmin_exact(locs)
     } else if(ordering=='outsidein'){order = order_outsidein(locs)}
 
     ord.z=ord
@@ -93,7 +93,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
         ordering.pred='obspred'
     if(ordering.pred=='general'){
       if(ordering=='coord') ord=order_coordinate(locs.all) else {
-        ord = order_maxmin(locs.all)
+        ord = order_maxmin_exact(locs.all)
       }
       ord.obs=ord[ord<=n]
     } else {

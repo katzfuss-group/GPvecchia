@@ -388,6 +388,31 @@ order_maxmin_obs_pred <- function(locs, locs_pred, lonlat = FALSE,
 
 
 
+
+#' Maximum minimum distance ordering, exact algorithm
+#'
+#' Return the indices of an exact maximum-minimum distance ordering.
+#' The first point is chosen as the "center" point, minimizing L2 distance.
+#' Dimensions d=2 and d=3 handled separately, dimensions d=1 and d>3 handled similarly.
+#'
+#' @param locs Observation locations
+#' @return A vector of indices giving the ordering, i.e.
+#' the first element of this vector is the index of the first location.
+#' @examples
+#' locs <- cbind(runif(n),runif(n))
+#' ord <- order_maxmin_exact(locs)
+#'
+#' @export
+order_maxmin_exact<-function(locs){
+  ord<-MaxMincpp(locs)
+  return(ord)
+}
+
+# TODO
+order_maxmin_exact_obs_pred<-function(locs, locs_pred){
+  return(order_maxmin_obs_pred(locs, locs_pred))
+}
+
 # This is the O(n^2) algorithm for AMMD ordering. Start with a point
 # in the middle, then propose a random set of the remaining points
 # (of size 'numpropose') and choose the one that has maximum minimum
@@ -557,3 +582,6 @@ orderMaxMinLocal <- function(locs){
   return(orderinds)
 
 }
+
+
+
