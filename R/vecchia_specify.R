@@ -76,7 +76,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
     if(ordering=='coord') { ord=order_coordinate(locs)
     } else if(ordering=='maxmin'){ ord = order_maxmin_exact(locs)
-    } else if(ordering=='outsidein'){order = order_outsidein(locs)}
+    } else if(ordering=='outsidein'){ord = order_outsidein(locs)}
 
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
