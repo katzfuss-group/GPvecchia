@@ -33,7 +33,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
   spatial.dim=ncol(locs)
   n=nrow(locs)
-  
+
   # The fully independent case with no conditioning
   if(m==0){
     if(!missing(locs.pred)) cat("Attempting to make predictions with m=0.  Prediction ignored")
@@ -51,7 +51,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     return(vecchia.approx)
   }
 
-  
+
   # default options
   if(missing(ordering)){
     if(spatial.dim==1) {ordering = 'coord'} else ordering = 'maxmin'
@@ -101,7 +101,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
         ord.obs=order_coordinate(locs)
         ord.pred=order_coordinate(locs.pred)
       } else {
-        temp=order_maxmin_obs_pred(locs,locs.pred)
+        temp=order_maxmin_exact_obs_pred(locs,locs.pred)
         ord.obs=temp$ord
         ord.pred=temp$ord_pred
       }

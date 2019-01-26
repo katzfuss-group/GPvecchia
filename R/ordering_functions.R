@@ -372,7 +372,7 @@ order_maxmin_obs_pred <- function(locs, locs_pred, lonlat = FALSE,
         nneigh <- round( min(m,1*(n+n_pred)/(j-nmoved+1)) )
         neighbors <- NN[index_in_position[j],1:nneigh]
         if( min( position_of_index[neighbors], na.rm = TRUE ) < j ){
-            nmoved <- nmoved+1
+            nmoved <- nmoved + 1
             curlen <- curlen + 1
             position_of_index[ index_in_position[j] ] <- curlen
             index_in_position[curlen] <- index_in_position[j]
@@ -410,7 +410,47 @@ order_maxmin_exact<-function(locs){
 
 # TODO
 order_maxmin_exact_obs_pred<-function(locs, locs_pred){
-  return(order_maxmin_obs_pred(locs, locs_pred))
+  ord<-MaxMincpp(locs)
+  ord_pred <-MaxMincpp(locs_pred)
+
+
+  # The code below came from the method order_maxmin_obs_pred
+  # The only difference is that the ord_pred (above) replaces
+  # NN_pred (from knnx distances)
+  locs_all = rbind(locs, locs_pred)
+
+  n <- nrow(locs)
+  n_pred <- nrow(locs_pred)
+  # next is to find 'ord_pred', a maxmin reordering of prediction locations
+  NN <- FNN::get.knn( locs_all, k = m )$nn.index
+  #NN_pred <- FNN::get.knnx( locs, locs_pred, k = 1 )$nn.dist
+  # use ord, then order by NN_pred
+  index_in_position <- c( ord, n + ord_pred, rep(NA,n_pred) )
+  position_of_index <- order(index_in_position[1:(n+n_pred)])
+
+  # move an index to the end if it is a
+  # near neighbor of a previous location
+  curlen <- n + n_pred
+  nmoved <- 0
+  for(j in (n+1):(n+2*n_pred) ){
+    # nneigh tells us how many neighbors to look at
+    # in order to decide whether the current point
+    # has a previously ordered neighbor
+    nneigh <- round( min(m,1*(n+n_pred)/(j-nmoved+1)) )
+    neighbors <- NN[index_in_position[j],1:nneigh]
+    if( min( position_of_index[neighbors], na.rm = TRUE ) < j ){
+      nmoved <- nmoved+1
+      curlen <- curlen + 1
+      position_of_index[ index_in_position[j] ] <- curlen
+      index_in_position[curlen] <- index_in_position[j]
+      index_in_position[j] <- NA
+    }
+  }
+
+  ord_pred <- index_in_position[ !is.na( index_in_position ) ][(n+1):(n+n_pred)] - n
+
+
+  return(list(ord=ord, ord_pred =ord_pred))
 }
 
 # This is the O(n^2) algorithm for AMMD ordering. Start with a point
