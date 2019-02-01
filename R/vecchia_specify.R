@@ -60,7 +60,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   if(missing(conditioning)) conditioning='NN'
   if(conditioning=='firstm'){
     conditioning='mra'
-    mra.options=list(r=c(m,0),M=1)
+    mra.options=list(r=c(m,1))
   }
   if(conditioning=='mra') ordering='maxmin'
   if(missing(cond.yz)){
