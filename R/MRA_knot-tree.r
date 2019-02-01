@@ -60,6 +60,8 @@ knot.tree = function(locs, mra.params){
         reg.inds = reg.inds[-seq(r.eff)]
       }
       reg.locs = locs[reg.inds,]
+      if(!is.matrix(reg.locs)) reg.locs = matrix(reg.locs, ncol=ncol(locs))
+
 
       if( length(reg.locs)==0 ) clusters = c()
       else{
