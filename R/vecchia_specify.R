@@ -57,7 +57,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   if(missing(locs.pred)){  # no prediction
 
     if(ordering=='coord') { ord=order_coordinate(locs)
-      } else if(ordering=='maxmin'){ ord = order_maxmin(locs) }
+    } else if(ordering=='maxmin'){ ord = order_maxmin(locs) }
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
     obs=rep(TRUE,n)
@@ -92,7 +92,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     obs=observed.obspred[ord]
 
   }
-
 
   ### obtain conditioning sets
   if( conditioning == 'NN'){
@@ -172,7 +171,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
   ### object that specifies the vecchia approximation
   vecchia.approx=list(locsord=locsord,obs=obs,ord=ord,ord.z=ord.z,ord.pred=ordering.pred,
-                      U.prep=U.prep,cond.yz=cond.yz)
+                      U.prep=U.prep,cond.yz=cond.yz, conditioning=conditioning)
   # U.prep has attributes: revNNarray,revCond,n.cores,size,rowpointers,colindices,y.ind)
 
   return(vecchia.approx)
