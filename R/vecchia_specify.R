@@ -34,6 +34,24 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   spatial.dim=ncol(locs)
   n=nrow(locs)
 
+  # The fully independent case with no conditioning
+  if(m==0){
+    if(!missing(locs.pred)) cat("Attempting to make predictions with m=0.  Prediction ignored")
+    ord = 1:n
+    ord.z=ord
+    locsord=locs[ord,,drop=FALSE]
+    NNarray= matrix(cbind(ord, rep(NA, nrow(locs))), ncol=2)
+    Cond=matrix(NA,n,2); Cond[,1]=T
+    obs=rep(TRUE,n)
+    ### determine the sparsity structure of U
+    U.prep=U_sparsity( locsord, NNarray, obs, Cond )
+    ### object that specifies the vecchia approximation
+    vecchia.approx=list(locsord=locsord, obs=obs, ord=ord, ord.z=ord.z, ord.pred='general',
+                        U.prep=U.prep, cond.yz=FALSE)
+    return(vecchia.approx)
+  }
+
+
   # default options
   if(missing(ordering)){
     if(spatial.dim==1) {ordering = 'coord'} else ordering = 'maxmin'
@@ -57,7 +75,9 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   if(missing(locs.pred)){  # no prediction
 
     if(ordering=='coord') { ord=order_coordinate(locs)
-    } else if(ordering=='maxmin'){ ord = order_maxmin(locs) }
+    } else if(ordering=='maxmin'){ ord = order_maxmin_exact(locs)
+    } else if(ordering=='outsidein'){ord = order_outsidein(locs)}
+
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
     obs=rep(TRUE,n)
@@ -73,7 +93,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
         ordering.pred='obspred'
     if(ordering.pred=='general'){
       if(ordering=='coord') ord=order_coordinate(locs.all) else {
-        ord = order_maxmin(locs.all)
+        ord = order_maxmin_exact(locs.all)
       }
       ord.obs=ord[ord<=n]
     } else {
@@ -81,7 +101,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
         ord.obs=order_coordinate(locs)
         ord.pred=order_coordinate(locs.pred)
       } else {
-        temp=order_maxmin_obs_pred(locs,locs.pred)
+        temp=order_maxmin_exact_obs_pred(locs,locs.pred)
         ord.obs=temp$ord
         ord.pred=temp$ord_pred
       }
@@ -131,7 +151,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
     ## reset variables
     obs=c(rep(TRUE,n),rep(FALSE,nrow(locsord)))
-    ord=c(ord[1:n],ord+n)
     locsord=rbind(locsord[1:n,,drop=FALSE],locsord)
 
     ## specify neighbors
