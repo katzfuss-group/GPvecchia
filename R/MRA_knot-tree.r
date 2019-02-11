@@ -62,10 +62,13 @@ knot.tree = function(locs, mra.params){
       reg.locs = locs[reg.inds,]
       if(!is.matrix(reg.locs)) reg.locs = matrix(reg.locs, ncol=ncol(locs))
 
-
       if( length(reg.locs)==0 ) clusters = c()
       else{
-        clusters =  cluster.equal(reg.locs, K=J[m+1], dim.start=m%%2+1)
+        if( J[m+1]>nrow(reg.locs) ){
+        clusters = seq(length(reg.locs))
+        } else {
+          clusters =  cluster.equal(reg.locs, K=J[m+1], dim.start=m%%2+1)
+        }
       }
       for(child.no in 1:J[m+1]){
         child.id = paste(c(id, child.no), collapse="_")

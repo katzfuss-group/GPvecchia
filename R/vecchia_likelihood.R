@@ -22,7 +22,8 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
   na.rm()
 
   # compute the loglikelihood
-  vecchia_likelihood_U(z,U.obj)
+  lik = vecchia_likelihood_U(z,U.obj)
+  return(list(lik, U.obj$U[U.obj$latent,U.obj$latent]))
 }
 
 
