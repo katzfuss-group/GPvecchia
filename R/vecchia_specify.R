@@ -34,6 +34,11 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   spatial.dim=ncol(locs)
   n=nrow(locs)
 
+  if(m>n){
+    warning("Conditioning set size m chosen to be larger than n. Changing to m=n-1")
+    m=n-1
+  }
+
   # The fully independent case with no conditioning
   if(m==0){
     if(!missing(locs.pred)) cat("Attempting to make predictions with m=0.  Prediction ignored")
@@ -112,7 +117,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     obs=observed.obspred[ord]
 
   }
-
   ### obtain conditioning sets
   if( conditioning == 'NN'){
     if(spatial.dim==1) {
