@@ -410,15 +410,15 @@ order_maxmin_exact<-function(locs){
 
 # TODO
 order_maxmin_exact_obs_pred<-function(locs, locs_pred){
+
   ord<-MaxMincpp(locs)
   ord_pred <-MaxMincpp(locs_pred)
-
 
   # The code below came from the method order_maxmin_obs_pred
   # The only difference is that the ord_pred (above) replaces
   # NN_pred (from knnx distances)
   locs_all = rbind(locs, locs_pred)
-
+  m <- min( round(sqrt(n)), 200 )
   n <- nrow(locs)
   n_pred <- nrow(locs_pred)
   # next is to find 'ord_pred', a maxmin reordering of prediction locations
