@@ -278,7 +278,7 @@ vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparm
                                                       covparms,nuggets_pseudo, covmodel)
 
   # get true model log likelihood
-  true_llh = posterior$obs_llh_fun(posterior$mean, z)
+  true_llh = posterior$model_llh(posterior$mean, z)
 
   # get gaussian (pseudo-data) approximate log likelihood
   pseudo_cond_loglik = sum(dnorm(z_pseudo,mean = posterior$mean, sd =sqrt(nuggets_pseudo), log = TRUE))
