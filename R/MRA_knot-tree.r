@@ -46,13 +46,13 @@ knot.tree = function(locs, mra.params){
   J = mra.params$J; M = mra.params$M; r = mra.params$r
 
   remaining = list()
+  n = length(locs)/ncol(locs)
   remaining[["r"]] = seq(n)
 
   while(length(remaining)>0){
     id = names(remaining)[1]
     m = res(id)
     reg.inds = remaining[[id]]
-
     if(m<M){
       r.eff = min(r[m+1], length(reg.inds))
       if(r.eff>0) {
