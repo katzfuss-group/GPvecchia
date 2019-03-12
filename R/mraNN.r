@@ -40,6 +40,34 @@ choose.M = function(n, m) {
 
 
 
+
+
+choose.M.decay = function(n,m){
+
+  r = c(round(m/2))
+  while(sum(r)<(m+1)){
+    #if((length(r) %% 2)==1){
+    r_new = max(round(r[length(r)]/2),1)
+    #} else r_new = r[length(r)]
+    r = c(r, r_new)
+  }
+
+  M = length(r)-1
+  J = rep(2, M)
+
+  Nknots=r[1]
+  for(m in 1:(M-1)){
+    Nknots = Nknots + (J[m]**m)*r[m+1]
+  }
+
+  J[M] = 2**ceiling(base::log(n - Nknots,2))
+
+  return(list(M=M, r=r, J=J))
+}
+
+
+
+
 get.mra.params = function(n,opts,m){
   params = list(m=m)
   # plotting: yes/no
@@ -58,6 +86,7 @@ get.mra.params = function(n,opts,m){
   if(is.null(opts$M) ){
     if(is.null(opts$r)) {
       pars = choose.M(n,m)
+      #pars = choose.M.decay(n,m)
       r = pars$r; M = pars$M; J = pars$J
     } else {
       r = opts$r
