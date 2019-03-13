@@ -1,30 +1,22 @@
+
 rm(list=ls())
-library(GpGp)
-library(parallel)
-library(Matrix)
-
-setwd("/home/marcin/GPvecchia")
-source("R/vecchia_specify.R")
-source("R/createU.R")
-source("R/vecchia_likelihood.R")
-source("R/vecchia_prediction.R")
-source("R/RcppExports.R")
-source("R/ordering_functions.R")
-source("MRA/mraNN.r")
-source("R/whichCondOnLatent.R")
-source("R/U_sparsity.R")
-source("R/NN_kdtree.R")
-source("MRA/mra-tree.r")
-
-Rcpp::sourceCpp('src/U_NZentries.cpp')
-
+setwd("/home/marcin")
+library(GpGp); library(Matrix); library(RcppParallel)
+library(fields); library(Matrix)
+for (nm in list.files('GPvecchia/R',pattern = "\\.[RrSsQq]$")) {
+ #cat(nm,":");
+ source(file.path('GPvecchia/R',nm))#; cat("\n")
+}
+Rcpp::sourceCpp('~/GPvecchia/src/ICC.cpp')
+Rcpp::sourceCpp('GPvecchia/src/MaxMin.cpp')
+Rcpp::sourceCpp('GPvecchia/src/U_NZentries.cpp')
 
 
 spatial.dim=2 # number of spatial dimensions
 
-n=15  # number of observed locs
+n=25  # number of observed locs
 
-m=2
+m=4
 
 # simulate locations
 #set.seed(1988)
@@ -52,7 +44,7 @@ if(n < 1e4) {
 } else z=rnorm(n)
 
 mra.options = list(r=c(10), M=1)
-V = vecchia_specify(locs, 20, conditioning='mra', mra.options=mra.options)
+V = vecchia_specify(locs, 3, conditioning='mra')#, mra.options=mra.options)
 
 
 ##### likelihood evaluation #####

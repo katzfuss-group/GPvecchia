@@ -25,72 +25,105 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     vecchia.approx$U.prep$revCond[zero.cond]=TRUE
   }
 
-  # call Rcpp function to create the nonzero entries of U
-  if(vecchia.approx$conditioning=='mra' && is.matrix(covmodel)) {
+## <<<<<<< Updated upstream
+##   # call Rcpp function to create the nonzero entries of U
+##   if(vecchia.approx$conditioning=='mra' && is.matrix(covmodel)) {
 
-    print("special case")
-    rows = c()
-    cols = c()
-    for(i in 1:nrow(vecchia.approx$U.prep$revNNarray)){
-      r = vecchia.approx$U.prep$revNNarray[i,]; r = r[1:length(r)-1]
-      newrows = rep(i, sum(!is.na(r)))
-      newcols = r[!is.na(r)]
-      #rows = c(rows, newrows, i, rev(newcols))
-      #cols = c(cols, newcols, i, rev(newrows))
-      rows = c(rows, newrows, i)
-      cols = c(cols, newcols, i)
-    }
-    #inds = cbind(rows, cols)
-    #inds = as.vector(sapply(seq(nrow(inds)), function(r) inds[r,1]-1+n*(inds[r,2]-1)+1))
+##     print("special case")
+##     rows = c()
+##     cols = c()
+##     for(i in 1:nrow(vecchia.approx$U.prep$revNNarray)){
+##       r = vecchia.approx$U.prep$revNNarray[i,]; r = r[1:length(r)-1]
+##       newrows = rep(i, sum(!is.na(r)))
+##       newcols = r[!is.na(r)]
+##       #rows = c(rows, newrows, i, rev(newcols))
+##       #cols = c(cols, newcols, i, rev(newrows))
+##       rows = c(rows, newrows, i)
+##       cols = c(cols, newcols, i)
+##     }
+##     #inds = cbind(rows, cols)
+##     #inds = as.vector(sapply(seq(nrow(inds)), function(r) inds[r,1]-1+n*(inds[r,2]-1)+1))
 
-    #values = t(cbind(covmodel, covmodel[,(ncol(covmodel)-1):1]))
-    values = t(cbind(covmodel))
+##     #values = t(cbind(covmodel, covmodel[,(ncol(covmodel)-1):1]))
+##     values = t(cbind(covmodel))
 
-    P = as(n:1, "pMatrix")
+##     P = as(n:1, "pMatrix")
 
-    M = sparseMatrix(i=rows, j=cols, x=values[!is.na(values)], dims=c(n, n), symmetric=TRUE)
-    S = P %*% M %*% P
-    L = t(chol(S))
-    U = P %*% solve(t(L))
+##     M = sparseMatrix(i=rows, j=cols, x=values[!is.na(values)], dims=c(n, n), symmetric=TRUE)
+##     S = P %*% M %*% P
+##     L = t(chol(S))
+##     U = P %*% solve(t(L))
 
-    browser()
+##     browser()
 
-    m = ncol(vecchia.approx$U.prep$revCond)-1
+##     m = ncol(vecchia.approx$U.prep$revCond)-1
 
-    nnz_per_row = tabulate(U@i + 1)
-    inds.s = (m+1)*(seq(n)-1)+1
-    inds.e = inds.s + nnz_per_row-1
-    inds = rbind(inds.s, inds.e)
-    inds = split(inds, rep(1:ncol(inds), each=nrow(inds)))
-    inds = Reduce(c, Map(f = function(v) seq(v[1], v[2]), inds))
-    newU = matrix(rep(0, (m+1)*n), ncol=n)
-    newU[inds] = t(U)@x
-    newU = t(newU)
+##     nnz_per_row = tabulate(U@i + 1)
+##     inds.s = (m+1)*(seq(n)-1)+1
+##     inds.e = inds.s + nnz_per_row-1
+##     inds = rbind(inds.s, inds.e)
+##     inds = split(inds, rep(1:ncol(inds), each=nrow(inds)))
+##     inds = Reduce(c, Map(f = function(v) seq(v[1], v[2]), inds))
+##     newU = matrix(rep(0, (m+1)*n), ncol=n)
+##     newU[inds] = t(U)@x
+##     newU = t(newU)
 
-    Zentries = as.vector(t(matrix(c((-1)/sqrt(nuggets.ord), 1/sqrt(nuggets.ord)), ncol=2)))
-    not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
-    Lentries=c(t(newU))[not.na]
-    allLentries=c(Lentries, Zentries)
+##     Zentries = as.vector(t(matrix(c((-1)/sqrt(nuggets.ord), 1/sqrt(nuggets.ord)), ncol=2)))
+##     not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
+##     Lentries=c(t(newU))[not.na]
+##     allLentries=c(Lentries, Zentries)
 
-  } else {
-    if(is.matrix(covmodel)) U.entries=U_NZentries_full_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
-                                       vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
-                                       nuggets.all.ord, nuggets.ord, covmodel[ord,ord], covparms)
+##   } else {
+##     if(is.matrix(covmodel)) U.entries=U_NZentries_full_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
+##                                        vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+##                                        nuggets.all.ord, nuggets.ord, covmodel[ord,ord], covparms)
 
+##     else if(is.character(covmodel)) U.entries=U_NZentries(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
+##                                                     vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+##                                                     nuggets.all.ord, nuggets.ord, covmodel, covparms)
+##     else stop("argument 'covmodel' type not supported")
+
+##     not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
+##     Lentries=c(t(U.entries$Lentries))[not.na]
+##     allLentries=c(Lentries, U.entries$Zentries)
+
+##   }
+
+##   # create sparse U matrix
+##   U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
+##                 x=allLentries,dims=c(size,size))
+## =======
+  if(vecchia.approx$conditioning=="mra"){
+    start = proc.time()
+    inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
+    ptrs = c(0, cumsum(apply(vecchia.approx$U.prep$revNNarray, 1, function(r) sum(!is.na(r)))))
+
+    ic0d = createUcpp(ptrs, inds, vecchia.approx$locsord)
+    Lmra = sparseMatrix(j=ic0d$inds, p=ic0d$ptrs, x=ic0d$vals, index1=FALSE)
+    new = proc.time() - start
+  } #else {
+
+    start1 = proc.time()
+    # call Rcpp function to create the nonzero entries of U
+    if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
+                                                      vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+                                                      nuggets.all.ord, nuggets.ord, covmodel[ord,ord], covparms)
     else if(is.character(covmodel)) U.entries=U_NZentries(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
-                                                    vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
-                                                    nuggets.all.ord, nuggets.ord, covmodel, covparms)
+                                                      vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+                                                      nuggets.all.ord, nuggets.ord, covmodel, covparms)
     else stop("argument 'covmodel' type not supported")
 
+
+    # create sparse U matrix
     not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
     Lentries=c(t(U.entries$Lentries))[not.na]
     allLentries=c(Lentries, U.entries$Zentries)
+    U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
+                  x=allLentries,dims=c(size,size))
+  #}
+    old1 = proc.time() - start1
 
-  }
-
-  # create sparse U matrix
-  U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
-                x=allLentries,dims=c(size,size))
+>>>>>>> Stashed changes
 
   S = Sigma.ord;# S[2,3]=S[3,2]=0
   Um = U[c(1, 3, 5), c(1, 3, 5)]
@@ -119,6 +152,13 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     obs=c(obs[-inds.locs],obs[inds.locs])
 
   }
+
+  #start2 = proc.time()
+  #Lold = solve(t(U[latent, latent]))
+  #old = old1 + proc.time()-start2
+  print(old1)
+  print(new)
+
 
   # return object
   U.obj=list(U=U,latent=latent,ord=ord,obs=obs,zero.nugg=zero.nugg,

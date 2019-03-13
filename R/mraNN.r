@@ -101,3 +101,5 @@ findOrderedNN_mra = function(locs, mra.options, m=-1){
   print(paste("MRA params: m=",eff.m, ", J=", paste(get.Jm(knt.tree), collapse=","), ", r=", paste(get.rm(knt.tree), collapse=","), ", M=", get.M(knt.tree), sep=""))
   return(mat)
 }
+
+
