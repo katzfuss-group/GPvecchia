@@ -123,7 +123,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   #}
     old1 = proc.time() - start1
 
->>>>>>> Stashed changes
+#>>>>>>> Stashed changes
 
   S = Sigma.ord;# S[2,3]=S[3,2]=0
   Um = U[c(1, 3, 5), c(1, 3, 5)]
