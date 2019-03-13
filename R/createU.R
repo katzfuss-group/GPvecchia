@@ -125,10 +125,10 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
 
 #>>>>>>> Stashed changes
 
-  S = Sigma.ord;# S[2,3]=S[3,2]=0
-  Um = U[c(1, 3, 5), c(1, 3, 5)]
-  print( Um %*% t(Um) %*% S )
-  browser()
+  #S = Sigma.ord;# S[2,3]=S[3,2]=0
+  #Um = U[c(1, 3, 5), c(1, 3, 5)]
+  #print( Um %*% t(Um) %*% S )
+  #browser()
 
 
   # remove rows/columns corresponding to zero nugget and store related info
