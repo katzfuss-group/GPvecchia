@@ -5,18 +5,13 @@
 #include <Rcpp.h>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/gamma.hpp>
-// [[Rcpp::depends(BH)]]
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(openmp)]]
 
 using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
-
 #define ARMA_DONT_PRINT_ERRORS
 
-//#include <armadillo>
 #include <iostream>
 #include <math.h>       /* sqrt */
 
@@ -53,13 +48,12 @@ double dist(rowvec l1, rowvec l2){
 
 
 
-NumericVector ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
+void ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
 
   const int N = ptrs.size()-1;
 
   for( int i = 0; i<N; ++i ){
     for( int j = ptrs[i]; j<ptrs[i+1]; ++j ){
-
       int u1 = ptrs[i];
       int u2 = ptrs[inds[j]];
       double dp = dot_prod( u1, ptrs[i+1]-2, u2, ptrs[inds[j] + 1]-2, inds, vals );
@@ -75,45 +69,42 @@ NumericVector ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
     }
   }
 
-  return vals;
+}
+
+
+// [[Rcpp::export]]
+NumericVector createUcppM(NumericVector ptrs, NumericVector inds, NumericVector cov_vals){
+
+  //cout << "passing values" << endl;
+  //cout << cov_vals << endl;
+
+  ic0(ptrs, inds, cov_vals);
+  return cov_vals;
 }
 
 
 
 
-
 // [[Rcpp::export]]
-List createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
-
-
+NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
 
   const int nvals = inds.size();
   const int N = ptrs.size();
   NumericVector vals(nvals);
-  NumericVector vals2(nvals);
 
   for(int i=0; i<N; ++i){
     for(int j=ptrs[i]; j<ptrs[i+1]; ++j){
-      //cout << "(row,col)=("  << i << "," << inds[j] << ")" << endl;
-      //cout << locsord.row(i) << endl;
-      //cout << locsord.row(inds[j]) << endl;
       double d = dist(locsord.row(i), locsord.row(inds[j]));
       double v = exp(-d);
       vals[j] = v;
-      //cout << v << endl;
     }
   }
 
-  vals2 = ic0(ptrs, inds, vals);
+  //cout << "passing locs" << endl;
+  //cout << vals << endl;
 
-  //cout << "vals" << endl;
-  //cout << vals2 << endl;
-
-  List Udata;
-  Udata["ptrs"]=ptrs;
-  Udata["inds"]=inds;
-  Udata["vals"]=vals;
-  return Udata;
+  ic0(ptrs, inds, vals);
+  return vals;
 }
 
 
@@ -146,7 +137,6 @@ arma::mat slowIC0( arma::mat A, arma::mat S){
       A(i,j) = 0;
     }
   }
-  //cout << A << endl;
   return(A);
 }
 
