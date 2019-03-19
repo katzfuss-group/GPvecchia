@@ -12,8 +12,8 @@ Rcpp::sourceCpp('~/GPvecchia/src/ICC.cpp')
 
 set.seed(1988)
 spatial.dim=2 # number of spatial dimensions
-n=40**2  # number of observed locs
-m=20
+n=250**2  # number of observed locs
+m=50
 
 
 # simulate locations
@@ -51,10 +51,14 @@ if(n < 1e4) {
 #V = vecchia_specify(locs, m=20, conditioning = 'NN', cond.yz="SGV")
 V = vecchia_specify(locs, m, conditioning = 'mra')
 
-Sig.sel = t(apply(V$U.prep$revNNarray, 1, function(r) Sigma[V$ord,V$ord][r[m+1],r]))
+#Sig.sel = t(apply(V$U.prep$revNNarray, 1, function(r) Sigma[V$ord,V$ord][r[m+1],r]))
 
 ##### likelihood evaluation #####
 covparms=c(sig2,range,smooth)
 #vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets,covmodel=Sig.sel)
 #vecchia_loglik = vecchia_likelihood(z,V,covparms,nuggets,covmodel=Sigma)
+lltime = proc.time()
 vecchia_loglik.obj= vecchia_likelihood(z,V,covparms,nuggets,covmodel='matern')
+print("ll time:")
+print(proc.time - lltime)
+print(vecchia_loglik.obj[[1]])
