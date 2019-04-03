@@ -36,6 +36,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     } else {
       vals = createUcpp(ptrs, inds, vecchia.approx$locsord)
     }
+    vals = createUcpp(ptrs, inds, vecchia.approx$locsord)
 
     Laux = sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
     Ulatent = t(solve(Laux, sparse=TRUE))
@@ -44,14 +45,14 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
 
     p1 = c(0, cumsum(rep(2,N))) + ptrs
     p2 = c(p1[-1] -2, NA)
-    LZp = c(rbind(p1,p2))[-(2*N)]
+    LZp = Filter(function(i) !is.na(i), c(rbind(p1,p2)))
 
     nuggets.inds = c(rbind(p2[1:N], p2[1:N]+1))+1
     nvals = length(vals) + 2*N
     LZvals = rep(0, nvals)
     LZvals[nuggets.inds] = c(rbind(-1/sqrt(nuggets.ord), 1/sqrt(nuggets.ord)))
     LZvals[-nuggets.inds] = Ulatent@x
-    LZinds = c(rbind(2*inds, c(2*seq(N)-2), 2*seq(N)-1))
+    LZinds = Filter(function(i) !is.na(i), c(rbind(2*t(vecchia.approx$U.prep$revNNarray - 1), c(2*seq(N)-2), 2*seq(N)-1)))
 
     U = t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
     new = proc.time() - new
