@@ -42,9 +42,21 @@ knot.tree.old = function(locs.tree, r, dim=2){
 
 
 knot.tree = function(locs, mra.params){
-  knots = list()
+
   J = mra.params$J; M = mra.params$M; r = mra.params$r
 
+  if(M==1 && r[2]==1){
+    n = nrow(locs)
+    names = c("r", paste("r_", seq(J), sep=""))
+    knots = c(list(seq(r[1])), as.list(seq(from=r[1]+1, to=n)))
+    padding = lapply(vector("list", J+1-length(knots)), as.integer)
+    knots = c(knots, padding)
+    names(knots) = names
+    new.knots = knots
+    return(new.knots)
+  }
+
+  knots = list()
   remaining = list()
   n = length(locs)/ncol(locs)
   remaining[["r"]] = seq(n)
@@ -76,6 +88,7 @@ knot.tree = function(locs, mra.params){
     }
     remaining = remaining[-1]
   }
+  browser()
   return(knots)
 }
 
