@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include <RcppArmadillo.h>
 #include <unordered_map>
 #include <omp.h>
@@ -78,7 +79,12 @@ NumericVector createUcppM(NumericVector ptrs, NumericVector inds, NumericVector 
   //cout << "passing values" << endl;
   //cout << cov_vals << endl;
 
+  auto start = chrono::high_resolution_clock::now();
   ic0(ptrs, inds, cov_vals);
+  auto finish = chrono::high_resolution_clock::now();
+
+  chrono::duration<double> elapsed = finish - start;
+  cout << "IC0 Elapsed time: " << elapsed.count() << " s\n";
   return cov_vals;
 }
 
@@ -103,7 +109,16 @@ NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
   //cout << "passing locs" << endl;
   //cout << vals << endl;
 
+
+
+
+  auto start = chrono::high_resolution_clock::now();
   ic0(ptrs, inds, vals);
+  auto finish = chrono::high_resolution_clock::now();
+
+  chrono::duration<double> elapsed = finish - start;
+  cout << "IC0 Elapsed time: " << elapsed.count() << " s\n";
+
   return vals;
 }
 

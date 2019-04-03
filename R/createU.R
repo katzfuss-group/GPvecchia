@@ -36,7 +36,6 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     } else {
       vals = createUcpp(ptrs, inds, vecchia.approx$locsord)
     }
-    vals = createUcpp(ptrs, inds, vecchia.approx$locsord)
 
     Laux = sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
     Ulatent = t(solve(Laux, sparse=TRUE))
@@ -56,7 +55,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
 
     U = t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
     new = proc.time() - new
-  }# else {
+  } else {
     old = proc.time()
     # call Rcpp function to create the nonzero entries of U
     if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
@@ -79,7 +78,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     print(new)
     print(old)
 
-  #}
+  }
 
   # remove rows/columns corresponding to zero nugget and store related info
   zero.nugg=list()
