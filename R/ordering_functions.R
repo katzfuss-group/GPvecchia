@@ -418,8 +418,10 @@ order_maxmin_exact_obs_pred<-function(locs, locs_pred){
   # The only difference is that the ord_pred (above) replaces
   # NN_pred (from knnx distances)
   locs_all = rbind(locs, locs_pred)
+
   n <- nrow(locs)
   m <- min( round(sqrt(n)), 200 )
+
   n_pred <- nrow(locs_pred)
   # next is to find 'ord_pred', a maxmin reordering of prediction locations
   NN <- FNN::get.knn( locs_all, k = m )$nn.index

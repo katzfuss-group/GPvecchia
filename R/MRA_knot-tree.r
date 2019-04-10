@@ -43,6 +43,7 @@ knot.tree.old = function(locs.tree, r, dim=2){
 
 knot.tree = function(locs, mra.params){
 
+
   J = mra.params$J; M = mra.params$M; r = mra.params$r
 
   if(M==1 && r[2]==1){
@@ -57,14 +58,22 @@ knot.tree = function(locs, mra.params){
   }
 
   knots = list()
+
   remaining = list()
   n = length(locs)/ncol(locs)
   remaining[["r"]] = seq(n)
 
+
+  #remaining = queue()
+  #pushback( remaining, list("r", seq(n)) )
+
   while(length(remaining)>0){
     id = names(remaining)[1]
+    #item = pop(remaining)
+    #id = item[[1]]
     m = res(id)
     reg.inds = remaining[[id]]
+
     if(m<M){
       r.eff = min(r[m+1], length(reg.inds))
       if(r.eff>0) {
@@ -74,21 +83,25 @@ knot.tree = function(locs, mra.params){
       reg.locs = locs[reg.inds,]
       if(!is.matrix(reg.locs)) reg.locs = matrix(reg.locs, ncol=ncol(locs))
 
-
       if( length(reg.locs)==0 ) clusters = c()
       else{
-        clusters =  cluster.equal(reg.locs, K=J[m+1], dim.start=m%%2+1)
+        if( J[m+1]>nrow(reg.locs) ){
+        clusters = seq(length(reg.locs))
+        } else {
+          clusters =  cluster.equal(reg.locs, K=J[m+1], dim.start=m%%2+1)
+        }
       }
       for(child.no in 1:J[m+1]){
         child.id = paste(c(id, child.no), collapse="_")
         remaining[[child.id]] = reg.inds[clusters==child.no]
+        #pushback(remaining, list(child.id, reg.inds[clusters==child.no]))
       }
     } else {
       knots[[id]] = reg.inds
     }
     remaining = remaining[-1]
   }
-  browser()
+
   return(knots)
 }
 
@@ -109,19 +122,34 @@ getNKnt = function(r, ind){
 }
 
 
+# takes the list of knot indices and sorts them in the breadth-first manner
+sortNodesBFS = function(knots){
+
+
+
+}
+
+
+
+
+
 
 # getNNmatrix = function(knot.tree,m){
 getNNmatrix = function(knot.tree){
+
+  indices = knot.tree$indices
+  rm(indices, envir=knot.tree)
 
   neighbors = list()
   #fill out the list of neighbors for the root
 
   #find the root(s) of the tree
-  min.length = min(sapply(names(knot.tree), res))
-  roots = which(sapply(names(knot.tree), res)==min.length)
+  min.length = min(sapply(indices, res))
+  roots = which(sapply(indices, res)==min.length)
+
 
   for( root.no in roots ){
-    root = names(knot.tree)[root.no]
+    root = indices[root.no]
     if( length(knot.tree[[root]])==0) next()
     root.ind = knot.tree[[root]][1]
     neighbors[[root.ind]] = c(root.ind); cond.set=c(root.ind); last.knot=root.ind
@@ -135,17 +163,18 @@ getNNmatrix = function(knot.tree){
 
   # once the first knot is handled, fill out the list
   # for the remaining knots
-  for( ind in names(knot.tree)[-roots] ){
+  for( ind in indices[-roots] ){
     knots = knot.tree[[ind]]
     if(all(is.na(knots))) next()
     parent.knots = knot.tree[[parent(ind)]]
     last.knot = parent.knots[length(parent.knots)]
-    cond.set = neighbors[[parent.knots[length(parent.knots)]]]
+    cond.set = neighbors[[last.knot]]
     for( knot in knots) {
       cond.set = c(knot, cond.set)
       neighbors[[knot]] = cond.set
     }
   }
+
   list2matrix(neighbors)
   NNarray = list2matrix(neighbors)
 

@@ -23,7 +23,8 @@
 
 
 vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,
-                         conditioning, mra.options=NULL) {
+                         conditioning, mra.options=NULL, user.order=NULL) {
+
 
   if(m==-1 || is.null(m)) {
     if(conditioning=='mra' && !is.null(mra.options) &&  !is.null(mra.options$J) && !is.null(mra.options$r) && !is.null(mra.options$J))
@@ -82,6 +83,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     if(ordering=='coord') { ord=order_coordinate(locs)
     } else if(ordering=='maxmin'){ ord = order_maxmin_exact(locs)
     } else if(ordering=='outsidein'){ord = order_outsidein(locs)}
+    if(!is.null(user.order)) ord=user.order
 
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
