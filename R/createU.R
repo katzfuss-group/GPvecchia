@@ -27,7 +27,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   }
 
   if(vecchia.approx$conditioning=="mra"){
-    new = proc.time()
+    # new = proc.time()
     inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
     ptrs = c(0, cumsum(apply(vecchia.approx$U.prep$revNNarray, 1, function(r) sum(!is.na(r)))))
 
@@ -73,13 +73,14 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     LZinds = Filter(function(i) !is.na(i), c(rbind(2*t(vecchia.approx$U.prep$revNNarray - 1), c(2*seq(N)-2), 2*seq(N)-1)))
 
     U = t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
-    new = proc.time() - new
+    # new = proc.time() - new
   } else {
-    old = proc.time()
+    # browser()
+    # old = proc.time()
     # call Rcpp function to create the nonzero entries of U
     if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
                                                       vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
-                                                      nuggets.all.ord, nuggets.ord, covmodel[ord,ord], covparms)
+                                                      nuggets.all.ord, nuggets.ord, covmodel, covparms)
     else if(is.character(covmodel)) U.entries=U_NZentries(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
                                                       vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
                                                       nuggets.all.ord, nuggets.ord, covmodel, covparms)
@@ -92,10 +93,10 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     allLentries=c(Lentries, U.entries$Zentries)
     U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
                   x=allLentries,dims=c(size,size))
-    old = proc.time() - old
-
-    print(new)
-    print(old)
+    # old = proc.time() - old
+    #
+    # print(new)
+    # print(old)
 
   }
 

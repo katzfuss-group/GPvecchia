@@ -27,6 +27,24 @@ double dist1(double x, double y){
 }
 
 
+
+
+class ParallelStream{
+  ostringstream stdStream;
+public:
+  ParallelStream(){}
+  template <class T>
+  ParallelStream& operator<<(const T& inData){
+    stdStream << inData;
+    return *this;
+  }
+  std::string toString() const{
+    return stdStream.str();
+  }
+};
+
+
+
 //calculate distance matrix for multiple pairs of locs: have to use two separate functions because 1D is vec locs 2D is mat locs
 //for 2D
 // [[Rcpp::export]]
@@ -110,11 +128,33 @@ arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,
           covmat(j1,j2) = covparms(0);
         } else {
           scaledist = distmat(j1,j2)/covparms(1);
-          covmat(j1,j2) = covparms(0)*exp(-scaledist);
+	  covmat(j1,j2) = covparms(0)*exp(-scaledist);
         }
       }
     }
-  }else{ // Matern cov with bessel function
+  } else if(covparms(2)==1.5) {
+    for (j1 = 0; j1 < d1; j1++){
+      for (j2 = 0; j2 < d2; j2++){
+        if ( distmat(j1,j2) == 0 ){
+          covmat(j1,j2) = covparms(0);
+        } else {
+          scaledist = distmat(j1,j2)/covparms(1);
+	        covmat(j1,j2) = covparms(0)*(1+sqrt(3)*scaledist)*exp(-sqrt(3)*scaledist);
+        }
+      }
+    }
+  } else if(covparms(2)==2.5){
+    for (j1 = 0; j1 < d1; j1++){
+      for (j2 = 0; j2 < d2; j2++){
+        if ( distmat(j1,j2) == 0 ){
+          covmat(j1,j2) = covparms(0);
+        } else {
+          scaledist = distmat(j1,j2)/covparms(1);
+	        covmat(j1,j2) = covparms(0)*(1+sqrt(5)*scaledist+(5.0/3.0)*scaledist*scaledist)*exp(-sqrt(5)*scaledist);
+        }
+      }
+    }
+  } else {// Matern cov with bessel function
     double normcon = covparms(0)/(pow(2.0,covparms(2)-1)*boost::math::tgamma(covparms(2))); //Rf_gammafn(covparms(2)));//
     for (j1 = 0; j1 < d1; j1++){
       for (j2 = 0; j2 < d2; j2++){
@@ -122,8 +162,7 @@ arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,
           covmat(j1,j2) = covparms(0);
         } else {
           scaledist = distmat(j1,j2)/covparms(1);
-          covmat(j1,j2) = normcon*pow( scaledist, covparms(2) )*boost::math::cyl_bessel_k(covparms(2),scaledist); //Rf_bessel_k(scaledist,covparms(2),1.0);
-
+	        covmat(j1,j2) = normcon*pow( scaledist, covparms(2) )*boost::math::cyl_bessel_k(covparms(2),scaledist); //Rf_bessel_k(scaledist,covparms(2),1.0);
         }
       }
     }
@@ -175,6 +214,7 @@ arma::uvec get_idx_vals(int n0, int m, const arma::uvec inds){
 }
 
 
+
 // [[Rcpp::export]]
 List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat& revNNarray,const arma::mat& revCondOnLatent,const arma::vec& nuggets,const arma::vec& nuggets_obsord, arma::mat& COV, const arma::vec covparms){
   // initialize the output matrix
@@ -196,18 +236,32 @@ List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat&
   bool succ;
 
 
+  cout << COV << endl;
+
   omp_set_num_threads(Ncores);// selects the number of cores to use.
   // initialized all elements outside of omp part, and claim them as private
-  #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
+#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
   for (k = 0; k < nnp; k++) {
     // extract a row to work with
-    inds=revNNarray.row(k).t();
-    revCon_row=revCondOnLatent.row(k).t();
 
-    n0 = get_nonzero_count_general(inds); // for general case
+    inds=revNNarray.row(k).t();
+
+        n0 = get_nonzero_count_general(inds); // for general case
     inds00 = get_idx_vals_general(n0, inds);
 
+
+
+
+
+    // covmat = zeros(n0, n0);
+    // for(int l=n0-1; l>=0; --l){
+    //   vec auxrow = COV.row(inds[l]);
+    //   covmat( l, span(0, auxrow.size()-1) ) = auxrow;
+    // }
+
     covmat = COV.submat(inds00, inds00);
+    // covmat = symmatl(covmat);
+
 
     // get Cholesky decomposition : upper triagular
     // cholmat = chol(covmat,"upper");
@@ -247,7 +301,7 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
   arma::vec onevec;//
   arma::vec M;//
   arma::mat dist;//
-//int n_extras; // number of try-catches executed
+  //int n_extras; // number of try-catches executed
   int k;//
   mat Zentries=zeros(2*n);
   int attempt;
