@@ -98,6 +98,7 @@ NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
   const int N = ptrs.size();
   NumericVector vals(nvals);
 
+  //auto start = chrono::high_resolution_clock::now();
   for(int i=0; i<N; ++i){
     for(int j=ptrs[i]; j<ptrs[i+1]; ++j){
       double d = dist(locsord.row(i), locsord.row(inds[j]));
@@ -106,18 +107,11 @@ NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
     }
   }
 
-  //cout << "passing locs" << endl;
-  //cout << vals << endl;
-
-
-
-
-  auto start = chrono::high_resolution_clock::now();
   ic0(ptrs, inds, vals);
-  auto finish = chrono::high_resolution_clock::now();
+  //auto finish = chrono::high_resolution_clock::now();
 
-  chrono::duration<double> elapsed = finish - start;
-  cout << "IC0 Elapsed time: " << elapsed.count() << " s\n";
+  //chrono::duration<double> elapsed = finish - start;
+  //cout << "IC0 Elapsed time: " << elapsed.count() << " s\n";
 
   return vals;
 }

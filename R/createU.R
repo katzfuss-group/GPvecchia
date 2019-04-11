@@ -34,8 +34,26 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     if(is.matrix(covmodel)){
       cov.vals = Filter(function(i) !is.na(i), c(t(covmodel)))
       vals = createUcppM(ptrs, inds, cov.vals)
+    } else if(is.function(covmodel)){
+      ## function has to be of a certain form, specifically, it has to be able
+      ## to take k pairs of locations and return a vector with distances which is
+      ## of length k.
+
+      # create a vector with pairs of locations
+      #s1 = proc.time()
+      f = function(r) rep(r[length(r)], length(which(!is.na(r))))
+      inds1 = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray)))
+      inds2 = unlist(apply(vecchia.approx$U.prep$revNNarray, 1, f))
+      locs1 = vecchia.approx$locsord[inds1,]
+      locs2 = vecchia.approx$locsord[inds2,]
+
+      cov.vals = covmodel(locs1, locs2)
+      vals = createUcppM(ptrs, inds, cov.vals)
+      #print(proc.time()-s1)
     } else {
+      #s2 = proc.time()
       vals = createUcpp(ptrs, inds, vecchia.approx$locsord)
+      #print(proc.time() - s2)
     }
 
     Laux = sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
