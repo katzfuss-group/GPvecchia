@@ -7,13 +7,13 @@ rm(list = ls())
 library(devtools)
 install_github("katzfuss-group/GPvecchia")
 
-source("server/importer.R")
+source("../GPVecchia/server/importer.R")
 
 #####################   simulate data    #######################
 
-data.distr = 'logistic' #options: "gaussian","logistic", "poisson", "gamma"
-spatial.dim =1 # number of spatial dimensions
-n=225 # number of observed locs
+data.distr = 'gamma' #options: "gaussian","logistic", "poisson", "gamma"
+spatial.dim = 1 # number of spatial dimensions
+n=100 # number of observed locs
 
 default_lh_params = list("alpha"=2, "sigma"=sqrt(.1))
 
@@ -27,7 +27,7 @@ if(spatial.dim==1){
 }
 
 # covariance parameters
-sig2=1; range=.2; smooth = .5
+sig2=1; range=.4; smooth = 1.5
 covparms=c(sig2, range, smooth)
 covfun <- function(locs) sig2*Matern(fields::rdist(locs),range=range,smoothness=smooth)
 
@@ -45,8 +45,10 @@ if(data.distr=='gaussian'){
   z = rpois(n, exp(y))
 } else if(data.distr=='logistic'){
   z = rbinom(n,1,prob = exp(y)/(1+exp(y)))
-} else if(data.distr=='gamma'){
+} else if(data.distr=='gamma_alt'){
   z = rgamma(n, shape = default_lh_params$alpha, rate = exp(y))
+} else if(data.distr=='gamma'){
+  z = rgamma(n, shape = default_lh_params$alpha, rate = default_lh_params$alpha*exp(-y))
 } else{
   print('Error: Distribution not implemented yet.')
 }
@@ -57,7 +59,6 @@ par(mfrow=c(1,2))
 if(spatial.dim==1) {
   plot(locs,y, main = "latent")
   plot(locs,z, main = "observed")
-
 } else {
   quilt.plot(locs,y, main = "Latent")
   quilt.plot(locs,z, main = "Observed")
@@ -66,28 +67,34 @@ if(spatial.dim==1) {
 
 #####################   specify Vecchia approx    #######################
 # (this only has to be run once)
-m=5
+m=10
 if(spatial.dim==1){
   vecchia.approx=vecchia_specify(locs,m)
 } else {
   vecchia.approx=vecchia_specify(locs,m,cond.yz='zy')
+  vecchia.approx.lr=vecchia_specify(locs,m,conditioning = "firstm")
 }
 
 #####################   prediction at observed locations    ######################
 # Perform inference on latent mean with Vecchia Laplace approximation
 
 posterior = calculate_posterior_VL(z,vecchia.approx,likelihood_model=data.distr,
-                                   covparms,likparms = default_lh_params)
+                                   covparms,likparms = default_lh_params, prior_mean = 40)
+
 
 # Laplace approximation for comparison
-post_lap = calculate_posterior_laplace(z, data.distr, C =covfun(locs),
+nugget = diag(rep(1e-5, n))  #stability
+laplace_cov = covfun(locs)+nugget
+if(m==0)laplace_cov = diag(diag(laplace_cov))
+post_lap = calculate_posterior_laplace(z, data.distr, C =laplace_cov,
                                        return_all = TRUE)
 
 
 if (spatial.dim==1){
   par(mfrow=c(1,1),mar=c(2,2,2,2))
   ord = order(locs) # order so that lines appear correctly
-  plot(locs[ord], y[ord], type = "l")
+  y_limits = c(min(y, posterior$mean[ord]), max(y, posterior$mean[ord]))
+  plot(locs[ord], y[ord], type = "l", ylim = y_limits )
   lines(locs[ord], posterior$mean[ord], type = "l", col=3, lwd=3)
   lines(locs[ord], post_lap$mean[ord], type = "l", col=2)
   legend("topright", legend = c("Latent", "VL", "Laplace"), col= c(1,3,2), lwd=c(1,3,1))
@@ -102,19 +109,10 @@ if (spatial.dim==1){
 
 #####################   evaluation of integrated likelihood   #######################
 
-
-# get pseudodata and nuggets from the latent y discovered by VL
-z_VLpseudo = posterior$t
-nuggets_VLpseudo = posterior$D
-
-######  specify Vecchia approximation   #######
-vecchia.approx = vecchia_specify(locs, m) # use SGV for likelihood, even if 2D
-
 ######  Calculate likelihood   #######
-vecchia_likelihood(z_VLpseudo, vecchia.approx,covparms,nuggets_VLpseudo)
-
-
-
+vecchia.approx=vecchia_specify(locs,m=mv,cond.yz='zy')
+vecchia_laplace_likelihood(z,vecchia.approx,likelihood_model=data.distr,covparms,
+                             likparms = default_lh_params, prior_mean =0)
 
 
 #####################   prediction at unobserved locations    #######################
@@ -135,19 +133,11 @@ z_VLpseudo = posterior$t
 nuggets_VLpseudo = posterior$D
 
 ######  specify Vecchia approximation   #######
-# m specified earlier
-vecchia.approx_pred =vecchia_specify(locs, m, locs.pred=locs.pred)
-
-
+vecchia.approx_pred = vecchia_specify(locs, m, locs.pred=locs.pred)
 
 ######  carry out prediction   #######
 preds=vecchia_prediction(z_VLpseudo, vecchia.approx_pred,covparms,nuggets_VLpseudo)
 # returns a list with elements mu.pred,mu.obs,var.pred,var.obs,V.ord
-
-
-
-
-
 
 if (spatial.dim==1){
   par(mfrow=c(1,1),mar=c(2,2,2,2))
@@ -171,14 +161,20 @@ if (spatial.dim==1){
 #####################   parameter estimation via Nelder-Mead   #######################
 
 #setup for 1D, not adjusted for ZY ordering for 2D problems
-
-vl_likelihood = function(theta){
-  covparms=c(1, theta[1], theta[2]) # sigma range smoothness
+vecchia.approx=vecchia_specify(matrix(locs, ncol=1),m)
+vl_likelihood = function(x0){
+  theta = exp(x0)
+  covparms=c(theta[1], theta[2], theta[3]) # sigma range smoothness
+  default_lh_params = list("alpha"=2, "sigma"=sqrt(.1))
+  prior_mean = 0#log(theta[4])
   # Perform inference on latent mean with Vecchia Laplace approximation
-  posterior.sgv = calculate_posterior_VL(z,vecchia.approx, likelihood_model=data.distr,
-                                     covparms, return_all = TRUE, likparms = default_lh_params)
-  return(posterior.sgv$vec_lh)
-}
-x0 = c(.1,.5)
-optim(x0,vl_likelihood, method = "Nelder-Mead", control = list("trace" = 4, maxit = 100))
+  vll = vecchia_laplace_likelihood(z,vecchia.approx, likelihood_model=data.distr,
+                                   covparms, return_all = TRUE, likparms = default_lh_params, prior_mean = prior_mean)
+  return(-vll)
 
+}
+x0 = log(c(.07,1.88, 1.9))
+vl_likelihood(x0)
+res = optim(x0, vl_likelihood, method = "Nelder-Mead", control = list("trace" = 4))
+exp(res$par[1:3])
+vl_likelihood(x0)

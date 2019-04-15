@@ -14,60 +14,26 @@ using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
-// distance function for 1 pair of locs
-// [[Rcpp::export]]
-double dist2(arma::vec l1,arma::vec l2) {
-  double dist = norm(l1-l2,2) ;
-  return (dist) ;
-}
-// [[Rcpp::export]]
-double dist1(double x, double y){
-  double d = sqrt( pow(x - y, 2) );
-  return d;
-}
 
 
 
-
-class ParallelStream{
-  ostringstream stdStream;
-public:
-  ParallelStream(){}
-  template <class T>
-  ParallelStream& operator<<(const T& inData){
-    stdStream << inData;
-    return *this;
+double dist(rowvec l1, rowvec l2){
+  double ssq = 0.0;
+  for(int k=0; k<l1.size(); ++k){
+    ssq += (l1[k] - l2[k])*(l1[k] - l2[k]);
   }
-  std::string toString() const{
-    return stdStream.str();
-  }
-};
+  return sqrt(ssq);
+}
 
 
 
-//calculate distance matrix for multiple pairs of locs: have to use two separate functions because 1D is vec locs 2D is mat locs
-//for 2D
-// [[Rcpp::export]]
-arma::mat calcPWD2( arma::mat x) {//Rcpp::NumericMatrix
+arma::mat calcPWD( arma::mat x) {
   int outrows = x.n_rows ;
   int outcols = x.n_rows ;
   arma::mat out(outrows, outcols) ;
   for (int arow = 0 ; arow < outrows ; arow++) {
     for (int acol = 0 ; acol < outcols ; acol++) {
-      out(arow, acol) = dist2(x.row(arow).t(),x.row(acol).t()) ; //extract row from mat, have to transpose to colvec
-    }
-  }
-  return (out) ;
-}
-//for 1D
-// [[Rcpp::export]]
-arma::mat calcPWD1( arma::vec x) {//Rcpp::NumericMatrix
-  int outrows = x.size() ;
-  int outcols = x.size() ;
-  arma::mat out(outrows, outcols) ;
-  for (int arow = 0 ; arow < outrows ; arow++) {
-    for (int acol = 0 ; acol < outcols ; acol++) {
-      out(arow, acol) = dist1(x[arow],x[acol]) ; //extract element from vec
+      out(arow, acol) = dist(x.row(arow), x.row(acol) );
     }
   }
   return (out) ;
@@ -128,7 +94,7 @@ arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,
           covmat(j1,j2) = covparms(0);
         } else {
           scaledist = distmat(j1,j2)/covparms(1);
-	  covmat(j1,j2) = covparms(0)*exp(-scaledist);
+	        covmat(j1,j2) = covparms(0)*exp(-scaledist);
         }
       }
     }
@@ -170,7 +136,7 @@ arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,
   return covmat;
 }
 
-// [[Rcpp::export]]
+
 int get_nonzero_count(int k, int m){
   int n0;
   if (k < m){
@@ -181,7 +147,7 @@ int get_nonzero_count(int k, int m){
   return n0;
 }
 
-// [[Rcpp::export]]
+
 int get_nonzero_count_general(const arma::uvec inds){
   //Rcpp defaults NA to 0, so look for values !=0
   int nonzero_counter = 0;
@@ -191,7 +157,7 @@ int get_nonzero_count_general(const arma::uvec inds){
   return nonzero_counter;
 }
 
-// [[Rcpp::export]]
+
 arma::uvec get_idx_vals_general(int n0, const arma::uvec inds){
   //Rcpp defaults NA to 0, so look for values !=0
   arma::uvec inds00(n0);
@@ -206,7 +172,7 @@ arma::uvec get_idx_vals_general(int n0, const arma::uvec inds){
 }
 
 
-// [[Rcpp::export]]
+
 arma::uvec get_idx_vals(int n0, int m, const arma::uvec inds){
   arma::uvec inds00;//
   inds00=inds(span(m+1-n0,m))-ones<uvec>(n0);// shift the indices by -1
@@ -236,8 +202,6 @@ List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat&
   bool succ;
 
 
-  cout << COV << endl;
-
   omp_set_num_threads(Ncores);// selects the number of cores to use.
   // initialized all elements outside of omp part, and claim them as private
 #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
@@ -248,11 +212,6 @@ List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat&
 
         n0 = get_nonzero_count_general(inds); // for general case
     inds00 = get_idx_vals_general(n0, inds);
-
-
-
-
-
     // covmat = zeros(n0, n0);
     // for(int l=n0-1; l>=0; --l){
     //   vec auxrow = COV.row(inds[l]);
@@ -261,8 +220,6 @@ List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat&
 
     covmat = COV.submat(inds00, inds00);
     // covmat = symmatl(covmat);
-
-
     // get Cholesky decomposition : upper triagular
     // cholmat = chol(covmat,"upper");
     // get last row of inverse Cholesky
@@ -323,11 +280,12 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
 
      // "%" indicates element-wise multiplication
      nug=nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m))); // vec is vec, cannot convert to mat
-    if (locs.n_cols==1){
-      dist=calcPWD1(locs.rows(inds00));
-    } else {
-      dist=calcPWD2(locs.rows(inds00));
-    }
+     dist = calcPWD(locs.rows(inds00));
+    // if (locs.n_cols==1){
+    //   dist=calcPWD1(locs.rows(inds00));
+    // } else {
+    //   dist=calcPWD2(locs.rows(inds00));
+    // }
 
 #pragma omp critical
 {
@@ -361,3 +319,73 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
   return LZentries;
 }
 
+
+double dot_prod(int l1, int u1, int l2, int u2, NumericVector row_inds, NumericVector cells){
+
+  double result = 0.0;
+  while(l1<=u1 && l2<=u2){
+    if(row_inds[l1]==row_inds[l2]) {
+      result += cells[l1]*cells[l2];
+      l1++; l2++;
+    }
+    else if(l1<l2)
+      l1++;
+    else
+      l2++;
+  }
+  return result;
+}
+
+
+
+
+void ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
+
+  const int N = ptrs.size()-1;
+
+  for( int i = 0; i<N; ++i ){
+    for( int j = ptrs[i]; j<ptrs[i+1]; ++j ){
+      int u1 = ptrs[i];
+      int u2 = ptrs[inds[j]];
+      double dp = dot_prod( u1, ptrs[i+1]-2, u2, ptrs[inds[j] + 1]-2, inds, vals );
+
+      if( inds[j] < i ){
+        vals[j] = (vals[j] - dp) / vals[ ptrs[inds[j] + 1] - 1 ];
+      }
+      else if( inds[j]==i ){
+        vals[j] = sqrt( vals[j] - dp );
+      }
+      else
+        cout << "ERROR" << endl;
+    }
+  }
+}
+
+
+// [[Rcpp::export]]
+NumericVector createUcppM(NumericVector ptrs, NumericVector inds, NumericVector cov_vals){
+  ic0(ptrs, inds, cov_vals);
+  return cov_vals;
+}
+
+
+
+
+// [[Rcpp::export]]
+NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
+
+  const int nvals = inds.size();
+  const int N = ptrs.size();
+  NumericVector vals(nvals);
+
+  for(int i=0; i<N; ++i){
+    for(int j=ptrs[i]; j<ptrs[i+1]; ++j){
+      double d = dist(locsord.row(i), locsord.row(inds[j]));
+      double v = exp(-d);
+      vals[j] = v;
+    }
+  }
+
+  ic0(ptrs, inds, vals);
+  return vals;
+}

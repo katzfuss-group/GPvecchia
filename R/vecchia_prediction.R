@@ -56,36 +56,6 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
 
 
 
-######  wrapper for VL version w/pseudo-data   #######
-
-vecchia_laplace_prediction=function(vl_posterior, vecchia.approx, covparms, var.exact,
-                                    covmodel='matern',return.values='all') {
-  # perform vecchia_prediction with pseudo-data
-  z_pseudo = vl_posterior$t
-  nuggets_pseudo = vl_posterior$D
-  preds=vecchia_prediction(z_pseudo, vecchia.approx, covparms, nuggets_pseudo,
-                           TRUE, covmodel, return.values)
-  data_preds = list()
-
-  # Convert predicted mean (median) to data scale
-  data_preds$data.pred <- vl_posterior$data_link(preds$mu.pred)
-  data_preds$data.obs <- vl_posterior$data_link(preds$mu.obs)
-
-  # Convert predicted variance (via quantiles) to data scale
-  data_preds$data_pred_upper_quantile = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.pred,
-                                                                sd = sqrt(preds$var.pred)))
-  data_preds$data_pred_lower_quantile = vl_posterior$data_link(qnorm(p=.05, mean = preds$mu.pred,
-                                                                sd = sqrt(preds$var.pred)))
-  data_preds$data_obs_upper_quantiles = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.obs,
-                                                                sd = sqrt(preds$var.obs)))
-  data_preds$data_obs_lower_quantiles = vl_posterior$data_link(qnorm(p=.05, mean = preds$mu.obs,
-                                                                sd = sqrt(preds$var.obs)))
-
-  return(c(preds, data_preds))
-}
-
-
-
 ######  compute V for posterior inference   #######
 
 U2V=function(U.obj){
@@ -237,7 +207,7 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
     H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)
 
     if(U.obj$cond.yz!='zy'){
-      
+
       if(sum(!obs.orig)>0) {
         vars.pred=vecchia_lincomb(H[(n+1):(n+n.p),],U.obj,V.ord)
       } else vars.pred=c()
@@ -247,9 +217,9 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
       vars.exact=vecchia_lincomb(H,U.obj,V.ord)
       vars.obs=vars.exact[1:n]
       vars.pred= (if(n.p>0) vars.exact[n+(1:n.p)] else c())
-      
+
     }
-    
+
   }
 
   return(list(vars.obs=vars.obs,vars.pred=vars.pred))

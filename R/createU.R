@@ -26,8 +26,8 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     vecchia.approx$U.prep$revCond[zero.cond]=TRUE
   }
 
+  # in the mra case we calculate the U matrix using incomplete Cholesky (ic0)
   if(vecchia.approx$conditioning=="mra"){
-    # new = proc.time()
     inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
     ptrs = c(0, cumsum(apply(vecchia.approx$U.prep$revNNarray, 1, function(r) sum(!is.na(r)))))
 
@@ -38,22 +38,15 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
       ## function has to be of a certain form, specifically, it has to be able
       ## to take k pairs of locations and return a vector with distances which is
       ## of length k.
-
-      # create a vector with pairs of locations
-      #s1 = proc.time()
       f = function(r) rep(r[length(r)], length(which(!is.na(r))))
       inds1 = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray)))
       inds2 = unlist(apply(vecchia.approx$U.prep$revNNarray, 1, f))
       locs1 = vecchia.approx$locsord[inds1,]
       locs2 = vecchia.approx$locsord[inds2,]
-
       cov.vals = covmodel(locs1, locs2)
       vals = createUcppM(ptrs, inds, cov.vals)
-      #print(proc.time()-s1)
     } else {
-      #s2 = proc.time()
       vals = createUcpp(ptrs, inds, vecchia.approx$locsord)
-      #print(proc.time() - s2)
     }
 
     Laux = sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
@@ -61,23 +54,28 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
 
     N = nrow(vecchia.approx$U.prep$revNNarray)
 
-    p1 = c(0, cumsum(rep(2,N))) + ptrs
+    # build new matrix
+    p1 = c(0, cumsum(rep(2,N))) + Ulatent@p
     p2 = c(p1[-1] -2, NA)
     LZp = Filter(function(i) !is.na(i), c(rbind(p1,p2)))
 
     nuggets.inds = c(rbind(p2[1:N], p2[1:N]+1))+1
-    nvals = length(vals) + 2*N
+    nvals = length(Ulatent@x) + 2*N
+
     LZvals = rep(0, nvals)
     LZvals[nuggets.inds] = c(rbind(-1/sqrt(nuggets.ord), 1/sqrt(nuggets.ord)))
     LZvals[-nuggets.inds] = Ulatent@x
-    LZinds = Filter(function(i) !is.na(i), c(rbind(2*t(vecchia.approx$U.prep$revNNarray - 1), c(2*seq(N)-2), 2*seq(N)-1)))
+
+    Zinds = c((which(Ulatent@i==0) - 1)[-1], length(Ulatent@i)) + cumsum(rep(2,N))-2
+    Zinds = c(rbind(Zinds, Zinds+1))+1
+    LZinds = rep(NA, nvals)
+    LZinds[Zinds] = seq(2*N)-1
+    LZinds[-Zinds] = 2*Ulatent@i
 
     U = t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
-    # new = proc.time() - new
+
   } else {
-    # browser()
-    # old = proc.time()
-    # call Rcpp function to create the nonzero entries of U
+
     if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
                                                       vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
                                                       nuggets.all.ord, nuggets.ord, covmodel, covparms)
@@ -91,14 +89,11 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
     Lentries=c(t(U.entries$Lentries))[not.na]
     allLentries=c(Lentries, U.entries$Zentries)
-    U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
+    Uold=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
                   x=allLentries,dims=c(size,size))
-    # old = proc.time() - old
-    #
-    # print(new)
-    # print(old)
-
   }
+
+
 
   # for zy ordering, remove rows/columns corresponding to dummy y's
   if(vecchia.approx$cond.yz=='zy') {

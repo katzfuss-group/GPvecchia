@@ -113,3 +113,28 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
   return(clusters)
 }
 
+
+### This function is used mainly for testing.
+### It takes the entire covariance matrix and creates
+### a matrix of covariances
+getMatCov = function(V, Sigma){
+  revNNarray = V$U.prep$revNNarray
+  rows = c()
+  cols = c()
+  for(i in 1:nrow(revNNarray)){
+    r = revNNarray[i,];
+    newrows = rep(i, sum(!is.na(r)))
+    newcols = r[!is.na(r)]
+    rows = c(rows, newrows)
+    cols = c(cols, newcols)
+  }
+  inds = cbind(rows, cols)
+  inds = as.vector(sapply(seq(nrow(inds)), function(r) inds[r,1]-1+n*(inds[r,2]-1)+1))
+
+  Sig.sel = rep(NA, length(revNNarray))
+  inds_to_fill=which(!is.na(revNNarray))
+  Sigma.ord = Sigma[V$ord, V$ord]
+  Sig.sel[inds_to_fill] = Sigma.ord[inds]
+  Sig.sel = matrix(Sig.sel, ncol=ncol(revNNarray), byrow=TRUE)
+  return(Sig.sel)
+}
