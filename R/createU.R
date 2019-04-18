@@ -89,7 +89,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
     Lentries=c(t(U.entries$Lentries))[not.na]
     allLentries=c(Lentries, U.entries$Zentries)
-    Uold=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
+    U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
                   x=allLentries,dims=c(size,size))
   }
 
