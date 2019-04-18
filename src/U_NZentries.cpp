@@ -98,18 +98,18 @@ arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,
         }
       }
     }
-  } else if(covparms(2)==1.5) {
+  } else if(covparms(2)==-1.5) {
     for (j1 = 0; j1 < d1; j1++){
       for (j2 = 0; j2 < d2; j2++){
         if ( distmat(j1,j2) == 0 ){
           covmat(j1,j2) = covparms(0);
         } else {
           scaledist = distmat(j1,j2)/covparms(1);
-	        covmat(j1,j2) = covparms(0)*(1+sqrt(3)*scaledist)*exp(-sqrt(3)*scaledist);
+	  covmat(j1,j2) = covparms(0)*(1+sqrt(3)*scaledist)*exp(-sqrt(3)*scaledist);
         }
       }
     }
-  } else if(covparms(2)==2.5){
+  } else if(covparms(2)==-2.5){
     for (j1 = 0; j1 < d1; j1++){
       for (j2 = 0; j2 < d2; j2++){
         if ( distmat(j1,j2) == 0 ){
