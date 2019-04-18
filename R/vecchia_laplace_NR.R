@@ -22,7 +22,7 @@
 #' vecchia_likelihood(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export
 calculate_posterior_VL = function(z,vecchia.approx,
-                                  likelihood_model=c("gaussian","logistic", "poisson", "gamma", "beta"),
+                                  likelihood_model=c("gaussian","logistic", "poisson", "gamma", "beta", "gamma_alt"),
                                   covparms, likparms = list("alpha"=2, "sigma"=sqrt(.1)),
                                   max.iter=50, convg = 1e-5, return_all = FALSE, y_init = NA,
                                   prior_mean = rep(0,length(z))){
@@ -35,6 +35,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
                       "logistic" = .logistic_model(),
                       "poisson" = .poisson_model(),
                       "gamma" = .gamma_model(likparms),
+                      "gamma_alt" = .gamma_model_alt(likparms),
                       "beta" = .beta_model(likparms))
   ell_dbl_prime = model_funs$hess
   ell_prime = model_funs$score
@@ -102,7 +103,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   }
 
   posterior_data = list("mean" = y_o, "cnvgd" = convgd, "runtime" = LV_time,
-                        "iter" = tot_iters, "t"=pseudo.data, "D" = D,
+                        "iter" = tot_iters, "t"=pseudo.data+prior_mean, "D" = D,
                         "prediction" = preds, "data_link"=link_fun, "model_llh"=  model_funs$llh,
                         "prior_mean"=prior_mean)
 
@@ -124,6 +125,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
                       "logistic" = .logistic_model(),
                       "poisson" = .poisson_model(),
                       "gamma" = .gamma_model(likparms),
+                      "gamma_alt" = .gamma_model_alt(likparms),
                       "beta" = .beta_model(likparms))
   ell_dbl_prime = model_funs$hess
   ell_prime = model_funs$score
@@ -193,7 +195,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 }
 
 #################  Gamma  #########################
-.gamma_model = function(likparms){
+.gamma_model_alt = function(likparms){
   alpha = ifelse("alpha" %in% names(likparms),likparms$alpha, 2)
   gamma_hess = function(y_o, z)  z*exp(y_o)
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
@@ -203,6 +205,17 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh, "link" = gamma_link))
 }
 
+
+# This alternate parameterization encodes the latent y directly as the mean.
+# Assuming a fixed alpha implies a beta
+.gamma_model = function(likparms){
+  alpha = ifelse("alpha" %in% names(likparms),likparms$alpha, 2)
+  gamma_hess = function(y_o, z)  alpha*z*exp(-y_o)
+  gamma_score = function(y_o, z) alpha*(z*exp(-y_o)-1)
+  gamma_llh = function(y_o, z) sum(-alpha*z*exp(-y_o) + (alpha-1)*log(z) -alpha*y_o +alpha*log(alpha) - log(gamma(alpha))) # log link
+  gamma_link = function(y) exp(y)
+  return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh, "link" = gamma_link))
+}
 ################# Beta #########################
 
 .beta_model = function(likparms){
@@ -261,7 +274,7 @@ vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparm
   if(!posterior$cnvgd){print("Convergence Failed, returning -Inf"); return(-Inf)}
 
   m = ncol(vecchia.approx$U.prep$revNNarray)-1
-  locs = vecchia.approx$locsord[order(vecchia.approx$ord.z),]
+  locs = as.matrix(vecchia.approx$locsord[order(vecchia.approx$ord.z),])
 
   # get pseudodata and nuggets from the latent y discovered by VL
   z_pseudo = posterior$t
@@ -281,7 +294,7 @@ vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparm
   true_llh = posterior$model_llh(posterior$mean, z)
 
   # get gaussian (pseudo-data) approximate log likelihood
-  pseudo_cond_loglik = sum(dnorm(z_pseudo,mean = posterior$mean, sd =sqrt(nuggets_pseudo), log = TRUE))
+  pseudo_cond_loglik = sum(dnorm(z_pseudo, mean = posterior$mean, sd =sqrt(nuggets_pseudo), log = TRUE))
 
   # combine three log likelihood terms
   loglik_vecchia = pseudo_marginal_loglik_vecchia + true_llh - pseudo_cond_loglik
