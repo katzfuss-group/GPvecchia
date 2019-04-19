@@ -116,25 +116,15 @@ get.mra.params = function(n,opts,m){
 
 findOrderedNN_mra = function(locs, mra.options, m=-1){
 
-  # make sure the low-rank case is covered as well
-
   n = length(locs)/ncol(locs)
   mra.params = get.mra.params(n, mra.options, m)
 
-  tree.0 = proc.time()
-  knt.tree = knot.tree(locs, mra.params)
-  #print("tree time")
-  #print(proc.time() - tree.0)
-
-  # mat = getNNmatrix(knt.tree,m)
-  NN.0 = proc.time()
-  mat = getNNmatrix(knt.tree)
-  #print("NN time")
-  #print(proc.time() - NN.0)
+  mat = generateNNarray(locs, mra.params[["J"]], mra.params[["M"]], mra.params[["r"]], m)
+  mat[mat==0]=NA
   eff.m = ncol(mat)-1
 
   if(eff.m > 100) print(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))
-  print(paste("MRA params: m=",eff.m, ", J=", paste(get.Jm(knt.tree), collapse=","), ", r=", paste(get.rm(knt.tree), collapse=","), ", M=", get.M(knt.tree), sep=""))
+  #print(paste("MRA params: m=",eff.m, ", J=", paste(get.Jm(knt.tree), collapse=","), ", r=", paste(get.rm(knt.tree), collapse=","), ", M=", get.M(knt.tree), sep=""))
   return(mat)
 }
 
