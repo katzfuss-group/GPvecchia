@@ -21,11 +21,13 @@
 # this fct does not depend on data or parameter values
 # only has to be run once before repeated likelihood evals
 
-
 vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,
                          conditioning, mra.options=NULL, user.order=NULL) {
 
-
+  if(!is.matrix(locs)) {
+    warning("Locations must be in matrix form")
+    return(NA)
+  }
   if(m==-1 || is.null(m)) {
     if(conditioning=='mra' && !is.null(mra.options) &&  !is.null(mra.options$J) && !is.null(mra.options$r) && !is.null(mra.options$J))
       warning("m not defined; using MRA parameters")
@@ -64,13 +66,9 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   }
   if(missing(pred.cond)) pred.cond='general'
   if(missing(conditioning)) conditioning='NN'
-  if(conditioning=='firstm'){
-    conditioning='mra'
-    mra.options=list(r=c(m,1))
-  }
-  if(conditioning=='mra') ordering='maxmin'
+  if(conditioning %in% c('mra', 'firstm')) ordering='maxmin'
   if(missing(cond.yz)){
-    if (conditioning=='mra') { cond.yz='y'
+    if (conditioning %in% c('mra', 'firstm')) { cond.yz='y'
     } else if(missing(locs.pred) | spatial.dim==1 ){ cond.yz = 'SGV'
     } else cond.yz = 'zy'
   }
@@ -120,14 +118,20 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
   }
   ### obtain conditioning sets
-  if( conditioning == 'NN'){
+  if( conditioning == 'mra' ){
+    NNarray = findOrderedNN_mra(locsord, mra.options, m)
+    if(!hasArg(m)) m = ncol(NNarray)-1
+  } else if( conditioning %in% c('firstm', 'NN')){
     if(spatial.dim==1) {
       NNarray=findOrderedNN_kdtree2(locsord,m)
     } else NNarray <- find_ordered_nn(locsord,m)
-  } else if( conditioning == 'mra' ){
-    NNarray = findOrderedNN_mra(locsord, mra.options, m)
-    if(!hasArg(m)) m = ncol(NNarray)-1
-  } else stop(paste0("conditioning='",conditioning,"' not defined"))
+    if(conditioning == 'firstm'){
+      first_m = NNarray[m+1,2:(m+1)]
+      if (m < n-1){  # if m=n-1, nothing to replace
+        NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
+      }
+    }
+  }else stop(paste0("conditioning='",conditioning,"' not defined"))
 
   if(!missing(locs.pred) & pred.cond=='independent'){
     if(ordering.pred=='obspred'){
