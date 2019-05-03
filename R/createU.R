@@ -19,6 +19,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   nuggets.all.ord=nuggets.all[ord.all] # ordered nuggets for all locs
   nuggets.ord=nuggets.all[vecchia.approx$ord.z]# ordered nuggets for observed locs
   zero.nuggets=any(nuggets==0)
+  n.obs = length(nuggets.ord)
 
   # cannot condition on observation with zero nugget
   if(zero.nuggets){
@@ -55,22 +56,26 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     N = nrow(vecchia.approx$U.prep$revNNarray)
 
     # build new matrix
-    p1 = c(0, cumsum(rep(2,N))) + Ulatent@p
-    p2 = c(p1[-1] -2, NA)
-    LZp = Filter(function(i) !is.na(i), c(rbind(p1,p2)))
+    p.latent = c(0, cumsum(rep(2,n.obs)), rep(2*n.obs, N-n.obs)) + Ulatent@p
+    p.obs = c(p.latent[2:(n.obs+1)] -2, rep(NA, N-n.obs+1))
+    LZp = Filter(function(i) !is.na(i), c(rbind(p.latent,p.obs)))
 
-    nuggets.inds = c(rbind(p2[1:N], p2[1:N]+1))+1
-    nvals = length(Ulatent@x) + 2*N
+    nuggets.inds = c(rbind(p.obs[1:n.obs], p.obs[1:n.obs]+1))+1
+    nvals = length(Ulatent@x) + 2*n.obs
 
     LZvals = rep(0, nvals)
     LZvals[nuggets.inds] = c(rbind(-1/sqrt(nuggets.ord), 1/sqrt(nuggets.ord)))
     LZvals[-nuggets.inds] = Ulatent@x
 
-    Zinds = c((which(Ulatent@i==0) - 1)[-1], length(Ulatent@i)) + cumsum(rep(2,N))-2
-    Zinds = c(rbind(Zinds, Zinds+1))+1
     LZinds = rep(NA, nvals)
-    LZinds[Zinds] = seq(2*N)-1
-    LZinds[-Zinds] = 2*Ulatent@i
+    LZinds[nuggets.inds] = seq(2*n.obs)-1
+
+    # calculate indices for latent variables
+    inds.lt.2nobs = which(Ulatent@i<n.obs)
+    new.latent = rep(NA, nvals - length(nuggets.inds))
+    new.latent[inds.lt.2nobs] = 2*Ulatent@i[inds.lt.2nobs]
+    new.latent[-inds.lt.2nobs] = Ulatent@i[-inds.lt.2nobs]+n.obs
+    LZinds[-nuggets.inds] = new.latent
 
     U = t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
 

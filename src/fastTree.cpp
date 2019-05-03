@@ -18,7 +18,6 @@ uvec clusterEqual(mat locs, int K, int dimStart){
   int n = locs.n_rows;
   K = pow(2, ceil(log2(K)));
 
-
   map<int, uvec> *regions = new map<int, uvec>();
   map<int, uvec> *newRegions = new map<int, uvec>();
 
@@ -44,13 +43,17 @@ uvec clusterEqual(mat locs, int K, int dimStart){
 
       uvec border = regInds( find(regLocs.col(d)==cutoff) );
       int lengthDiff = r1.size() - r2.size();
+      if(lengthDiff>0){
+        r2 = join_cols(r2, border.head(lengthDiff));
+      } else {
+        r1 = join_cols(r1, border.head(abs(lengthDiff)));
+      }
 
-      border = border.tail(border.size() - lengthDiff);
-
-      if(border.size()>0){
-	int halfLength = border.size()/2;
-	r1 = join_cols(r1, border.head(halfLength));
-	r2 = join_cols(r2, border.tail(border.size() - halfLength));
+      if(border.size() - abs(lengthDiff)>0){
+        border = border.tail(border.size() - abs(lengthDiff));
+	      int halfLength = border.size()/2;
+	      r1 = join_cols(r1, border.head(halfLength));
+	      r2 = join_cols(r2, border.tail(border.size() - halfLength));
       }
       (*newRegions)[2*id] = r1;
       (*newRegions)[2*id+1] = r2;
@@ -73,7 +76,6 @@ uvec clusterEqual(mat locs, int K, int dimStart){
 
   return clusters;
 }
-
 
 
 
