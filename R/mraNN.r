@@ -34,7 +34,7 @@ choose.M = function(n, m) {
 
   ### check that choices are valid
   #if(sum(r)>m | sum(r*cumprod(J))<n) print('ERROR')
-  if(sum(r)>m | sum(r*cumprod(c(1,J)))<n) print('ERROR')
+  if(sum(r)>m | sum(r*cumprod(c(1,J)))<n) stop("couldn't find valid mra parameters")
   else return(list(M=M, r=r, J=J))
 }
 
