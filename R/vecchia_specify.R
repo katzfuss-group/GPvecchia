@@ -22,7 +22,7 @@
 # only has to be run once before repeated likelihood evals
 
 vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,
-                         conditioning, mra.options=NULL, user.order=NULL) {
+                         conditioning, mra.options=NULL, user.order=NULL, verbose=FALSE) {
 
   if(!is.matrix(locs)) {
     warning("Locations must be in matrix form")
@@ -119,7 +119,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   }
   ### obtain conditioning sets
   if( conditioning == 'mra' ){
-    NNarray = findOrderedNN_mra(locsord, mra.options, m)
+    NNarray = findOrderedNN_mra(locsord, mra.options, m, verbose=verbose)
     if(!hasArg(m)) m = ncol(NNarray)-1
   } else if( conditioning %in% c('firstm', 'NN')){
     if(spatial.dim==1) {
@@ -132,7 +132,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
       }
     }
   }else stop(paste0("conditioning='",conditioning,"' not defined"))
-
   if(!missing(locs.pred) & pred.cond=='independent'){
     if(ordering.pred=='obspred'){
       NNarray.pred <- array(dim=c(n.p,m+1))

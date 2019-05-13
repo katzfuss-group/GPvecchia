@@ -1,12 +1,14 @@
 #define ARMA_DONT_PRINT_ERRORS
 
 #include <RcppArmadillo.h>
+#include <Rcpp.h>
 #include <iostream>
 #include <set>
 #include <queue>
 #include <utility>
 #include <algorithm>
 
+using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
@@ -179,7 +181,7 @@ int res(string id){
 }
 
 
-map<string, uvec> knotTree(mat locs, map<string, uvec> mraParams){
+tuple<map<string, uvec>, int, uvec, uvec > knotTree(mat locs, map<string, uvec> mraParams){
 
   uvec J = mraParams["J"];
   int M = mraParams["M"](0);
@@ -191,14 +193,20 @@ map<string, uvec> knotTree(mat locs, map<string, uvec> mraParams){
 
   remaining.push( make_pair( "r", linspace<uvec>(0, N-1, N)) );
 
+  int eff_M = 0;
+  uvec eff_J = zeros<uvec>(M);
+  uvec eff_r = zeros<uvec>(M+1);
+
+
+
   while(!remaining.empty()){
 
     pair<string, uvec> region = remaining.front();
     string id = region.first;
 
-    //cout << "id: " << id << endl;
-
     int m = res(id);
+
+    eff_M = max(m, eff_M);
     uvec regInds = region.second;
     int n = regInds.size();
     uvec clusters;
@@ -206,6 +214,11 @@ map<string, uvec> knotTree(mat locs, map<string, uvec> mraParams){
     if(m<M){
 
       int rEff = min(r[m], regInds.size());
+      if(eff_r(m)==0){
+        eff_r(m) = rEff;
+      } else if(eff_r(m)!=rEff) {
+        eff_r(m) = 1e8;
+      }
 
       if(rEff>0){
 	      knots[id] = regInds.head(rEff)+1; // need to shift ind numbering by one b/c NNarray has to completed with zeros
@@ -235,22 +248,33 @@ map<string, uvec> knotTree(mat locs, map<string, uvec> mraParams){
     }
     remaining.pop();
   }
-  return knots;
+
+  tuple<map<string, uvec>, int, uvec, uvec> output = {knots, eff_M, J, eff_r};
+
+  return output;
 }
 
 
 
 // [[Rcpp::export]]
-umat generateNNarray(mat locs, uvec J, int M, uvec r, int m){
+List generateNNarray(mat locs, uvec J, int M, uvec r, int m){
 
   map<string, uvec> mraParams;
   mraParams["M"] = M;
   mraParams["J"] = J;
   mraParams["r"] = r;
 
-  map<string, uvec> knots = knotTree(locs, mraParams);
+  auto [ knots, Meff, Jeff, reff ] = knotTree(locs, mraParams);
   umat NNarray = getNNmatrix(knots, sum(mraParams["r"]));
-  return NNarray;
+
+  List output;
+  output["NNarray"] = NNarray;
+
+  output["Meff"] = Meff;
+  output["Jeff"] = Jeff;
+  output["reff"] = reff;
+
+  return output;
 
 }
 
