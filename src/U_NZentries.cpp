@@ -6,6 +6,7 @@
 #include <Rcpp.h>
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/gamma.hpp>
+#include "Matern.h"
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
@@ -78,8 +79,8 @@ arma::mat EsqeFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2_1,
 
 
 // rewrite MaternFun with arma object input/output
-// [[Rcpp::export]]
-arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,range,smooth)
+
+/*arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,range,smooth)
 
   int d1 = distmat.n_rows;
   int d2 = distmat.n_cols;
@@ -134,7 +135,7 @@ arma::mat MaternFun( arma::mat distmat, arma::vec covparms ){ //covparms=c(sig2,
     }
   }
   return covmat;
-}
+}*/
 
 
 int get_nonzero_count(int k, int m){
@@ -372,7 +373,7 @@ NumericVector createUcppM(NumericVector ptrs, NumericVector inds, NumericVector 
 
 
 // [[Rcpp::export]]
-NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
+NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord, vec covparams){
 
   const int nvals = inds.size();
   const int N = ptrs.size();
@@ -380,9 +381,8 @@ NumericVector createUcpp(NumericVector ptrs, NumericVector inds, mat locsord){
 
   for(int i=0; i<N; ++i){
     for(int j=ptrs[i]; j<ptrs[i+1]; ++j){
-      double d = dist(locsord.row(i), locsord.row(inds[j]));
-      double v = exp(-d);
-      vals[j] = v;
+      vec D = vec{dist(locsord.row(i), locsord.row(inds[j]))};
+      vals[j] = MaternFun(D, covparams)(0,0);
     }
   }
 

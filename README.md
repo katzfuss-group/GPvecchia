@@ -17,6 +17,7 @@ for (nm in list.files('GPvecchia/R',pattern = "\\.[RrSsQq]$")) {
   cat(nm,":"); source(file.path('GPvecchia/R',nm)); cat("\n")
 }
 Rcpp::sourceCpp('GPvecchia/src/U_NZentries.cpp')
+Rcpp::sourceCpp('GPvecchia/src/MaxMin.cpp')
 ```
 
 <!--- 

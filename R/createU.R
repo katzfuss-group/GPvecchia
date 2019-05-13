@@ -47,7 +47,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
       cov.vals = covmodel(locs1, locs2)
       vals = createUcppM(ptrs, inds, cov.vals)
     } else {
-      vals = createUcpp(ptrs, inds, vecchia.approx$locsord)
+      vals = createUcpp(ptrs, inds, vecchia.approx$locsord, covparms)
     }
 
     Laux = sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
