@@ -24,10 +24,22 @@
 calculate_posterior_VL = function(z,vecchia.approx,
                                   likelihood_model=c("gaussian","logistic", "poisson", "gamma", "beta", "gamma_alt"),
                                   covparms, likparms = list("alpha"=2, "sigma"=sqrt(.1)),
-                                  max.iter=50, convg = 1e-5, return_all = FALSE, y_init = NA,
+                                  max.iter=50, convg = 1e-6, return_all = FALSE, y_init = NA,
                                   prior_mean = rep(0,length(z))){
 
   likelihood_model <- match.arg(likelihood_model)
+
+  # Avoid crashes due to bad data
+  crashable = switch(likelihood_model,
+                      "gaussian" = FALSE,
+                      "logistic" = .logistic_data_req,
+                      "poisson" = .poisson_data_req(z),
+                      "gamma" = .gamma_data_reqs(z),
+                      "gamma_alt" = .gamma_data_reqs(z),
+                      "beta" = .beta_data_reqs(z))
+  if(crashable){
+    stop("Data has negative or non-integer values.  Correct and rerun")
+  }
 
   # pull out score and second derivative for readability
   model_funs = switch(likelihood_model,
@@ -37,6 +49,10 @@ calculate_posterior_VL = function(z,vecchia.approx,
                       "gamma" = .gamma_model(likparms),
                       "gamma_alt" = .gamma_model_alt(likparms),
                       "beta" = .beta_model(likparms))
+
+
+
+
   ell_dbl_prime = model_funs$hess
   ell_prime = model_funs$score
   link_fun = model_funs$link
@@ -54,7 +70,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   if(any(is.na(y_o))) y_o = prior_mean
 
   convgd = FALSE
-  tot_iters = 1
+  tot_iters = 0
   for( i in 1:max.iter){
 
     y_prev = y_o    # save y_prev for convergence test
@@ -174,6 +190,10 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   return(list("hess" = logistic_hess, "score"=logistic_score,"llh" = logistic_llh, "link" = logistic_link))
 }
 
+.logistic_data_req = function(z){
+  return(!all(z %in% c(0,1)))
+}
+
 #################  Poisson  #########################
 .poisson_model = function(){
   pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-log(factorial(z)))
@@ -181,6 +201,12 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   pois_score = function(y_o, z) z-exp(y_o)
   pois_link = function(y) exp(y)
   return(list("hess" = pois_hess, "score"=pois_score,"llh" = pois_llh, "link" = pois_link))
+}
+
+.poisson_data_req = function(z){
+  negative = any(z<0)
+  non_integral = any(z%%1>0)
+  return(negative | non_integral)
 }
 
 #################  Gaussian  #########################
@@ -213,9 +239,18 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   gamma_hess = function(y_o, z)  alpha*z*exp(-y_o)
   gamma_score = function(y_o, z) alpha*(z*exp(-y_o)-1)
   gamma_llh = function(y_o, z) sum(-alpha*z*exp(-y_o) + (alpha-1)*log(z) -alpha*y_o +alpha*log(alpha) - log(gamma(alpha))) # log link
+
+  #gamma_score_alpha = function(a, y_o, z) sum(-exp(-y_o)*z+log(z)-y_o+log(a)+1-digamma(a))
+  #gamma_hess_alpha = function(a, y_o, z) length(z)*(1/a-trigamma(a))
+
   gamma_link = function(y) exp(y)
   return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh, "link" = gamma_link))
 }
+
+.gamma_data_reqs = function(z){
+  return(any(z<0))
+}
+
 ################# Beta #########################
 
 .beta_model = function(likparms){
@@ -229,6 +264,12 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   # return object with all components of model
   return(list("hess" = beta_hess, "score"=beta_score, "llh" = beta_llh, "link" = beta_link))
 
+}
+
+.beta_data_reqs = function(z){
+  negative = any(z<0)
+  large = any(z>1)
+  return(negative | large)
 }
 
 
