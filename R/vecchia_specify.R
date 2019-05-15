@@ -55,7 +55,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     U.prep=U_sparsity( locsord, NNarray, obs, Cond )
     ### object that specifies the vecchia approximation
     vecchia.approx=list(locsord=locsord, obs=obs, ord=ord, ord.z=ord.z, ord.pred='general',
-                        U.prep=U.prep, cond.yz=FALSE)
+                        U.prep=U.prep,cond.yz='false',conditioning=conditioning)
     return(vecchia.approx)
   }
 
@@ -117,6 +117,8 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     obs=observed.obspred[ord]
 
   }
+
+
   ### obtain conditioning sets
   if( conditioning == 'mra' ){
     NNarray = findOrderedNN_mra(locsord, mra.options, m, verbose=verbose)
@@ -127,11 +129,12 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     } else NNarray <- find_ordered_nn(locsord,m)
     if(conditioning == 'firstm'){
       first_m = NNarray[m+1,2:(m+1)]
-      if (m < n-1){  # if m=n-1, nothing to replace
-        NNarray[(m+2):n, 2:(m+1)] = matrix(rep(first_m, n-m-1), byrow = TRUE, ncol = m)
+      n.all=nrow(NNarray)
+      if (m < n.all-1){  # if m=n-1, nothing to replace
+        NNarray[(m+2):n.all, 2:(m+1)] = matrix(rep(first_m, n.all-m-1), byrow = TRUE, ncol = m)
       }
     }
-  }else stop(paste0("conditioning='",conditioning,"' not defined"))
+  } else stop(paste0("conditioning='",conditioning,"' not defined"))
   if(!missing(locs.pred) & pred.cond=='independent'){
     if(ordering.pred=='obspred'){
       NNarray.pred <- array(dim=c(n.p,m+1))
