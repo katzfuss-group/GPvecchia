@@ -46,7 +46,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
         idx = intersect(idx, which(locs.pred[,cidx] %in% locs[,cidx]))
       }
     }
-    if(length(idx)>0) stop("Prediction locations contain observed locations.  Remove redundancies.")
+    #if(length(idx)>0) warning("Prediction locations may contain observed locations.  If code crashes, check for redundancies.")
   }
 
 
