@@ -34,8 +34,21 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     else if(is.null(mra.options$r)) stop("neither m nor r defined!")
   }
 
+
   spatial.dim=ncol(locs)
   n=nrow(locs)
+
+  # check that locs.preds does not contain any locations in locs
+  if(!missing(locs.pred)){
+    idx = which(locs.pred[,1] %in% locs[,1])
+    if(spatial.dim>1){
+      for(cidx in 2:spatial.dim){
+        idx = intersect(idx, which(locs.pred[,cidx] %in% locs[,cidx]))
+      }
+    }
+    if(length(idx)>0) stop("Prediction locations contain observed locations.  Removing redundancies.")
+  }
+
 
   if(m>n){
     warning("Conditioning set size m chosen to be larger than n. Changing to m=n-1")
