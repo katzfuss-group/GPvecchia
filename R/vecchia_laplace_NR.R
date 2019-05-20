@@ -301,7 +301,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 #' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia.approx=vecchia_specify(locs,m=5)
 #' vecchia_likelihood(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export
-vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparms,
+vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covparms,
                                       likparms = list("alpha"=2, "sigma"=sqrt(.1)),
                                       covmodel='matern', max.iter=50, convg = 1e-5,
                                       return_all = FALSE, y_init = NA,
@@ -318,7 +318,7 @@ vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparm
   locs = as.matrix(vecchia.approx$locsord[order(vecchia.approx$ord.z),])
 
   # get pseudodata and nuggets from the latent y discovered by VL
-  z_pseudo = posterior$t
+  z_pseudo = posterior$t - prior_mean
   nuggets_pseudo = posterior$D
 
   # create an approximation to llh using interweaved ordering.
@@ -335,7 +335,7 @@ vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparm
   true_llh = posterior$model_llh(posterior$mean, z)
 
   # get gaussian (pseudo-data) approximate log likelihood
-  pseudo_cond_loglik = sum(dnorm(z_pseudo, mean = posterior$mean, sd =sqrt(nuggets_pseudo), log = TRUE))
+  pseudo_cond_loglik = sum(dnorm(z_pseudo, mean = posterior$mean - prior_mean, sd =sqrt(nuggets_pseudo), log = TRUE))
 
   # combine three log likelihood terms
   loglik_vecchia = pseudo_marginal_loglik_vecchia + true_llh - pseudo_cond_loglik
@@ -349,18 +349,20 @@ vecchia_laplace_likelihood<- function(z,vecchia.approx,likelihood_model, covparm
 
 ######  wrapper for VL version w/pseudo-data   #######
 
-vecchia_laplace_prediction=function(vl_posterior, vecchia.approx, covparms, var.exact = FALSE,
+vecchia_laplace_prediction=function(vl_posterior, vecchia.approx, covparms, pred.mean = 0, var.exact = FALSE,
                                     covmodel='matern',return.values='all') {
   # perform vecchia_prediction with pseudo-data
-  z_pseudo = vl_posterior$t
+  z_pseudo = vl_posterior$t -vl_posterior$prior_mean
   nuggets_pseudo = vl_posterior$D
+
+
   preds=vecchia_prediction(z_pseudo, vecchia.approx, covparms, nuggets_pseudo,
                            var.exact, covmodel, return.values)
   data_preds = list()
 
   # Convert predicted mean (median) to data scale
-  data_preds$data.pred <- vl_posterior$data_link(preds$mu.pred+vl_posterior$prior_mean)
-  data_preds$data.obs <- vl_posterior$data_link(preds$mu.obs)
+  data_preds$data.pred <- vl_posterior$data_link(preds$mu.pred+pred.mean)
+  data_preds$data.obs <- vl_posterior$data_link(preds$mu.obs+vl_posterior$prior_mean)
 
   # Convert predicted variance (via quantiles) to data scale
   data_preds$data_pred_upper_quantile = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.pred,
@@ -371,7 +373,7 @@ vecchia_laplace_prediction=function(vl_posterior, vecchia.approx, covparms, var.
                                                                      sd = sqrt(preds$var.obs)))
   data_preds$data_obs_lower_quantiles = vl_posterior$data_link(qnorm(p=.05, mean = preds$mu.obs,
                                                                      sd = sqrt(preds$var.obs)))
-  warning("Missing prior and predicted mean")
+
   return(c(preds, data_preds))
 }
 
