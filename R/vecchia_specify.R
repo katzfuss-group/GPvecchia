@@ -68,7 +68,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     U.prep=U_sparsity( locsord, NNarray, obs, Cond )
     ### object that specifies the vecchia approximation
     vecchia.approx=list(locsord=locsord, obs=obs, ord=ord, ord.z=ord.z, ord.pred='general',
-                        U.prep=U.prep,cond.yz='false',conditioning=conditioning)
+                        U.prep=U.prep,cond.yz='false',conditioning='NN')
     return(vecchia.approx)
   }
 
