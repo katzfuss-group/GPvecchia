@@ -30,15 +30,15 @@ calculate_posterior_VL = function(z,vecchia.approx,
   likelihood_model <- match.arg(likelihood_model)
 
   # Avoid crashes due to bad data
-  crashable = switch(likelihood_model,
+  invalid_data_support = switch(likelihood_model,
                       "gaussian" = FALSE,
-                      "logistic" = .logistic_data_req,
+                      "logistic" = .logistic_data_req(z),
                       "poisson" = .poisson_data_req(z),
                       "gamma" = .gamma_data_reqs(z),
                       "gamma_alt" = .gamma_data_reqs(z),
                       "beta" = .beta_data_reqs(z))
-  if(crashable){
-    stop("Data has negative or non-integer values.  Correct and rerun")
+  if(invalid_data_support){
+    stop("Data invalid for likelihood type.  Correct negative or non-integer values and try again.")
   }
 
   # pull out score and second derivative for readability
@@ -113,7 +113,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
       V.ord = V.ord[1:n, 1:n]
-      W = W[(n+1):(2*n), (n+1):(2*n)]
+      #W = W[(n+1):(2*n), (n+1):(2*n)]
     }
     optional_data = list( "V"=V.ord, "W" = W)
   }
@@ -358,11 +358,13 @@ vecchia_laplace_prediction=function(vl_posterior, vecchia.approx, covparms, pred
 
   preds=vecchia_prediction(z_pseudo, vecchia.approx, covparms, nuggets_pseudo,
                            var.exact, covmodel, return.values)
+  preds$mu.pred = preds$mu.pred + pred.mean
+  preds$mu.obs = preds$mu.obs+vl_posterior$prior_mean
   data_preds = list()
 
   # Convert predicted mean (median) to data scale
-  data_preds$data.pred <- vl_posterior$data_link(preds$mu.pred+pred.mean)
-  data_preds$data.obs <- vl_posterior$data_link(preds$mu.obs+vl_posterior$prior_mean)
+  data_preds$data.pred <- vl_posterior$data_link(preds$mu.pred)
+  data_preds$data.obs <- vl_posterior$data_link(preds$mu.obs)
 
   # Convert predicted variance (via quantiles) to data scale
   data_preds$data_pred_upper_quantile = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.pred,
