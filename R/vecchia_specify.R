@@ -40,13 +40,9 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
   # check that locs.preds does not contain any locations in locs
   if(!missing(locs.pred)){
-    idx = which(locs.pred[,1] %in% locs[,1])
-    if(spatial.dim>1){
-      for(cidx in 2:spatial.dim){
-        idx = intersect(idx, which(locs.pred[,cidx] %in% locs[,cidx]))
-      }
-    }
-    #if(length(idx)>0) warning("Prediction locations may contain observed locations.  If code crashes, check for redundancies.")
+    locs.all = rbind(locs, locs.pred)
+   if(anyDuplicated(locs.all)>0)
+     stop("Prediction locations contain observed location(s), remove redundancies.")
   }
 
 
