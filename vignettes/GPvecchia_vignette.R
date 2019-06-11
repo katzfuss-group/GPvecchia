@@ -3,6 +3,8 @@
 
 ###  load GPvecchia package
  library(GPvecchia)
+ library(fields)
+ library(Matrix)
 #library(devtools)
 #install_github("katzfuss-group/GPvecchia")
 

@@ -14,13 +14,13 @@ using namespace std;
 
 
 // [[Rcpp::export]]
-mat MaternFun( mat distmat, vec covparms ){ //covparms=c(sig2,range,smooth)
+arma::mat MaternFun( arma::mat distmat, arma::vec  covparms ){ //covparms=c(sig2,range,smooth)
 
 int d1 = distmat.n_rows;
 int d2 = distmat.n_cols;
 int j1;
 int j2;
-mat covmat(d1,d2);
+arma::mat covmat(d1,d2);
 double scaledist;
 if (covparms(2)==0.5) { // Exponential cov function
   for (j1 = 0; j1 < d1; j1++){
