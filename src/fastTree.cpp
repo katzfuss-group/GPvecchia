@@ -249,9 +249,12 @@ tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec > knotTree(arma::mat 
     remaining.pop();
   }
 
-  tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec> output = {knots, eff_M, J, eff_r};
+  //tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec> output = {knots, eff_M, J, eff_r};
+  //return output;
+  
+  return std::make_tuple(knots, eff_M, J, eff_r);
+  
 
-  return output;
 }
 
 
@@ -264,7 +267,14 @@ List generateNNarray(arma::mat locs, arma::uvec J, int M, arma::uvec r, int m){
   mraParams["J"] = J;
   mraParams["r"] = r;
 
-  auto [ knots, Meff, Jeff, reff ] = knotTree(locs, mraParams);
+  //auto [ knots, Meff, Jeff, reff ] = knotTree(locs, mraParams);
+
+  map<string, uvec> knots;
+  int Meff;
+  uvec Jeff;
+  uvec reff;
+  std::tie(knots, Meff, Jeff, reff) = knotTree(locs, mraParams);
+  
   arma::umat NNarray = getNNmatrix(knots, sum(mraParams["r"]));
 
   List output;

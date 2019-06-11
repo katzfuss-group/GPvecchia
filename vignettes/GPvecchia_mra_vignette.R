@@ -1,6 +1,4 @@
-#library(fields)
 library(GPvecchia)
-#source("/home/marcin/GPvecchia/loader.r")
 
 #####################   simulate data    #######################
 

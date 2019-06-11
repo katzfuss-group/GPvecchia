@@ -1,12 +1,7 @@
 ##### example for calculating likelihood and predictions for general vecchia
 
 
-###  load GPvecchia package
- library(GPvecchia)
- library(fields)
- library(Matrix)
-#library(devtools)
-#install_github("katzfuss-group/GPvecchia")
+library(GPvecchia)
 
 
 #####################   simulate data    #######################
@@ -38,7 +33,7 @@ if(n < 1e4) {
 if(spatial.dim==1) {
   plot(locs,z)
 } else {
-  quilt.plot(locs,z)
+  fields::quilt.plot(locs,z)
 }
 
 
@@ -108,12 +103,12 @@ if(spatial.dim==1) {
 } else {
   sdrange=range(sqrt(c(preds$var.pred,var.exact[n+(1:n.p)])))
   par(mfrow=c(2,3))
-  quilt.plot(locs,z)
-  quilt.plot(locs.pred,preds$mu.pred)
-  quilt.plot(locs.pred,sqrt(preds$var.pred),zlim=sdrange)
-  quilt.plot(locs,z)
-  quilt.plot(locs.pred,mu.exact[n+(1:n.p)])
-  quilt.plot(locs.pred,sqrt(var.exact[n+(1:n.p)]),zlim=sdrange)
+  fields::quilt.plot(locs,z)
+  fields::quilt.plot(locs.pred,preds$mu.pred)
+  fields::quilt.plot(locs.pred,sqrt(preds$var.pred),zlim=sdrange)
+  fields::quilt.plot(locs,z)
+  fields::quilt.plot(locs.pred,mu.exact[n+(1:n.p)])
+  fields::quilt.plot(locs.pred,sqrt(var.exact[n+(1:n.p)]),zlim=sdrange)
   par(mfrow=c(1,1))
 }
 
@@ -122,8 +117,8 @@ if(spatial.dim==1) {
 Sigma=V2covmat(preds)$Sigma.pred
 cov.range=quantile(rbind(Sigma,cov.exact.pred),c(.01,.99))
 par(mfrow=c(1,2))
-image.plot(cov.exact.pred,zlim=cov.range)
-image.plot(Sigma,zlim=cov.range)
+fields::image.plot(cov.exact.pred,zlim=cov.range)
+fields::image.plot(Sigma,zlim=cov.range)
 par(mfrow=c(1,1))
 
 
@@ -132,7 +127,7 @@ par(mfrow=c(1,1))
 
 ### example: subset pred locs
 
-H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
+H=Matrix::sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
 
 # compute variances of Hy
 lincomb.vars=vecchia_lincomb(H,preds$U.obj,preds$V.ord)
@@ -144,5 +139,5 @@ plot(preds$var.pred,lincomb.vars)
 mean(preds$mu.pred)
 
 # compute entire covariance matrix of Hy (here, 1x1)
-H=sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
+H=Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
 lincomb.cov=vecchia_lincomb(H,preds$U.obj,preds$V.ord,cov.mat=TRUE)
