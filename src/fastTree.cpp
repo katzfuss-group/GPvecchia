@@ -15,15 +15,15 @@ using namespace std;
 
 
 
-uvec clusterEqual(mat locs, int K, int dimStart){
+arma::uvec clusterEqual(arma::mat locs, int K, int dimStart){
 
   int n = locs.n_rows;
   K = pow(2, ceil(log2(K)));
 
-  map<int, uvec> *regions = new map<int, uvec>();
-  map<int, uvec> *newRegions = new map<int, uvec>();
+  map<int, arma::uvec> *regions = new map<int, arma::uvec>();
+  map<int, arma::uvec> *newRegions = new map<int, arma::uvec>();
 
-  uvec root = linspace<uvec>(0, n-1, n);
+  arma::uvec root = linspace<arma::uvec>(0, n-1, n);
   (*regions)[0] = root;
 
   for( int power=0; power<log2(K); ++power ){
@@ -34,16 +34,16 @@ uvec clusterEqual(mat locs, int K, int dimStart){
 
       int id = x.first;
       //cout << "id: " << id << endl;
-      uvec regInds = x.second;
-      mat regLocs = locs.rows(regInds);
+      arma::uvec regInds = x.second;
+      arma::mat regLocs = locs.rows(regInds);
 
       int d = (dimStart + power) % locs.n_cols;
       double cutoff = median(regLocs.col(d));
 
-      uvec r1 = regInds( find(regLocs.col(d)>cutoff) );
-      uvec r2 = regInds( find(regLocs.col(d)<cutoff) );
+      arma::uvec r1 = regInds( find(regLocs.col(d)>cutoff) );
+      arma::uvec r2 = regInds( find(regLocs.col(d)<cutoff) );
 
-      uvec border = regInds( find(regLocs.col(d)==cutoff) );
+      arma::uvec border = regInds( find(regLocs.col(d)==cutoff) );
       int lengthDiff = r1.size() - r2.size();
       if(lengthDiff>0){
         r2 = join_cols(r2, border.head(lengthDiff));
@@ -62,17 +62,17 @@ uvec clusterEqual(mat locs, int K, int dimStart){
 
     }
 
-    map<int, uvec> *temp = regions;
+    map<int, arma::uvec> *temp = regions;
     regions = newRegions;
     newRegions = temp;
 
   }
 
-  uvec clusters = zeros<uvec>(n);
+  arma::uvec clusters = zeros<arma::uvec>(n);
 
   for(auto const &it: *regions){
     int id = it.first;
-    uvec inds = it.second;
+    arma::uvec inds = it.second;
     clusters(inds).fill(id);
   }
 
@@ -81,13 +81,13 @@ uvec clusterEqual(mat locs, int K, int dimStart){
 
 
 
-umat neighbours2NNarray(map<unsigned int,uvec> NNs, int m){
+arma::umat neighbours2NNarray(map<unsigned int,arma::uvec> NNs, int m){
 
-  umat NNarray = zeros<umat>(NNs.size(), m);
+  arma::umat NNarray = zeros<arma::umat>(NNs.size(), m);
   for( auto const &x: NNs ){
     int knotNo = x.first;
-    uvec knotNeighb = x.second;
-    uvec row = zeros<uvec>(m);
+    arma::uvec knotNeighb = x.second;
+    arma::uvec row = zeros<arma::uvec>(m);
     row.head(knotNeighb.size()) = knotNeighb;
     NNarray.row(knotNo-1) = row.t();
   }
@@ -107,9 +107,9 @@ string parent(string id){
 
 
 
-umat getNNmatrix(map<string,uvec> knots, int m) {
+arma::umat getNNmatrix(map<string,arma::uvec> knots, int m) {
 
-  map<unsigned int,uvec> neighbours;
+  map<unsigned int,arma::uvec> neighbours;
   set<string> roots;
   int minLength = -1;
   int effM = 0;
@@ -134,8 +134,8 @@ umat getNNmatrix(map<string,uvec> knots, int m) {
     vector<unsigned int> condSet;
     for(auto const &knot: knots[id]){
       condSet.insert(condSet.begin(), knot);
-      uvec NN = zeros<uvec>(m);
-      uvec condS = uvec(condSet);
+      arma::uvec NN = zeros<arma::uvec>(m);
+      arma::uvec condS = arma::uvec(condSet);
       NN.head(condSet.size()) = condS;
       neighbours[knot] = condS;
       if(condS.size()>effM){
@@ -147,20 +147,20 @@ umat getNNmatrix(map<string,uvec> knots, int m) {
 
   for(auto const &x: knots){
     string nodeId = x.first;
-    uvec nodeKnots = knots[nodeId];
+    arma::uvec nodeKnots = knots[nodeId];
     if( roots.count(nodeId)!=0 || nodeKnots.size()==0 ) {
       continue;
     }
 
-    uvec condSet;
-    uvec parentKnots = knots[parent(nodeId)];
+    arma::uvec condSet;
+    arma::uvec parentKnots = knots[parent(nodeId)];
     unsigned int lastKnot = parentKnots(parentKnots.size()-1);
     condSet = neighbours[lastKnot];
 
     for( auto const &knot: nodeKnots ){
-      uvec knotVec = {knot};
+      arma::uvec knotVec = {knot};
       condSet = join_cols(knotVec, condSet);
-      neighbours[knot] = uvec(condSet);
+      neighbours[knot] = arma::uvec(condSet);
       if(condSet.size()>effM){
         effM = condSet.size();
       }
@@ -168,7 +168,7 @@ umat getNNmatrix(map<string,uvec> knots, int m) {
 
   }
 
-  umat NNarray = neighbours2NNarray( neighbours, effM );
+  arma::umat NNarray = neighbours2NNarray( neighbours, effM );
   return NNarray;
 
 }
@@ -181,35 +181,35 @@ int res(string id){
 }
 
 
-tuple<map<string, uvec>, int, uvec, uvec > knotTree(mat locs, map<string, uvec> mraParams){
+tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec > knotTree(arma::mat locs, map<string, arma::uvec> mraParams){
 
-  uvec J = mraParams["J"];
+  arma::uvec J = mraParams["J"];
   int M = mraParams["M"](0);
-  uvec r = mraParams["r"];
+  arma::uvec r = mraParams["r"];
   int N = locs.n_rows;
 
-  map<string, uvec> knots;
-  queue<pair<string,uvec>> remaining;
+  map<string, arma::uvec> knots;
+  queue<pair<string,arma::uvec>> remaining;
 
-  remaining.push( make_pair( "r", linspace<uvec>(0, N-1, N)) );
+  remaining.push( make_pair( "r", linspace<arma::uvec>(0, N-1, N)) );
 
   int eff_M = 0;
-  uvec eff_J = zeros<uvec>(M);
-  uvec eff_r = zeros<uvec>(M+1);
+  arma::uvec eff_J = zeros<arma::uvec>(M);
+  arma::uvec eff_r = zeros<arma::uvec>(M+1);
 
 
 
   while(!remaining.empty()){
 
-    pair<string, uvec> region = remaining.front();
+    pair<string, arma::uvec> region = remaining.front();
     string id = region.first;
 
     int m = res(id);
 
     eff_M = max(m, eff_M);
-    uvec regInds = region.second;
+    arma::uvec regInds = region.second;
     int n = regInds.size();
-    uvec clusters;
+    arma::uvec clusters;
 
     if(m<M){
 
@@ -225,13 +225,13 @@ tuple<map<string, uvec>, int, uvec, uvec > knotTree(mat locs, map<string, uvec> 
 	      regInds = regInds.tail(regInds.size()-rEff);
       }
 
-      mat regLocs = locs.rows(regInds);
+      arma::mat regLocs = locs.rows(regInds);
 
       if(regInds.size()==0) {
 	      clusters.reset();
       } else {
 	      if( J(m)>regLocs.n_rows ){
-	        clusters = linspace<uvec>(0, regLocs.n_rows-1, regLocs.n_rows);
+	        clusters = linspace<arma::uvec>(0, regLocs.n_rows-1, regLocs.n_rows);
 	      } else {
   	      int dimStart = m % 2 + 1;
 	        clusters = clusterEqual(regLocs, J(m), dimStart);
@@ -240,7 +240,7 @@ tuple<map<string, uvec>, int, uvec, uvec > knotTree(mat locs, map<string, uvec> 
 
       for( int childNo=0; childNo<J(m); ++childNo ){
 	      string childId = id + "_" + to_string(childNo);
-	      uvec childInds = regInds( find(clusters==childNo) );
+	      arma::uvec childInds = regInds( find(clusters==childNo) );
 	      remaining.push( make_pair( childId, childInds ) );
       }
     } else {
@@ -249,23 +249,33 @@ tuple<map<string, uvec>, int, uvec, uvec > knotTree(mat locs, map<string, uvec> 
     remaining.pop();
   }
 
-  tuple<map<string, uvec>, int, uvec, uvec> output = {knots, eff_M, J, eff_r};
+  //tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec> output = {knots, eff_M, J, eff_r};
+  //return output;
+  
+  return std::make_tuple(knots, eff_M, J, eff_r);
+  
 
-  return output;
 }
 
 
 
 // [[Rcpp::export]]
-List generateNNarray(mat locs, uvec J, int M, uvec r, int m){
+List generateNNarray(arma::mat locs, arma::uvec J, int M, arma::uvec r, int m){
 
-  map<string, uvec> mraParams;
+  map<string, arma::uvec> mraParams;
   mraParams["M"] = M;
   mraParams["J"] = J;
   mraParams["r"] = r;
 
-  auto [ knots, Meff, Jeff, reff ] = knotTree(locs, mraParams);
-  umat NNarray = getNNmatrix(knots, sum(mraParams["r"]));
+  //auto [ knots, Meff, Jeff, reff ] = knotTree(locs, mraParams);
+
+  map<string, uvec> knots;
+  int Meff;
+  uvec Jeff;
+  uvec reff;
+  std::tie(knots, Meff, Jeff, reff) = knotTree(locs, mraParams);
+  
+  arma::umat NNarray = getNNmatrix(knots, sum(mraParams["r"]));
 
   List output;
   output["NNarray"] = NNarray;
@@ -287,11 +297,11 @@ int main(int argc, const char **argv) {
 
   int N = 9;
   mat locs = randu(N,2);
-  uvec J = {8};
-  uvec M = {1};
-  uvec r = {1, 1};
+  arma::uvec J = {8};
+  arma::uvec M = {1};
+  arma::uvec r = {1, 1};
 
-  map<string, uvec> mraParams;
+  map<string, arma::uvec> mraParams;
   mraParams["M"] = M;
   mraParams["J"] = J;
   mraParams["r"] = r;

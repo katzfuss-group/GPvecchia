@@ -51,7 +51,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     }
 
     Laux = sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
-    Ulatent = t(solve(Laux, sparse=TRUE))
+    Ulatent = Matrix::t(Matrix::solve(Laux, sparse=TRUE))
 
     N = nrow(vecchia.approx$U.prep$revNNarray)
 
@@ -77,7 +77,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     new.latent[-inds.lt.2nobs] = Ulatent@i[-inds.lt.2nobs]+n.obs
     LZinds[-nuggets.inds] = new.latent
 
-    U = t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
+    U = Matrix::t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
 
   } else {
 
