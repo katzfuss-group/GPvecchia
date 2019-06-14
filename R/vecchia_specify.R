@@ -68,6 +68,12 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     return(vecchia.approx)
   }
 
+  # subsume firstm into mra
+  if(!missing(conditioning) && conditioning == 'firstm'){
+    conditioning = 'mra'
+    mra.options = list(r=c(m,1))
+  }
+
 
   # default options
   if(missing(ordering)){

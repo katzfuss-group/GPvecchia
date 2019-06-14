@@ -77,6 +77,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
     # update pseudo-data and -variances
     D_inv = ell_dbl_prime(y_o, z)
+    if(any(D_inv<0)) warning("Negative variances occurred")
     D = 1/D_inv
     u = ell_prime(y_o,z)
     pseudo.data = D * u + y_o - prior_mean
@@ -254,13 +255,35 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 ################# Beta #########################
 
 .beta_model = function(likparms){
-  alpha = ifelse("alpha" %in% names(likparms),likparms$alpha, .5)
+  beta = ifelse("beta" %in% names(likparms),likparms$beta, .5)
   # store score and hessian functions, update
-  beta_hess = function(y_o, z)  -exp(y_o)*(log(1-z)+digamma(exp(y_o)+alpha) - digamma(exp(y_o)))-exp(y_o)^2*(trigamma(exp(y_o)+alpha) - trigamma(exp(y_o)))
-  beta_score = function(y_o, z) exp(y_o)*(log(1-z)+digamma(exp(y_o)+alpha) - digamma(exp(y_o)))
+  beta_hess = function(y_o, z)  -exp(y_o)*beta*(log(z)-digamma(exp(y_o)*beta) + digamma(beta*(1+exp(y_o))))+
+                                -(exp(y_o)*beta)^2*(-trigamma(exp(y_o)*beta)  + trigamma(beta*(1+exp(y_o))))
 
-  beta_llh = function(y_o, z) sum((alpha-1)*log(z) + (exp(y_o)-1)*log(1-z)-log(beta(alpha, exp(y_o))))
-  beta_link = function(y) alpha/(alpha+exp(y))
+  beta_score = function(y_o, z) exp(y_o)*beta*(log(z)-digamma(exp(y_o)*beta) + digamma(beta*(1+exp(y_o))))
+
+  beta_llh = function(y_o, z) sum((exp(y)*beta-1)*log(z) + (beta-1)*log(1-z)-
+                                    log(beta(beta*exp(y_o), beta)))
+
+  beta_link = function(y) 1/(1+exp(-y)) #logit link
+  # return object with all components of model
+  return(list("hess" = beta_hess, "score"=beta_score, "llh" = beta_llh, "link" = beta_link))
+
+}
+
+.beta_model_alt = function(likparms){
+  phi = ifelse("phi" %in% names(likparms),likparms$phi, .5)
+  # store score and hessian functions, update
+  beta_hess = function(y_o, z)
+    -exp(y_o)*phi*(log(z/(1-z))-digamma(exp(y_o)*phi) + digamma(beta*(1-exp(y_o))))+
+    -exp(2*y_o)*phi^2*(-trigamma(exp(y_o)*phi) - trigamma(beta*(1-exp(y_o))))
+
+  beta_score = function(y_o, z) exp(y_o)*phi*(log(z/(1-z))-digamma(exp(y_o)*phi) + digamma(beta*(1-exp(y_o))))
+
+  beta_llh = function(y_o, z) sum((exp(y)*phi-1)*log(z) + ((1-exp(y))*phi-1)*log(1-z)-
+                                    log(beta(phi*exp(y_o), phi*(1-exp(y)))))
+
+  beta_link = function(y) 1/(1+exp(-y)) #logit link
   # return object with all components of model
   return(list("hess" = beta_hess, "score"=beta_score, "llh" = beta_llh, "link" = beta_link))
 
