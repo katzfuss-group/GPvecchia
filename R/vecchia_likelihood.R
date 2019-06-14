@@ -21,8 +21,7 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
   # remove NAs in data and U
   na.rm()
 
-  # compute the loglikelihood
-
+  # compute the loglikelihood  
   vecchia_likelihood_U(z,U.obj)
 }
 
@@ -62,9 +61,9 @@ vecchia_likelihood_U=function(z,U.obj) {
   U.y=U[latent,]
   z2=as.numeric(U.y%*%z1)
   V.ord=U2V(U.obj)
-  z3=solve(V.ord,rev(z2),system='L')
+  z3=Matrix::solve(V.ord,rev(z2),system='L')
   quadform.denom=sum(z3^2)
-  logdet.denom=-2*sum(log(diag(V.ord)))
+  logdet.denom=-2*sum(log(Matrix::diag(V.ord)))
 
   # putting everything together
   neg2loglik=logdet.num-logdet.denom+quadform.num-quadform.denom+const

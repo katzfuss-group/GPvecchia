@@ -7,6 +7,7 @@
 #include <queue>
 #include <utility>
 #include <algorithm>
+//#include <experimental/optional>
 
 using namespace Rcpp;
 using namespace arma;

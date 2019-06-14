@@ -70,7 +70,7 @@ U2V=function(U.obj){
 
     W=Matrix::tcrossprod(U.y)
     W.rev=rev.mat(W)
-    V.ord=t(chol(W.rev))
+    V.ord=Matrix::t(Matrix::chol(W.rev))
 
   } else {  # for obspred ordering
 
