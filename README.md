@@ -9,7 +9,7 @@ For examples of how to use the package, please see the vignettes folder. Please 
 [Katzfuss, M., Guinness, J., & Gong, W. (2018). Vecchia approximations of Gaussian-process predictions. *arXiv:1805.03309*.](https://arxiv.org/abs/1805.03309)
 
 ## Installation
-To ensure that the algorithms run efficiently on your computer, we recommend installing the package by downloading the repo to a local folder, setting your R working directory to that folder, and then running the following code in R:
+<!---To ensure that the algorithms run efficiently on your computer, we recommend installing the package by downloading the repo to a local folder, setting your R working directory to that folder, and then running the following code in R:
 ```{r}
 library(GpGp); library(Matrix); library(RcppParallel)
 library(parallel); library(sparseinv); library(fields)
@@ -19,14 +19,21 @@ for (nm in list.files('GPvecchia/R',pattern = "\\.[RrSsQq]$")) {
 Rcpp::sourceCpp('GPvecchia/src/U_NZentries.cpp')
 Rcpp::sourceCpp('GPvecchia/src/MaxMin.cpp')
 ```
-
-<!--- 
+--->
+ 
 This package can be installed directly from R by running the following code:
 ```{r}
 library(devtools)
 install_github("katzfuss-group/GPvecchia")
 ```
-Alternatively, one can download the .tar.gz file from the main directory here and then run:
+Alternatively, one can download the repository and then build the package manually:
+```{bash}
+R CMD build GPvecchia
+R CMD INSTALL GPvecchia_0.1.tar.gz
+```
+
+<!---
+.tar.gz file from the main directory here and then run:
 ```{r}
 install.packages("GPvecchia_0.1.tar.gz", repos = NULL, type = "source")
 ```
