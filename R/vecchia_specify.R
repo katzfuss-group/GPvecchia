@@ -81,7 +81,10 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   }
   if(missing(pred.cond)) pred.cond='general'
   if(missing(conditioning)) conditioning='NN'
-  if(conditioning %in% c('mra', 'firstm')) ordering='maxmin'
+  if(conditioning %in% c('mra', 'firstm')){
+    if(ordering!='maxmin') warning("ordering for the selected conditioning scheme changed to required 'maxmin'")
+    ordering='maxmin'
+  }
   if(missing(cond.yz)){
     if (conditioning %in% c('mra', 'firstm')) { cond.yz='y'
     } else if(missing(locs.pred) | spatial.dim==1 ){ cond.yz = 'SGV'
@@ -90,12 +93,12 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
 
   ### order locs and z
-
   if(missing(locs.pred)){  # no prediction
 
     if(ordering=='coord') { ord=order_coordinate(locs)
     } else if(ordering=='maxmin'){ ord = order_maxmin_exact(locs)
-    } else if(ordering=='outsidein'){ord = order_outsidein(locs)}
+    } else if(ordering=='outsidein'){ord = order_outsidein(locs)
+    } else if(ordering=='none'){ord = seq(n)}
     if(!is.null(user.order)) ord=user.order
 
     ord.z=ord
@@ -120,6 +123,9 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
       if(ordering=='coord') {
         ord.obs=order_coordinate(locs)
         ord.pred=order_coordinate(locs.pred)
+      } else if(ordering=='none') {
+        ord.obs = seq(n)
+        ord.pred = seq(n.p)
       } else {
         temp=order_maxmin_exact_obs_pred(locs,locs.pred)
         ord.obs=temp$ord
