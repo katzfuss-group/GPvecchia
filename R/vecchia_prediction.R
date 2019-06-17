@@ -98,29 +98,31 @@ U2V=function(U.obj){
 }
 
 
+vecchia_mean=function(z,U.obj,V.ord){
 
-# compute entire posterior mean vector
-z.ord=z[U.obj$ord.z]
-z1=Matrix::crossprod(U[!U.obj$latent,],z.ord)
-z2=as.numeric(U[U.obj$latent,]%*%z1)
-temp=solve(V.ord,rev(z2))
-mu.rev=-solve(Matrix::t(V.ord),temp)
-mu.ord=rev(mu.rev)
+  U=U.obj$U
+  # compute entire posterior mean vector
+  z.ord=z[U.obj$ord.z]
+  z1=Matrix::crossprod(U[!U.obj$latent,],z.ord)
+  z2=as.numeric(U[U.obj$latent,]%*%z1)
+  temp=solve(V.ord,rev(z2))
+  mu.rev=-solve(Matrix::t(V.ord),temp)
+  mu.ord=rev(mu.rev)
 
-# for zero nugget, observations are posterior means
-if(length(U.obj$zero.nugg)>0){
-  obs.zero=z.ord[U.obj$zero.nugg$inds.z]
-  mu.ord=c(mu.ord,obs.zero)
-}
+  # for zero nugget, observations are posterior means
+  if(length(U.obj$zero.nugg)>0){
+    obs.zero=z.ord[U.obj$zero.nugg$inds.z]
+    mu.ord=c(mu.ord,obs.zero)
+  }
 
-# extract obs and pred parts; return to original ordering
-orig.order=order(U.obj$ord)
-mu=mu.ord[orig.order]
-obs.orig=U.obj$obs[orig.order]
-mu.obs=mu[obs.orig]
-mu.pred=mu[!obs.orig]
+  # extract obs and pred parts; return to original ordering
+  orig.order=order(U.obj$ord)
+  mu=mu.ord[orig.order]
+  obs.orig=U.obj$obs[orig.order]
+  mu.obs=mu[obs.orig]
+  mu.pred=mu[!obs.orig]
 
-return(list(mu.obs=mu.obs,mu.pred=mu.pred))
+  return(list(mu.obs=mu.obs,mu.pred=mu.pred))
 }
 
 
