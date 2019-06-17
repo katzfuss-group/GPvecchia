@@ -5,7 +5,7 @@ library(GPvecchia)
 
 set.seed(1988)
 spatial.dim=2# number of spatial dimensions
-n=3  # number of observed locs
+n=20  # number of observed locs
 
 # simulate locations
 if(spatial.dim==1){
@@ -14,25 +14,8 @@ if(spatial.dim==1){
   locs = cbind(runif(n),runif(n))
 }
 
-
+# define covariance function
 sig2=1; range=1; smooth=0.5
-
-#####################   simulate data    #######################
-
-
-set.seed(1988)
-spatial.dim=2# number of spatial dimensions
-n=3  # number of observed locs
-
-# simulate locations
-if(spatial.dim==1){
-  locs=matrix(runif(n),ncol=1)
-} else {
-  locs = cbind(runif(n),runif(n))
-}
-
-
-sig2=1; range=1.5; smooth=1.5
 me.var = 1e-8
 covparms =c(sig2,range,smooth)
 covfun = function(locs1, locs2=NULL) {
@@ -52,66 +35,42 @@ if(n <= 1e4) {
 } else z=rnorm(n)
 
 
-#####################   specify Vecchia approx    #######################
-m=2
-me.var = 1e-8
-covparms =c(sig2,range,smooth)
-covfun = function(locs1, locs2=NULL) {
-  if(is.null(locs2)){
-    sig2*MaternFun(fields::rdist(locs1),covparms)
-  } else {
-    c(sig2*MaternFun(matrix(fields::rdist.vec(locs1, locs2), ncol=1),covparms))
-  }
-}
-nuggets=rep(me.var,n)
-
-# simulate observations
-if(n <= 1e4) {
-  Sigma = covfun(locs) + diag(nuggets)
-  Sigma.c = chol(Sigma)
-  z=as.numeric(t(Sigma.c)%*%rnorm(n))
-} else z=rnorm(n)
-
 
 #####################   specify Vecchia approx    #######################
-m=2
-#mra.options = list(plots=FALSE, r=c(0,16))
-mra.options = list(plots=FALSE, M=1, J=2)
-#mra.options = list(plots=FALSE, r=c(0,11))
-#mra.options = list(plots=FALSE, r=c(0,5), J=10, M=1)
+m=5
+
+
+#mra.options = list(plots=FALSE, M=1, J=2) # only the number of levels and splits specified
+mra.options = list(plots=FALSE, r=c(0,10)) # independent blocks of size m
+#mra.options = list(plots=FALSE, r=c(0,3), J=10, M=1) # independent blocks fo size m
 #mra.options = list(plots=TRUE)
-
-
-#V = vecchia_specify(locs, m=20, conditioning='mra',cond.yz = 'SGV')
-#V = vecchia_specify(locs, m=3, conditioning='mra')#, mra.options=mra.options)
-#V = vecchia_specify(locs, m=20, conditioning = 'NN', cond.yz="SGV")
-#V = vecchia_specify(locs, m, conditioning = 'mra', mra.options = mra.options)
-V = vecchia_specify(locs, m, conditioning = 'mra', verbose=TRUE)
+browser()
+V = vecchia_specify(locs, m, conditioning = 'mra', verbose=TRUE, mra.options = mra.options)
 
 
 
 #####################   likelihood evaluation    #######################
-#Sig.sel = getMatCov(V, covfun(locs))
-
-#vecchia_loglik1 = vecchia_likelihood(z,V,covparms,nuggets,covmodel=Sig.sel)
-#vecchia_loglik2 = vecchia_likelihood(z,V,covparms,nuggets,covmodel=covfun)
-vecchia_loglik3 = vecchia_likelihood(z,V,covparms,nuggets,covmodel='matern')
-
-
-
 # exact likelihood
 const = dim(locs)[1]*log(2*pi)
 logdet = as.numeric(determinant(Sigma, logarithm = TRUE)$modulus)
 quad.form2 = as.numeric(t(z) %*% solve(Sigma) %*% z)
 neg2loglike = const + logdet + quad.form2
 loglik = -neg2loglike/2
+print("Likelihood")
+print(paste("True: ",loglik,sep=""))
 
-#print("Likelihood")
-#print(paste("True: ",loglik,sep=""))
-#print(paste("Vecchia: ", vecchia_loglik1, sep=""))
-#print(paste("Vecchia: ", vecchia_loglik2, sep=""))
+# covariance passed as a matrix with only the required elements
+Sig.sel = getMatCov(V, covfun(locs))
+vecchia_loglik1 = vecchia_likelihood(z,V,covparms,nuggets,covmodel=Sig.sel)
+print(paste("Vecchia: ", vecchia_loglik1, sep=""))
+
+# covariance passed as a function
+vecchia_loglik2 = vecchia_likelihood(z,V,covparms,nuggets,covmodel=covfun)
+print(paste("Vecchia: ", vecchia_loglik2, sep=""))
+
+# using a predermined covariance
+vecchia_loglik3 = vecchia_likelihood(z,V,covparms,nuggets,covmodel='matern')
 print(paste("Vecchia: ", vecchia_loglik3, sep=""))
-
 
 
 

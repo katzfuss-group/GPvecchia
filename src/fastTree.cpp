@@ -112,17 +112,18 @@ arma::umat getNNmatrix(map<string,arma::uvec> knots, int m) {
 
   map<unsigned int,arma::uvec> neighbours;
   set<string> roots;
-  int minLength = -1;
+  int minRes = 10;
   int effM = 0;
 
   //find the roots of the tree
   for(auto const &x: knots){
     string key = x.first;
-    if(key.length()<minLength){
-      minLength = key.length();
+    int keyRes = std::count(key.begin(), key.end(), '_');
+    if(keyRes<minRes){
+      minRes = keyRes;
       roots.clear();
     }
-    if(key.length()<=minLength){
+    if(keyRes==minRes){
       roots.insert(key);
     }
   }
@@ -137,6 +138,7 @@ arma::umat getNNmatrix(map<string,arma::uvec> knots, int m) {
       condSet.insert(condSet.begin(), knot);
       arma::uvec NN = zeros<arma::uvec>(m);
       arma::uvec condS = arma::uvec(condSet);
+
       NN.head(condSet.size()) = condS;
       neighbours[knot] = condS;
       if(condS.size()>effM){
@@ -145,9 +147,9 @@ arma::umat getNNmatrix(map<string,arma::uvec> knots, int m) {
     }
   }
 
-
   for(auto const &x: knots){
     string nodeId = x.first;
+
     arma::uvec nodeKnots = knots[nodeId];
     if( roots.count(nodeId)!=0 || nodeKnots.size()==0 ) {
       continue;
@@ -197,12 +199,13 @@ tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec > knotTree(arma::mat 
   int eff_M = 0;
   arma::uvec eff_J = zeros<arma::uvec>(M);
   arma::uvec eff_r = zeros<arma::uvec>(M+1);
-
+  int noVerticesFinestRes = 0;
 
 
   while(!remaining.empty()){
 
     pair<string, arma::uvec> region = remaining.front();
+
     string id = region.first;
 
     int m = res(id);
@@ -213,7 +216,6 @@ tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec > knotTree(arma::mat 
     arma::uvec clusters;
 
     if(m<M){
-
       int rEff = min(r[m], regInds.size());
       if(eff_r(m)==0){
         eff_r(m) = rEff;
@@ -246,15 +248,16 @@ tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec > knotTree(arma::mat 
       }
     } else {
       knots[id] = regInds+1;
+      noVerticesFinestRes += 1;
+      eff_r[M] = eff_r[M] + regInds.size();
     }
     remaining.pop();
   }
 
-  //tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec> output = {knots, eff_M, J, eff_r};
-  //return output;
-  
+  eff_r[M] = eff_r[M]/noVerticesFinestRes;
+
   return std::make_tuple(knots, eff_M, J, eff_r);
-  
+
 
 }
 
@@ -268,14 +271,12 @@ List generateNNarray(arma::mat locs, arma::uvec J, int M, arma::uvec r, int m){
   mraParams["J"] = J;
   mraParams["r"] = r;
 
-  //auto [ knots, Meff, Jeff, reff ] = knotTree(locs, mraParams);
-
   map<string, uvec> knots;
   int Meff;
   uvec Jeff;
   uvec reff;
   std::tie(knots, Meff, Jeff, reff) = knotTree(locs, mraParams);
-  
+
   arma::umat NNarray = getNNmatrix(knots, sum(mraParams["r"]));
 
   List output;
@@ -290,30 +291,29 @@ List generateNNarray(arma::mat locs, arma::uvec J, int M, arma::uvec r, int m){
 }
 
 
-/*
 
-int main(int argc, const char **argv) {
-
-  arma_rng::set_seed(1988);
-
-  int N = 9;
-  mat locs = randu(N,2);
-  arma::uvec J = {8};
-  arma::uvec M = {1};
-  arma::uvec r = {1, 1};
-
-  map<string, arma::uvec> mraParams;
-  mraParams["M"] = M;
-  mraParams["J"] = J;
-  mraParams["r"] = r;
-
-
-  //cout << generateNNarray(locs, mraParams) << endl;
-
-    //for(auto const &x: knots){
-    //cout << x.first << " : " << x.second.t() << "\n";
-    //}
-
-  return 0;
-
-}*/
+// int main(int argc, const char **argv) {
+//
+//   arma_rng::set_seed(1988);
+//
+//   int N = 9;
+//   int m = 2;
+//   mat locs = randu(N,2);
+//   arma::uvec J = {8};
+//   int M = 1;
+//   arma::uvec r = {1, 1};
+//
+//   map<string, arma::uvec> mraParams;
+//   mraParams["M"] = M;
+//   mraParams["J"] = J;
+//   mraParams["r"] = r;
+//
+//
+//   List NNarrayStruct = generateNNarray(locs, J, M, r, m);
+//   arma::umat NNarray = NNarrayStruct["NNarray"];
+//
+//   Rcpp::Rcout << NNarray << std::endl;
+//
+//   return 0;
+//
+// }
