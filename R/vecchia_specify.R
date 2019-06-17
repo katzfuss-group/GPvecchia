@@ -22,7 +22,7 @@
 # only has to be run once before repeated likelihood evals
 
 vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred.cond,
-                         conditioning, mra.options=NULL, user.order=NULL, verbose=FALSE) {
+                         conditioning, mra.options=NULL, verbose=FALSE) {
 
   if(!is.matrix(locs)) {
     warning("Locations must be in matrix form")
@@ -99,7 +99,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     } else if(ordering=='maxmin'){ ord = order_maxmin_exact(locs)
     } else if(ordering=='outsidein'){ord = order_outsidein(locs)
     } else if(ordering=='none'){ord = seq(n)}
-    if(!is.null(user.order)) ord=user.order
 
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
