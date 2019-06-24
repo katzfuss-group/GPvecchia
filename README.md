@@ -6,7 +6,7 @@ For examples of how to use the package, please see the vignettes folder. Please 
 ## References
 [Katzfuss, M., & Guinness, J. (2017). A general framework for Vecchia approximations of Gaussian processes. *arXiv:1708.06302*.](https://arxiv.org/abs/1708.06302)
 
-[Katzfuss, M., Guinness, J., & Gong, W. (2018). Vecchia approximations of Gaussian-process predictions. *arXiv:1805.03309*.](https://arxiv.org/abs/1805.03309)
+[Katzfuss, M., Guinness, J., Gong, W., & Zilber, D. (2018). Vecchia approximations of Gaussian-process predictions. *arXiv:1805.03309*.](https://arxiv.org/abs/1805.03309)
 
 ## Installation
 <!---To ensure that the algorithms run efficiently on your computer, we recommend installing the package by downloading the repo to a local folder, setting your R working directory to that folder, and then running the following code in R:
