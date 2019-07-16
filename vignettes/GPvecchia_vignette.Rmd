@@ -1,0 +1,171 @@
+---
+title: "GPvecchia tutorial"
+author: "Marcin Jurek"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Throughout this vignette we will demonstrate the main capabilities of the `GPvecchia` package. These include evaluating the likelihood, estimating the parameters and making predictions. We also show how to use the pakcage for processing non-linear, non-Gaussian data as well as working with spatio-temporal models. We start by importing the `GPvecchia` library.
+```{r}
+library(GPvecchia)
+```
+
+
+### Likelihood evaluation
+
+We start our tutorial by simulating data from a two dimensional Gaussian Random Field. First, consider a unit square and randomly select observation locations.
+```{r}
+spatial.dim=2
+n=100
+
+#simulate locations
+set.seed(10)
+if(spatial.dim==1){
+  locs=matrix(runif(n),ncol=1)
+} else {
+  locs <- cbind(runif(n),runif(n))
+}
+```
+
+Next, we define the covariance function of the field as well as the scale of the measurement error
+```{r}
+# covariance parameters (only matern implemented so far)
+sig2=1; range=.1; smooth=1.5
+covparms =c(sig2,range,smooth)
+covfun <- function(locs) sig2*MaternFun(fields::rdist(locs),covparms)
+nuggets=rep(.1,n)
+```
+
+We are now ready to simulate the field and visualize it as a sanity check.
+```{r fig4, out.width = '400px'}
+if(n < 1e4) {
+  Om0 <- covfun(locs)+diag(nuggets)
+  z=as.numeric(t(chol(Om0))%*%rnorm(n))
+} else z=rnorm(n)
+
+# plot simulated data
+if(spatial.dim==1) {
+  plot(locs,z)
+} else {
+  fields::quilt.plot(locs,z)
+}
+```
+NEED TO FIX THE PLOT
+
+Next, we specify the parameters of the general Vecchia approximation. While most of them are set by default, the key one, $m$, which trades off accuracy and computational cost, has to be selected manually. Its value determines the size of the "neighbours" of each point, or, in other words, how many other points, a given point is allowed to be correlated with.
+```{r}
+m=20
+vecchia.approx=vecchia_specify(locs,m)
+vecchia_likelihood(z,vecchia.approx,covparms,nuggets)
+```
+We can also compare it to the true likelihood
+```{r}
+library(mvtnorm)
+dmvnorm(z,mean=rep(0,n),sigma=Om0,log=TRUE)
+```
+In this case the approximation is very good. In general, $m$ needs to increase as $n$ grows although it probably rarely needs to exceed $100$.
+
+
+### Spatial predictions
+
+Another important task often required in the analysis of spatial data is predicting the value of the process at a location with no data, or at a point where data is available but one wants to remove the measurement error. To demonstrate how GPvecchia can help with this task we start by selecting $n.p$ prediction locations.
+```{r}
+n.p=100
+if(spatial.dim==1){  #  1-D case
+  locs.pred=matrix(seq(0,1,length=n.p),ncol=1)
+} else {   # 2-D case
+  grid.oneside=seq(0,1,length=round(sqrt(n.p)))
+  locs.pred=as.matrix(expand.grid(grid.oneside,grid.oneside)) # grid of pred.locs
+}
+n.p=nrow(locs.pred)
+```
+Similar to the previous sectino we next specify the approximation and indicate at which locations prediction is desired.
+```{r}
+m=20
+vecchia.approx=vecchia_specify(locs,m,locs.pred=locs.pred)
+preds=vecchia_prediction(z,vecchia.approx,covparms,nuggets)
+# returns a list with elements mu.pred,mu.obs,var.pred,var.obs,V.ord
+```
+Finally, we compare the approximate predictions with the best possible ones, i.e. those obtained using analytic expressions for conditional mean in the Gaussian distribution. 
+```{r}
+##  exact prediction
+mu.exact=as.numeric(covfun(rbind(locs,locs.pred))[,1:n]%*%solve(Om0,z))
+cov.exact=covfun(rbind(locs,locs.pred))-
+  covfun(rbind(locs,locs.pred))[,1:n]%*%solve(Om0,t(covfun(rbind(locs,locs.pred))[,1:n]))
+var.exact=diag(cov.exact)
+cov.exact.pred=cov.exact[n+(1:n.p),n+(1:n.p)]
+
+
+### plot Vecchia and exact predictions
+if(spatial.dim==1) {
+  plot(locs,z)
+  lines(locs.pred,preds$mu.pred,col='blue')
+  lines(locs.pred,preds$mu.pred-1.96*sqrt(preds$var.pred),col='blue',lty=2)
+  lines(locs.pred,preds$mu.pred+1.96*sqrt(preds$var.pred),col='blue',lty=2)
+  lines(locs.pred,mu.exact[n+(1:n.p)],col='red')
+  lines(locs.pred,mu.exact[n+(1:n.p)]-1.96*sqrt(var.exact[n+(1:n.p)]),col='red',lty=2)
+  lines(locs.pred,mu.exact[n+(1:n.p)]+1.96*sqrt(var.exact[n+(1:n.p)]),col='red',lty=2)
+} else {
+  sdrange=range(sqrt(c(preds$var.pred,var.exact[n+(1:n.p)])))
+  defpar = par(mfrow=c(2,3))
+  fields::quilt.plot(locs,z)
+  fields::quilt.plot(locs.pred,preds$mu.pred)
+  fields::quilt.plot(locs.pred,sqrt(preds$var.pred),zlim=sdrange)
+  fields::quilt.plot(locs,z)
+  fields::quilt.plot(locs.pred,mu.exact[n+(1:n.p)])
+  fields::quilt.plot(locs.pred,sqrt(var.exact[n+(1:n.p)]),zlim=sdrange)
+  par(defpar)
+}
+```
+
+It is also possible to print the entire predictive covariance matrix. We do it here only for the purpose of illustration. If $n.p$ is very large, this matrix might use up a lot of memory and we generally do not recommend plotting it directly.
+```{r}
+Sigma=V2covmat(preds)$Sigma.pred
+cov.range=quantile(rbind(Sigma,cov.exact.pred),c(.01,.99))
+defpar = par(mfrow=c(1,2))
+fields::image.plot(cov.exact.pred,zlim=cov.range)
+fields::image.plot(Sigma,zlim=cov.range)
+par(mfrow=c(defpar))
+```
+
+#### Linear combinations
+
+We might sometimes be interested in a linear combination of the predicted values. In particular, we can limit our attention to only a subset of our predictions. This can be accomplished by specifying the linear combination coefficients as a matrix.
+```{r}
+H=Matrix::sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
+
+# compute variances of Hy
+lincomb.vars=vecchia_lincomb(H,preds$U.obj,preds$V.ord)
+plot(preds$var.pred,lincomb.vars)
+```
+
+We can use a similar approach when all that we need is the overall mean of all predictions. Using the `vecchia_lincomb()` function enables us to get the variance estimates easily. 
+```{r}
+mean(preds$mu.pred)
+
+# compute entire covariance matrix of Hy (here, 1x1)
+H=Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
+lincomb.cov=vecchia_lincomb(H,preds$U.obj,preds$V.ord,cov.mat=TRUE)
+```
+
+
+
+
+
+
+### Estimating parameters
+
+### Non-linear, non-Gaussian data
+
+### Spatio-temporal filtering
