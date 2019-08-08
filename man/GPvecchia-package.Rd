@@ -13,7 +13,7 @@
 The DESCRIPTION file:
 \packageDESCRIPTION{GPvecchia}
 \packageIndices{GPvecchia}
-~~ An overview of how to use the package, including the most important functions ~~
+temp
 }
 \author{
 \packageAuthor{GPvecchia}
@@ -21,14 +21,13 @@ The DESCRIPTION file:
 Maintainer: \packageMaintainer{GPvecchia}
 }
 \references{
-~~ Literature or other references for background information ~~
+temp
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation directory ~~
+
 \keyword{ package }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+temp
 }
 \examples{
-
+temp
 }
