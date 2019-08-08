@@ -128,6 +128,7 @@ getMatCov = function(V, Sigma){
     rows = c(rows, newrows)
     cols = c(cols, newcols)
   }
+  n = dim(Sigma)[1]
   inds = cbind(rows, cols)
   inds = as.vector(sapply(seq(nrow(inds)), function(r) inds[r,1]-1+n*(inds[r,2]-1)+1))
 

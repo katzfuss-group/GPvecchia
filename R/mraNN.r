@@ -118,21 +118,22 @@ findOrderedNN_mra = function(locs, mra.options, m=-1, verbose){
 
   n = length(locs)/ncol(locs)
   mra.params = get.mra.params(n, mra.options, m)
-
   NNarrayList = generateNNarray(locs, mra.params[["J"]], mra.params[["M"]], mra.params[["r"]], m)
   mat = NNarrayList[["NNarray"]]
   mat[mat==0]=NA
   eff.m = ncol(mat)-1
 
   if(eff.m > 100) message(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))
-  if(!verbose && eff.m!=m) cat("info: effective m is",eff.m,"\n")
+  if(!verbose && eff.m!=m) message("info: effective m is",eff.m,"\n")
   if(verbose){
     r.eff = as.numeric(NNarrayList$reff);
     J.eff = as.numeric(NNarrayList$Jeff);
     M.eff = as.numeric(NNarrayList$Meff)
-    while(r.eff[length(r.eff)]==0){
-      M.eff = M.eff - 1
-      r.eff = r.eff[1:M.eff+1]
+
+    firstZero = match(0, r.eff)
+    if(!is.na(firstZero) && firstZero>1){
+      M.eff = firstZero-2
+      r.eff = r.eff[1:(M.eff+1)]
       J.eff = J.eff[1:M.eff]
     }
     r.eff[r.eff==1e8] = NA
