@@ -19,18 +19,18 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
   U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
 
   # remove NAs in data and U
-  na.rm()
+  removeNAs()
 
   # compute the loglikelihood  
   vecchia_likelihood_U(z,U.obj)
 }
 
 ## remove missing data (NA)
-na.rm=function(){ # overwrites z and U.obj
+removeNAs=function(){ # overwrites z and U.obj
   p = parent.frame()
   if(any(is.na(p$z))){
     ind.na=(((1:nrow(p$U.obj$U))[!p$U.obj$latent])[p$U.obj$ord.z])[is.na(p$z)]
-    if(any(apply(p$U.obj$U[,ind.na,drop=FALSE],2,nnzero)>2)) stop(
+    if(any(apply(p$U.obj$U[,ind.na,drop=FALSE],2,Matrix::nnzero)>2)) stop(
       'NA data is conditioned upon')
     p$U.obj$U = p$U.obj$U[-ind.na,-ind.na]
     p$U.obj$latent = p$U.obj$latent[-ind.na]
@@ -74,4 +74,4 @@ vecchia_likelihood_U=function(z,U.obj) {
 
 
 ## function to reverse-order a matrix
-rev.mat=function(mat) mat[nrow(mat):1,ncol(mat):1,drop=FALSE]
+revMat=function(mat) mat[nrow(mat):1,ncol(mat):1,drop=FALSE]

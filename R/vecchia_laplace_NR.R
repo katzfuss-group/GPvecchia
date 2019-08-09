@@ -110,7 +110,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     orig.order=order(vecchia.approx$ord)
     V.ord=preds$V.ord
     # if ZY_liklihood works, dont need W or V?
-    W = as(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
+    W = as(revMat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
       V.ord = V.ord[1:n, 1:n]
