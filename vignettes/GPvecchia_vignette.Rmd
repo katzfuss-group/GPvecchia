@@ -64,7 +64,6 @@ if(spatial.dim==1) {
   fields::quilt.plot(locs,data)
 }
 ```
-NEED TO FIX THE PLOT
 
 We also create a grid of $n.p$ locations at which we would like to make predictions.
 ```{r}
@@ -236,12 +235,6 @@ With the approximated covariance structure, we can calculate the posterior estim
 ```{r}
 posterior = calculate_posterior_VL(z,vecchia.approx,likelihood_model=data.model,
                                    covparms = covparms)
-
-# Laplace approximation, for comparison (slow)
-laplace.cov = covfun(locs)
-if(m==0)laplace.cov = diag(diag(laplace.cov))
-post_lap = calculate_posterior_laplace(z, data.model,C = laplace.cov,return_all = TRUE)
-
 if (spatial.dim==1){
   par(mfrow=c(1,1))
   ord = order(locs) # order so that lines appear correctly
