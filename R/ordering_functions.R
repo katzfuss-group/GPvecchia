@@ -1,6 +1,3 @@
-
-
-
 #' Distance to specified point ordering
 #'
 #' Return the ordering of locations increasing in their
@@ -134,272 +131,16 @@ order_coordinate <- function( locs, coordinate ){
 
 #' Maximum minimum distance ordering
 #'
-#' Return the indices of an approximation to the maximum minimum distance ordering.
-#' A point in the center is chosen first, and then each successive point
-#' is chosen to maximize the minimum distance to previously selected points
-#'
-#' @inheritParams order_dist_to_point
-#' @param space_time TRUE if locations are euclidean space-time locations,
-#' FALSE otherwise. If set to TRUE, temporal dimension is ignored.
-#' @param st_scale two-vector giving the amount by which the spatial
-#' and temporal coordinates are scaled. If \code{NULL}, the function
-#' uses the locations to automatically select a scaling.
-#' If set to FALSE, temporal dimension treated as another spatial dimension (not recommended).
-#' @return A vector of indices giving the ordering, i.e.
-#' the first element of this vector is the index of the first location.
-#' @examples
-#' # planar coordinates
-#' nvec <- c(50,50)
-#' locs <- as.matrix( expand.grid( 1:nvec[1]/nvec[1], 1:nvec[2]/nvec[2] ) )
-#' ord <- order_maxmin(locs)
-#' par(mfrow=c(1,3))
-#' plot( locs[ord[1:100],1], locs[ord[1:100],2], xlim = c(0,1), ylim = c(0,1) )
-#' plot( locs[ord[1:300],1], locs[ord[1:300],2], xlim = c(0,1), ylim = c(0,1) )
-#' plot( locs[ord[1:900],1], locs[ord[1:900],2], xlim = c(0,1), ylim = c(0,1) )
-#'
-#' # longitude/latitude coordinates (sphere)
-#' latvals <- seq(-80, 80, length.out = 40 )
-#' lonvals <- seq( 0, 360, length.out = 81 )[1:80]
-#' locs <- as.matrix( expand.grid( lonvals, latvals ) )
-#' ord <- order_maxmin(locs, lonlat = TRUE)
-#' par(mfrow=c(1,3))
-#' plot( locs[ord[1:100],1], locs[ord[1:100],2], xlim = c(0,360), ylim = c(-90,90) )
-#' plot( locs[ord[1:300],1], locs[ord[1:300],2], xlim = c(0,360), ylim = c(-90,90) )
-#' plot( locs[ord[1:900],1], locs[ord[1:900],2], xlim = c(0,360), ylim = c(-90,90) )
-#'
-#' @export
-order_maxmin <- function(locs, lonlat = FALSE,
-    space_time = FALSE, st_scale = NULL){
-
-    # FNN::get.knnx has strange behavior for exact matches
-    # so add a small amount of noise to each location
-    n <- nrow(locs)
-    ee <- min(apply( locs, 2, stats::sd ))
-    locs <- locs + matrix( ee*1e-4*stats::rnorm(n*ncol(locs)), n, ncol(locs) )
-
-    if(lonlat){ # convert lonlattime to xyztime or lonlat to xyz
-        lon <- locs[,1]
-        lat <- locs[,2]
-        lonrad <- lon*2*pi/360
-        latrad <- (lat+90)*2*pi/360
-        x <- sin(latrad)*cos(lonrad)
-        y <- sin(latrad)*sin(lonrad)
-        z <- cos(latrad)
-        if(space_time){
-            time <- locs[,3]
-            locs <- cbind(x,y,z,time)
-        } else {
-            locs <- cbind(x,y,z)
-        }
-    }
-
-    if(space_time){
-        d <- ncol(locs)-1
-        if( is.null(st_scale) ){
-            randinds <- sample(1:n, min(n,200) )
-            dvec <- c(fields::rdist( locs[randinds,1:d,drop=FALSE] ))
-            dvec <- dvec[ dvec > 0]
-            med1 <- mean(dvec)
-            dvec <- c(fields::rdist( locs[randinds, d + 1, drop=FALSE] ))
-            dvec <- dvec[ dvec > 0]
-            med2 <- mean(dvec)
-            st_scale <- c(med1,med2)
-        }
-        locs[ , 1:d] <- locs[ , 1:d]/st_scale[1]
-        locs[ , d+1] <- locs[ , d+1]/st_scale[2]
-    }
-
-    # get number of locs
-    n <- nrow(locs)
-    m <- min( round(sqrt(n)), 200 )
-    # m is number of neighbors to search over
-    # get the past and future nearest neighbors
-    NNall <- FNN::get.knn( locs, k = m )$nn.index
-    # pick a random ordering
-    index_in_position <- c( sample(n), rep(NA,1*n) )
-    position_of_index <- order(index_in_position[1:n])
-    # loop over the first n/4 locations
-    # move an index to the end if it is a
-    # near neighbor of a previous location
-    curlen <- n
-    #curpos <- 1
-    nmoved <- 0
-    for(j in 2:(2*n) ){
-        nneigh <- round( min(m,n/(j-nmoved+1)) )
-        neighbors <- NNall[index_in_position[j],1:nneigh]
-        if( min( position_of_index[neighbors], na.rm = TRUE ) < j ){
-            nmoved <- nmoved+1
-            curlen <- curlen + 1
-            position_of_index[ index_in_position[j] ] <- curlen
-            index_in_position[curlen] <- index_in_position[j]
-            index_in_position[j] <- NA
-        }
-    }
-    ord <- index_in_position[ !is.na( index_in_position ) ]
-
-    return(ord)
-}
-
-
-
-#' Maximum minimum distance ordering, observations then predictions
-#'
-#' Return the indices of an approximation to the maximum minimum distance ordering.
-#' Constrained so that observation locations ordered first, then prediction locations.
-#' A point in the center is chosen first, and then each successive point
-#' is chosen to maximize the minimum distance to previously selected points
-#'
-#' @inheritParams order_dist_to_point
-#' @param space_time TRUE if locations are euclidean space-time locations,
-#' FALSE otherwise. If set to TRUE, temporal dimension is ignored.
-#' @param st_scale two-vector giving the amount by which the spatial
-#' and temporal coordinates are scaled. If \code{NULL}, the function
-#' uses the locations to automatically select a scaling.
-#' If set to FALSE, temporal dimension treated as another spatial dimension (not recommended).
-#' @param locs_obs Observation locations
-#' @param locs_pred Prediction locations
-#' @return A vector of indices giving the ordering, i.e.
-#' the first element of this vector is the index of the first location.
-#' @examples
-#' # planar coordinates
-#' nvec <- c(50,50)
-#' locs <- as.matrix( expand.grid( 1:nvec[1]/nvec[1], 1:nvec[2]/nvec[2] ) )
-#' ord <- order_maxmin(locs)
-#' par(mfrow=c(1,3))
-#' plot( locs[ord[1:100],1], locs[ord[1:100],2], xlim = c(0,1), ylim = c(0,1) )
-#' plot( locs[ord[1:300],1], locs[ord[1:300],2], xlim = c(0,1), ylim = c(0,1) )
-#' plot( locs[ord[1:900],1], locs[ord[1:900],2], xlim = c(0,1), ylim = c(0,1) )
-#'
-#' # longitude/latitude coordinates (sphere)
-#' latvals <- seq(-80, 80, length.out = 40 )
-#' lonvals <- seq( 0, 360, length.out = 81 )[1:80]
-#' locs <- as.matrix( expand.grid( lonvals, latvals ) )
-#' ord <- order_maxmin(locs, lonlat = TRUE)
-#' par(mfrow=c(1,3))
-#' plot( locs[ord[1:100],1], locs[ord[1:100],2], xlim = c(0,360), ylim = c(-90,90) )
-#' plot( locs[ord[1:300],1], locs[ord[1:300],2], xlim = c(0,360), ylim = c(-90,90) )
-#' plot( locs[ord[1:900],1], locs[ord[1:900],2], xlim = c(0,360), ylim = c(-90,90) )
-#'
-#' @export
-order_maxmin_obs_pred <- function(locs, locs_pred, lonlat = FALSE,
-    space_time = FALSE, st_scale = NULL){
-
-    # FNN::get.knnx has strange behavior for exact matches
-    # so add a small amount of noise to each location
-    locs_all <- rbind( locs, locs_pred )
-    n_all <- nrow(locs_all)
-    ee <- min(apply( locs_all, 2, stats::sd ))
-    locs_all <- locs_all + matrix( ee*1e-4*stats::rnorm(n_all*ncol(locs_all)), n_all, ncol(locs_all) )
-
-    if(lonlat){ # convert lonlattime to xyztime or lonlat to xyz
-        lon <- locs_all[,1]
-        lat <- locs_all[,2]
-        lonrad <- lon*2*pi/360
-        latrad <- (lat+90)*2*pi/360
-        x <- sin(latrad)*cos(lonrad)
-        y <- sin(latrad)*sin(lonrad)
-        z <- cos(latrad)
-        if(space_time){
-            time <- locs_all[,3]
-            locs_all <- cbind(x,y,z,time)
-        } else {
-            locs_all <- cbind(x,y,z)
-        }
-    }
-
-    if(space_time){
-        d <- ncol(locs_all)-1
-        if( is.null(st_scale) ){
-            randinds <- sample(1:n_all, min(n_all,200) )
-            dvec <- c(fields::rdist( locs_all[randinds,1:d,drop=FALSE] ))
-            dvec <- dvec[ dvec > 0]
-            med1 <- mean(dvec)
-            dvec <- c(fields::rdist( locs_all[randinds, d + 1, drop=FALSE] ))
-            dvec <- dvec[ dvec > 0]
-            med2 <- mean(dvec)
-            st_scale <- c(med1,med2)
-        }
-        locs_all[ , 1:d] <- locs_all[ , 1:d]/st_scale[1]
-        locs_all[ , d+1] <- locs_all[ , d+1]/st_scale[2]
-    }
-
-    # get number of locs and redefine locs and locs_pred
-    n <- nrow(locs)
-    n_pred <- nrow(locs_pred)
-    locs <- locs_all[1:n,,drop=FALSE]
-    locs_pred <- locs_all[(n+1):(n+n_pred),,drop=FALSE]
-
-    m <- min( round(sqrt(n)), 200 )
-    # m is number of neighbors to search over
-    # get the past and future nearest neighbors
-    NN <- FNN::get.knn( locs, k = m )$nn.index
-    # pick a random ordering
-    index_in_position <- c( sample(n), rep(NA,n) )
-    position_of_index <- order(index_in_position[1:n])
-    # move an index to the end if it is a
-    # near neighbor of a previous location
-    curlen <- n
-    #curpos <- 1
-    nmoved <- 0
-    for(j in 2:(2*n) ){
-        nneigh <- round( min(m,n/(j-nmoved+1)) )
-        neighbors <- NN[index_in_position[j],1:nneigh]
-        if( min( position_of_index[neighbors], na.rm = TRUE ) < j ){
-            nmoved <- nmoved+1
-            curlen <- curlen + 1
-            position_of_index[ index_in_position[j] ] <- curlen
-            index_in_position[curlen] <- index_in_position[j]
-            index_in_position[j] <- NA
-        }
-    }
-    ord <- index_in_position[ !is.na( index_in_position ) ]
-
-    # now we have 'ord', a maxmin ordering of locs (observation locations)
-    # next is to find 'ord_pred', a maxmin reordering of prediction locations
-    NN <- FNN::get.knn( locs_all, k = m )$nn.index
-    NN_pred <- FNN::get.knnx( locs, locs_pred, k = 1 )$nn.dist
-    # use ord, then order by NN_pred
-    index_in_position <- c( ord, n + order(NN_pred,decreasing = TRUE), rep(NA,n_pred) )
-    position_of_index <- order(index_in_position[1:(n+n_pred)])
-    # move an index to the end if it is a
-    # near neighbor of a previous location
-    curlen <- n + n_pred
-    nmoved <- 0
-    for(j in (n+1):(n+2*n_pred) ){
-        # nneigh tells us how many neighbors to look at
-        # in order to decide whether the current point
-        # has a previously ordered neighbor
-        nneigh <- round( min(m,1*(n+n_pred)/(j-nmoved+1)) )
-        neighbors <- NN[index_in_position[j],1:nneigh]
-        if( min( position_of_index[neighbors], na.rm = TRUE ) < j ){
-            nmoved <- nmoved + 1
-            curlen <- curlen + 1
-            position_of_index[ index_in_position[j] ] <- curlen
-            index_in_position[curlen] <- index_in_position[j]
-            index_in_position[j] <- NA
-        }
-    }
-    ord_pred <- index_in_position[ !is.na( index_in_position ) ][(n+1):(n+n_pred)] - n
-    n+n_pred - nmoved
-
-
-    return(list(ord = ord, ord_pred = ord_pred))
-}
-
-
-
-
-#' Maximum minimum distance ordering, exact algorithm
-#'
 #' Return the indices of an exact maximum-minimum distance ordering.
 #' The first point is chosen as the "center" point, minimizing L2 distance.
 #' Dimensions d=2 and d=3 handled separately, dimensions d=1 and d>3 handled similarly.
+#' Algorithm is exact and scales quasilinearly.
 #'
-#' @param locs Observation locations
+#' @param locs: Observation locations
 #' @return A vector of indices giving the ordering, i.e.
 #' the first element of this vector is the index of the first location.
 #' @examples
-#' locs <- cbind(runif(n),runif(n))
+#' n=100; locs <- cbind(runif(n),runif(n))
 #' ord <- order_maxmin_exact(locs)
 #'
 #' @export
@@ -408,7 +149,10 @@ order_maxmin_exact<-function(locs){
   return(ord)
 }
 
-# TODO
+
+
+## extension of the maxmin function, orders pred.locs last
+# should be improved by extending MaxMincpp itself
 order_maxmin_exact_obs_pred<-function(locs, locs_pred){
 
   ord<-MaxMincpp(locs)
@@ -455,175 +199,112 @@ order_maxmin_exact_obs_pred<-function(locs, locs_pred){
   return(list(ord=ord, ord_pred =ord_pred))
 }
 
-# This is the O(n^2) algorithm for AMMD ordering. Start with a point
-# in the middle, then propose a random set of the remaining points
-# (of size 'numpropose') and choose the one that has maximum minimum
-# distance to the already selected points. set 'numpropose' to n
-# to get the exact maximum minimum distance ordering
-#' @importFrom matrixStats colMins
-#' @importFrom matrixStats rowMins
-orderMaxMinFast <- function( locs, numpropose ){
-
-  n <- nrow(locs)
-  d <- ncol(locs)
-  remaininginds <- 1:n
-  orderinds <- rep(0L,n)
-  # pick a center point
-  mp <- matrix(colMeans(locs),1,d)
-  distmp <- fields::rdist(locs,mp)
-  ordermp <- order(distmp)
-  orderinds[1] = ordermp[1]
-  remaininginds <- remaininginds[remaininginds!=orderinds[1]]
-  for( j in 2:(n-1) ){
-    randinds <- sample(remaininginds,min(numpropose,length(remaininginds)))
-    distarray <-  fields::rdist(locs[orderinds[1:j-1],,drop=FALSE],locs[randinds,,drop=FALSE])
-    bestind <- which(matrixStats::colMins(distarray) ==  max( matrixStats::colMins( distarray ) ))
-    orderinds[j] <- randinds[bestind[1]]
-    remaininginds <- remaininginds[remaininginds!=orderinds[j]]
-  }
-  orderinds[n] <- remaininginds
-  orderinds
-}
-
-# simulate from a jittered grid.
-# jittersize = 0 has no jittering (i.e. regular grid).
-# I believe jittersize = 1 is the maximum amount of jittering
-# that avoids points overlapping each other
-#' @export
-simulateGrid <- function(nvec,jittersize=0){
-  n <- prod(nvec)
-  d <- length(nvec)
-  gridlocs <- createGrid(nvec)
-  u <- matrix(runif(n*d)-1/2,n,d) %*% diag(jittersize/nvec)
-  locs <- gridlocs + u
-}
-
-# I think this is what expand.grid does. So maybe this should be updated
-# to simply call that function.
-createGrid <- function(nvec){
-
-  if(missing(nvec) || length(nvec) == 0) stop("Must supply grid dimensions")
-  d <- length(nvec)
-  n <- prod(nvec)
-  gridlocs <- matrix(0,n,d)
-  for(j in 1:d){
-    perm <- (1:d)[-j]
-    perm <- c(j,perm)
-    tempvec <- nvec[-j]
-    tempvec <- c(nvec[j],tempvec)
-    a1 <- ((1:nvec[j])-1/2)/nvec[j]
-    a2 <- rep(a1,n/nvec[j])
-    a3 <- array(a2,tempvec)
-    a4 <- aperm(a3,perm)
-    gridlocs[,j] <- c(a4)
-  }
-  gridlocs
-}
-
-# this is the O(n log n) algorithm for finding an AMMD ordering
-# break domain into grid boxes, then order the grid boxes with
-# an MMD or AMMD ordering. The loop over the grid boxes in order,
-# each time selecting the one point within each grid box that has
-# maximum minimum distance to all points in the grid box and
-# neighboring grid boxes.
-#' @export
-orderMaxMinLocal <- function(locs){
-
-  n <- dim(locs)[1]
-  # number of grid boxes in each dimension.
-  # could be changed but probably should remain proportional to sqrt(n)
-  nside <- ceiling( 1/8*sqrt(n) )
-
-  # like in NN search, indcube holds the indices of points within
-  # each gridbox
-  eps <- sqrt(.Machine$double.eps)
-  indcube <- array(0,c(nside,nside,ceiling(3*n/nside^2)))  # perhaps change to 5
-  lims <- matrix( c(apply(locs,2,min)-eps, apply(locs,2,max)+eps ),2,2 )
-  locround <- ceiling( cbind( nside*(locs[,1]-lims[1,1])/(lims[1,2]-lims[1,1]),
-                              nside*(locs[,2]-lims[2,1])/(lims[2,2]-lims[2,1]) ) )
-
-  # put the indices in indcube
-  for(j in 1:n){
-    inds <- locround[j,]
-    k <- which( indcube[inds[1],inds[2],] == 0 )[1]
-    indcube[inds[1],inds[2],k] <- j
-  }
-
-
-  remainingcube <- indcube
-  usedcube <- array(0,dim(indcube))
-
-  # define grid locations and order the grid boxes
-  gridlocs <- simulateGrid(c(nside,nside),0.01)
-  if( nside*nside > 500 ){ # if the number of grid boxes is very large
-    # use the function recursively to order them
-    gridorder <- orderMaxMinLocal(gridlocs)
-  } else {
-    # use the quadratic algorithm to order grid boxes
-    gridorder <- orderMaxMinFast(gridlocs,20) }
-
-
-  k <- 1
-  totalnumused <- 0
-  orderinds <- rep(0,n)
-  while( totalnumused < n ){
-
-    # kmod tells us which grid box we are using
-    # in this iteration
-    kmod <- ((k-1) %% (nside*nside) ) + 1
-    gridind <- gridorder[kmod]
-
-    # grid box in (i,j) coordinates
-    # used to define and grab neighboring grid boxes
-    i1 <- ( (gridind-1) %% nside ) + 1
-    i2 <- ceiling( gridind/nside )
-
-    # locations that haven't been selected yet in current grid box
-    rem <- remainingcube[i1,i2,remainingcube[i1,i2,] != 0]
-
-    # already selected locations in neighboring boxes
-    # we want the next one to be as far as possible from these
-    used0 <- c(usedcube[max(1,i1-1):min(nside,i1+1),max(1,i2-1):min(nside,i2+1),])
-    used <- used0[used0 != 0]
-
-    if( length(rem) > 0 ){
-
-      if(length(used) > 0){
-
-        # figure out which remaining point (in 'rem') has maximum minimum
-        # distance to the already selected points (in 'used')
-        distmat <- fields::rdist(locs[rem,,drop=FALSE],locs[used,,drop=FALSE])
-        #mindist <- apply(distmat,1,min)  # too slow
-        mindist <- rowMins(distmat)
-        whichind <- which( mindist == max(mindist) )[1]
-        nextind <- rem[whichind]
-
-      } else {
-
-        nextind <- rem[1]
-
-      }
-
-      # update the counter and the ordering vector
-      totalnumused <- totalnumused+1
-      orderinds[totalnumused] <- nextind
-
-      # update the set of already selected points
-      repind <- which(usedcube[i1,i2,] == 0)[1]
-      usedcube[i1,i2,repind] <- nextind
-
-      # make sure the selected point is no longer a remaining point
-      repind <- which(remainingcube[i1,i2,] == nextind)
-      remainingcube[i1,i2,repind] = 0
-
-    }
-
-    # move to the next grid box
-    k <- k+1
-  }
-  return(orderinds)
-
-}
 
 
 
+## Maximum minimum distance ordering, observations then predictions
+# Constrained so that observation locations ordered first, then prediction locations.
+# order_maxmin_obs_pred <- function(locs, locs_pred, lonlat = FALSE,
+#                                   space_time = FALSE, st_scale = NULL){
+#
+#   # FNN::get.knnx has strange behavior for exact matches
+#   # so add a small amount of noise to each location
+#   locs_all <- rbind( locs, locs_pred )
+#   n_all <- nrow(locs_all)
+#   ee <- min(apply( locs_all, 2, stats::sd ))
+#   locs_all <- locs_all + matrix( ee*1e-4*stats::rnorm(n_all*ncol(locs_all)), n_all, ncol(locs_all) )
+#
+#   if(lonlat){ # convert lonlattime to xyztime or lonlat to xyz
+#     lon <- locs_all[,1]
+#     lat <- locs_all[,2]
+#     lonrad <- lon*2*pi/360
+#     latrad <- (lat+90)*2*pi/360
+#     x <- sin(latrad)*cos(lonrad)
+#     y <- sin(latrad)*sin(lonrad)
+#     z <- cos(latrad)
+#     if(space_time){
+#       time <- locs_all[,3]
+#       locs_all <- cbind(x,y,z,time)
+#     } else {
+#       locs_all <- cbind(x,y,z)
+#     }
+#   }
+#
+#   if(space_time){
+#     d <- ncol(locs_all)-1
+#     if( is.null(st_scale) ){
+#       randinds <- sample(1:n_all, min(n_all,200) )
+#       dvec <- c(fields::rdist( locs_all[randinds,1:d,drop=FALSE] ))
+#       dvec <- dvec[ dvec > 0]
+#       med1 <- mean(dvec)
+#       dvec <- c(fields::rdist( locs_all[randinds, d + 1, drop=FALSE] ))
+#       dvec <- dvec[ dvec > 0]
+#       med2 <- mean(dvec)
+#       st_scale <- c(med1,med2)
+#     }
+#     locs_all[ , 1:d] <- locs_all[ , 1:d]/st_scale[1]
+#     locs_all[ , d+1] <- locs_all[ , d+1]/st_scale[2]
+#   }
+#
+#   # get number of locs and redefine locs and locs_pred
+#   n <- nrow(locs)
+#   n_pred <- nrow(locs_pred)
+#   locs <- locs_all[1:n,,drop=FALSE]
+#   locs_pred <- locs_all[(n+1):(n+n_pred),,drop=FALSE]
+#
+#   m <- min( round(sqrt(n)), 200 )
+#   # m is number of neighbors to search over
+#   # get the past and future nearest neighbors
+#   NN <- FNN::get.knn( locs, k = m )$nn.index
+#   # pick a random ordering
+#   index_in_position <- c( sample(n), rep(NA,n) )
+#   position_of_index <- order(index_in_position[1:n])
+#   # move an index to the end if it is a
+#   # near neighbor of a previous location
+#   curlen <- n
+#   #curpos <- 1
+#   nmoved <- 0
+#   for(j in 2:(2*n) ){
+#     nneigh <- round( min(m,n/(j-nmoved+1)) )
+#     neighbors <- NN[index_in_position[j],1:nneigh]
+#     if( min( position_of_index[neighbors], na.rm = TRUE ) < j ){
+#       nmoved <- nmoved+1
+#       curlen <- curlen + 1
+#       position_of_index[ index_in_position[j] ] <- curlen
+#       index_in_position[curlen] <- index_in_position[j]
+#       index_in_position[j] <- NA
+#     }
+#   }
+#   ord <- index_in_position[ !is.na( index_in_position ) ]
+#
+#   # now we have 'ord', a maxmin ordering of locs (observation locations)
+#   # next is to find 'ord_pred', a maxmin reordering of prediction locations
+#   NN <- FNN::get.knn( locs_all, k = m )$nn.index
+#   NN_pred <- FNN::get.knnx( locs, locs_pred, k = 1 )$nn.dist
+#   # use ord, then order by NN_pred
+#   index_in_position <- c( ord, n + order(NN_pred,decreasing = TRUE), rep(NA,n_pred) )
+#   position_of_index <- order(index_in_position[1:(n+n_pred)])
+#   # move an index to the end if it is a
+#   # near neighbor of a previous location
+#   curlen <- n + n_pred
+#   nmoved <- 0
+#   for(j in (n+1):(n+2*n_pred) ){
+#     # nneigh tells us how many neighbors to look at
+#     # in order to decide whether the current point
+#     # has a previously ordered neighbor
+#     nneigh <- round( min(m,1*(n+n_pred)/(j-nmoved+1)) )
+#     neighbors <- NN[index_in_position[j],1:nneigh]
+#     if( min( position_of_index[neighbors], na.rm = TRUE ) < j ){
+#       nmoved <- nmoved + 1
+#       curlen <- curlen + 1
+#       position_of_index[ index_in_position[j] ] <- curlen
+#       index_in_position[curlen] <- index_in_position[j]
+#       index_in_position[j] <- NA
+#     }
+#   }
+#   ord_pred <- index_in_position[ !is.na( index_in_position ) ][(n+1):(n+n_pred)] - n
+#   n+n_pred - nmoved
+#
+#
+#   return(list(ord = ord, ord_pred = ord_pred))
+# }

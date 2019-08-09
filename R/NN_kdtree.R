@@ -1,5 +1,3 @@
-library(FNN)
-
 findOrderedNN_kdtree1 <- function(locs,m,mult=2){
 
     n <- nrow(locs)
