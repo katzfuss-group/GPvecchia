@@ -594,7 +594,7 @@ orderMaxMinLocal <- function(locs){
         # distance to the already selected points (in 'used')
         distmat <- fields::rdist(locs[rem,,drop=FALSE],locs[used,,drop=FALSE])
         #mindist <- apply(distmat,1,min)  # too slow
-        mindist <- rowMins(distmat)
+        mindist <- matrixStats::rowMins(distmat)
         whichind <- which( mindist == max(mindist) )[1]
         nextind <- rem[whichind]
 

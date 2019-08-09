@@ -15,51 +15,6 @@ list2matrix = function(L, padding=NA){
 }
 
 
-## generate a list containg a hierarchy of indices ordered
-## by resolution and lexicographically within each resolution
-genInds = function(M, J=c(4)){
-
-  genIndices = function(mLeft, J=c(4)){
-    Jm = J[1]
-    if(mLeft==1){
-      return(sapply(seq(Jm), function(num) as.character(num)))
-    } else {
-      if( length(J)>1 ) J=J[2:length(J)]
-      children = genIndices(mLeft-1, J=J)
-      indices = list()
-      for(i in 1:Jm){
-        indices[[2*i]] = lapply(children, function(num) paste(as.character(i), num, sep="_") )
-        indices[[2*i-1]] = list(i)
-      }
-      return(do.call(c, unlist(indices, recursive=FALSE)))
-    }
-  }
-
-  inds = genIndices(M,J)
-  inds = sapply(inds, function(ind) paste("r", ind, sep="_"))
-
-  lengths = sapply(inds, function(s) res(s))
-  ord = order(lengths)
-  return(inds[ord])
-}
-
-
-
-## plots ordered locations such that color intensity is decreasing with order
-plot.locsord = function(locsord, col = "#000000", col2="#FFFFFF"){
-
-  nlocs = length(locsord)/ncol(locsord)
-  vals = seq(nlocs)
-  #collist = grey.colors(nlocs, start=0.2, end=0.95)
-
-  colf = function(f){
-    color = rgb((1-f)*(t(col2rgb(col))) + f*(t(col2rgb(col2))), maxColorValue = 255)
-    return(color)
-  }
-
-  collist = sapply(vals/nlocs, colf)
-  fields::quilt.plot(locsord, vals, col=collist)
-}
 
 
 cluster.equal = function(locs, size, K=NULL, dim.start=2){
@@ -80,7 +35,7 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
       region = regions[[reg.id]]
       if(ncol(locs)==2 && (power %% 2)==1) d=2*(dim.start==2)+1*(dim.start==1) else if(ncol(locs)==2) d=2*(dim.start==1)+1*(dim.start==2) else d=1
       locs.in.region = matrix(locs[region,], ncol=ncol(locs))
-      cutoff = quantile(locs.in.region[,d], 0.5)
+      cutoff = stats::quantile(locs.in.region[,d], 0.5)
       new.regions[[2*reg.id]] = region[which(locs.in.region[,d] > cutoff)]
       new.regions[[2*reg.id-1]] = region[which(locs.in.region[,d] < cutoff)]
 
