@@ -10,7 +10,7 @@
 #'
 #' @return posterior mean and variances at observed and unobserved locations; V matrix
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia.approx=vecchia_specify(locs,m=5,locs.pred=(1:5)+.5)
+#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia.approx=vecchia_specify(locs,m=3,locs.pred=locs+.5)
 #' vecchia_prediction(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export
 
@@ -141,10 +141,12 @@ vecchia_mean=function(z,U.obj,V.ord){
 #'
 #' @return Variance of linear combination of predictions.
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=5,locs.pred=(1:5)+.5)
+#' z=rnorm(5);
+#' locs=matrix(1:5,ncol=1)
+#' n.p=5
+#' vecchia.approx = vecchia_specify(locs,m=3,locs.pred=locs+.5)
 #' preds=vecchia_prediction=function(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
-#' H=sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
-#' vecchia_lincomb(H,vecchia.approx,preds$V.ord,cov.mat=TRUE)
+#' vecchia_lincomb(Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p),vecchia.approx,preds$V.ord,cov.mat=TRUE)
 #' @export
 
 vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
@@ -173,7 +175,7 @@ vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
 #'
 #' @return sparse inverse of A, with same sparsity pattern as L
 #' @examples
-#' A=sparseMatrix(1:9,1:9,x=4); L=chol(A)
+#' A=Matrix::sparseMatrix(1:9,1:9,x=4); L=chol(A)
 #' SelInv(L)
 #' @export
 SelInv=function(cholmat){
@@ -243,9 +245,10 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
 #'
 #' @return Covariance matrix at all locations in original order
 #' @examples
-#' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5,locs.pred=(1:5)+.5)
-#' preds=vecchia_prediction(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
-#' V2covmat=function(preds)
+#' z=rnorm(5)
+#' locs=matrix(1:5,ncol=1)
+#' vecchia_specify=function(z,locs,m=5,locs.pred=(1:5)+.5)
+#' V2covmat(vecchia_prediction(vecchia.approx,covparms=c(1,2,.5),nuggets=.2))
 #' @export
 V2covmat=function(preds){
 

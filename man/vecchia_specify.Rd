@@ -9,17 +9,19 @@ vecchia_specify(locs, m = -1, ordering, cond.yz, locs.pred,
   verbose = FALSE)
 }
 \arguments{
-\item{locs:}{nxd matrix of observed locs}
+\item{locs}{nxd matrix of observed locs}
 
-\item{ordering:}{options are 'coord' or 'maxmin'}
+\item{m}{Number of nearby points to condition on}
 
-\item{cond.yz:}{options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'}
+\item{ordering}{options are 'coord' or 'maxmin'}
 
-\item{ordering.pred:}{options are 'obspred' or 'general'}
+\item{cond.yz}{options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'}
 
-\item{pred.cond:}{prediction conditioning, options are 'general' or 'independent'}
+\item{ordering.pred}{options are 'obspred' or 'general'}
 
-\item{conditioning:}{conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
+\item{pred.cond}{prediction conditioning, options are 'general' or 'independent'}
+
+\item{conditioning}{conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
 or 'mra'}
 }
 \value{
@@ -32,5 +34,5 @@ This function does not depend on parameter values, and only has to be run once b
 repeated likelihood evaluations.
 }
 \examples{
-locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=2)
+locs=matrix(1:5,ncol=1); vecchia_specify(locs,m=2)
 }

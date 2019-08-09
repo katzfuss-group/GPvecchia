@@ -26,7 +26,9 @@ object containing prediction means mean.pred and variances var.pred
 make spatial predictions using Vecchia based on estimated parameters
 }
 \examples{
+\donttest{
 n.p=30^2; grid.oneside=seq(0,1,length=round(sqrt(n.p)))
 locs.pred=as.matrix(expand.grid(grid.oneside,grid.oneside))
 vecchia.pred=vecchia_pred(vecchia.est,locs.pred)
+}
 }

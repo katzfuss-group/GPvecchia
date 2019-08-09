@@ -15,7 +15,7 @@
 #' @return An object that specifies the vecchia approximation for later use in likelihood
 #' evaluation or prediction.
 #' @examples
-#' locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=2)
+#' locs=matrix(1:5,ncol=1); vecchia_specify(locs,m=2)
 #' @export
 
 # specify the vecchia approximation, prepare U
