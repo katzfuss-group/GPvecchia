@@ -261,7 +261,6 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
                                 -(exp(y_o)*beta)^2*(-trigamma(exp(y_o)*beta)  + trigamma(beta*(1+exp(y_o))))
 
   beta_score = function(y_o, z) exp(y_o)*beta*(log(z)-digamma(exp(y_o)*beta) + digamma(beta*(1+exp(y_o))))
-
   beta_llh = function(y_o, z) sum((exp(y_o)*beta-1)*log(z) + (beta-1)*log(1-z)-
                                     log(beta(beta*exp(y_o), beta)))
 
