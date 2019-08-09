@@ -18,7 +18,7 @@
 #' @return An object that specifies the vecchia approximation for later use in likelihood
 #' evaluation or prediction.
 #' @examples
-#' locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=2)
+#' locs=matrix(1:5,ncol=1); vecchia_specify(locs,m=2)
 #' @export
 
 # specify the vecchia approximation, prepare U
@@ -146,7 +146,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   ### obtain conditioning sets
   if( conditioning == 'mra' ){
     NNarray = findOrderedNN_mra(locsord, mra.options, m, verbose)
-    if(!hasArg(m)) m = ncol(NNarray)-1
+    if(!methods::hasArg(m)) m = ncol(NNarray)-1
   } else if( conditioning %in% c('firstm', 'NN')){
     if(spatial.dim==1) {
       NNarray=findOrderedNN_kdtree2(locsord,m)

@@ -7,13 +7,13 @@
 createU(vecchia.approx, covparms, nuggets, covmodel = "matern")
 }
 \arguments{
-\item{vecchia.approx:}{object returned by \code{\link{vecchia_specify}}}
+\item{vecchia.approx}{object returned by \code{\link{vecchia_specify}}}
 
-\item{covparms:}{vector of covariance parameters}
+\item{covparms}{vector of covariance parameters}
 
-\item{nuggets:}{nugget variances -- if a scalar is provided, variance is assumed constant}
+\item{nuggets}{nugget variances -- if a scalar is provided, variance is assumed constant}
 
-\item{covmodel:}{covariance model. currently implemented:}
+\item{covmodel}{covariance model. currently implemented:}
 }
 \value{
 list containing the sparse upper triangular U,

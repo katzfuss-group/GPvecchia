@@ -13,11 +13,13 @@
 #' @return object containing detrended data z, trend coefficients beta.hat,
 #'    covariance parameters theta.hat, and other quantities necessary for prediction
 #' @examples
+#' \donttest{
 #' n=10^2; locs=cbind(runif(n),runif(n))
 #' covparms=c(1,.1,.5); nuggets=rep(.1,n)
 #' Sigma=exp(-fields::rdist(locs)/covparms[2])+diag(nuggets)
 #' z=as.numeric(t(chol(Sigma))%*%rnorm(n)); data=z+1
 #' vecchia.est=vecchia_estimate(data,locs,theta.ini=c(covparms,nuggets[1]))
+#' }
 #' @export
 vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,...) {
 
@@ -92,9 +94,11 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,...) {
 #'
 #' @return object containing prediction means mean.pred and variances var.pred
 #' @examples
+#' \donttest{
 #' n.p=30^2; grid.oneside=seq(0,1,length=round(sqrt(n.p)))
 #' locs.pred=as.matrix(expand.grid(grid.oneside,grid.oneside))
 #' vecchia.pred=vecchia_pred(vecchia.est,locs.pred)
+#' }
 #' @export
 vecchia_pred=function(vecchia.est,locs.pred,X.pred,m=30,...) {
 

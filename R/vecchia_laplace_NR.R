@@ -372,7 +372,7 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
   true_llh = posterior$model_llh(posterior$mean, z)
 
   # get gaussian (pseudo-data) approximate log likelihood
-  pseudo_cond_loglik = sum(dnorm(z_pseudo, mean = posterior$mean - prior_mean, sd =sqrt(nuggets_pseudo), log = TRUE))
+  pseudo_cond_loglik = sum(stats::dnorm(z_pseudo, mean = posterior$mean - prior_mean, sd =sqrt(nuggets_pseudo), log = TRUE))
 
   # combine three log likelihood terms
   loglik_vecchia = pseudo_marginal_loglik_vecchia + true_llh - pseudo_cond_loglik
@@ -423,13 +423,13 @@ vecchia_laplace_prediction=function(vl_posterior, vecchia.approx, covparms, pred
   data_preds$data.obs <- vl_posterior$data_link(preds$mu.obs)
 
   # Convert predicted variance (via quantiles) to data scale
-  data_preds$data_pred_upper_quantile = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.pred,
+  data_preds$data_pred_upper_quantile = vl_posterior$data_link(stats::qnorm(p=.95, mean = preds$mu.pred,
                                                                      sd = sqrt(preds$var.pred)))
-  data_preds$data_pred_lower_quantile = vl_posterior$data_link(qnorm(p=.05, mean = preds$mu.pred,
+  data_preds$data_pred_lower_quantile = vl_posterior$data_link(stats::qnorm(p=.05, mean = preds$mu.pred,
                                                                      sd = sqrt(preds$var.pred)))
-  data_preds$data_obs_upper_quantiles = vl_posterior$data_link(qnorm(p=.95, mean = preds$mu.obs,
+  data_preds$data_obs_upper_quantiles = vl_posterior$data_link(stats::qnorm(p=.95, mean = preds$mu.obs,
                                                                      sd = sqrt(preds$var.obs)))
-  data_preds$data_obs_lower_quantiles = vl_posterior$data_link(qnorm(p=.05, mean = preds$mu.obs,
+  data_preds$data_obs_lower_quantiles = vl_posterior$data_link(stats::qnorm(p=.05, mean = preds$mu.obs,
                                                                      sd = sqrt(preds$var.obs)))
 
   return(c(preds, data_preds))
