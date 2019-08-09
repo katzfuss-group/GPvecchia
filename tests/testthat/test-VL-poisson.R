@@ -1,5 +1,3 @@
-library(GPvecchia)
-
 data.distr = 'poisson' #options: "gaussian","logistic", "poisson", "gamma"
 spatial.dim = 2 # number of spatial dimensions
 n = 20^2 # number of observed locs
@@ -13,7 +11,7 @@ locs <- cbind(runif(n),runif(n))
 # covariance parameters
 sig2=1; range=.2; smooth = 1.4
 covparms=c(sig2, range, smooth)
-covfun <- function(locs) sig2*Matern(fields::rdist(locs),range=range,smoothness=smooth)
+covfun <- function(locs) sig2*MaternFun(fields::rdist(locs),c(sig2,range,smooth))
 
 # simulate latent process and data
 Om0 <- covfun(locs)

@@ -21,6 +21,7 @@ Throughout this vignette we will demonstrate the main capabilities of the `GPvec
 ```{r}
 library(GPvecchia)
 library(Matrix)
+library(fields)
 ```
 
 
@@ -203,8 +204,8 @@ if(spatial.dim==1) {
   plot(locs,y, main = "latent")
   plot(locs,z, main = "observed")
 } else {
-  quilt.plot(locs,y, main = "Latent")
-  quilt.plot(locs,z, main = "Observed")
+  fields::quilt.plot(locs,y, main = "Latent")
+  fields::quilt.plot(locs,z, main = "Observed")
 }
 
 ```

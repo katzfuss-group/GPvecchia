@@ -2,12 +2,12 @@
 % Please edit documentation in R/ordering_functions.R
 \name{order_maxmin_exact}
 \alias{order_maxmin_exact}
-\title{Maximum minimum distance ordering, exact algorithm}
+\title{Maximum minimum distance ordering}
 \usage{
 order_maxmin_exact(locs)
 }
 \arguments{
-\item{locs}{Observation locations}
+\item{locs:}{Observation locations}
 }
 \value{
 A vector of indices giving the ordering, i.e.
@@ -17,9 +17,10 @@ the first element of this vector is the index of the first location.
 Return the indices of an exact maximum-minimum distance ordering.
 The first point is chosen as the "center" point, minimizing L2 distance.
 Dimensions d=2 and d=3 handled separately, dimensions d=1 and d>3 handled similarly.
+Algorithm is exact and scales quasilinearly.
 }
 \examples{
-locs <- cbind(runif(n),runif(n))
+n=100; locs <- cbind(runif(n),runif(n))
 ord <- order_maxmin_exact(locs)
 
 }
