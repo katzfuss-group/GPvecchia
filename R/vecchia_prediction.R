@@ -88,7 +88,7 @@ U2V=function(U.obj){
     V.oor=Matrix::t(Matrix::chol(A.rev))
 
     # combine the blocks into one matrix
-    zeromat.sparse=sparseMatrix(c(),c(),dims=c(latents.after,latents.before))
+    zeromat.sparse=Matrix::sparseMatrix(c(),c(),dims=c(latents.after,latents.before))
     V.or=rbind(zeromat.sparse,V.oor)
     V.ord=as(cbind(V.pr,V.or),'dtCMatrix')
 
@@ -166,8 +166,8 @@ vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
 
 SelInv=function(cholmat){
   n.all=nrow(cholmat)
-  Takahashi_Davis(Q=sparseMatrix(c(),c(),dims=c(n.all,1)),
-                  cholQp=cholmat,P=sparseMatrix(i=1:n.all,j=1:n.all,x=1))
+  sparseinv::Takahashi_Davis(Q=Matrix::sparseMatrix(c(),c(),dims=c(n.all,1)),
+                  cholQp=cholmat,P=Matrix::sparseMatrix(i=1:n.all,j=1:n.all,x=1))
 }
 
 
@@ -199,7 +199,7 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
 
     n=sum(U.obj$obs)
     n.p=sum(!U.obj$obs)
-    H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)
+    H=Matrix::sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)
 
     if(U.obj$cond.yz!='zy'){
 
@@ -333,8 +333,8 @@ vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
 
 SelInv=function(cholmat){
   n.all=nrow(cholmat)
-  Takahashi_Davis(Q=sparseMatrix(c(),c(),dims=c(n.all,1)),
-                  cholQp=cholmat,P=sparseMatrix(i=1:n.all,j=1:n.all,x=1))
+  sparseinv::Takahashi_Davis(Q=Matrix::sparseMatrix(c(),c(),dims=c(n.all,1)),
+                  cholQp=cholmat,P=Matrix::sparseMatrix(i=1:n.all,j=1:n.all,x=1))
 }
 
 
@@ -366,7 +366,7 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
 
     n=sum(U.obj$obs)
     n.p=sum(!U.obj$obs)
-    H=sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)
+    H=Matrix::sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)
 
     if(U.obj$cond.yz!='zy'){
 

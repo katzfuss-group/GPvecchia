@@ -146,7 +146,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   } else if( conditioning %in% c('firstm', 'NN')){
     if(spatial.dim==1) {
       NNarray=findOrderedNN_kdtree2(locsord,m)
-    } else NNarray <- find_ordered_nn(locsord,m)
+    } else NNarray <- GpGp::find_ordered_nn(locsord,m)
     if(conditioning == 'firstm'){
       first_m = NNarray[m+1,2:(m+1)]
       n.all=nrow(NNarray)

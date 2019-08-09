@@ -4,7 +4,8 @@ author: "Marcin Jurek"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{GPvecchia}
+  % \VignetteDepends{mvtnorm}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,6 +20,7 @@ knitr::opts_chunk$set(
 Throughout this vignette we will demonstrate the main capabilities of the `GPvecchia` package. These include evaluating the likelihood, estimating the parameters and making predictions. We also show how to use the pakcage for processing non-linear, non-Gaussian data as well as working with spatio-temporal models. We start by importing the `GPvecchia` library.
 ```{r}
 library(GPvecchia)
+library(Matrix)
 ```
 
 

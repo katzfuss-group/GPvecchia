@@ -15,7 +15,11 @@ using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
-
+//' Calculate Matern covariance function
+//' 
+//' @param distmat A matrix with distances between points
+//' @param covparams A vector with parameters (marg. variance, range, smoothness)
+//' @export
 // [[Rcpp::export]]
 arma::mat MaternFun( arma::mat distmat, arma::vec  covparms ){ //covparms=c(sig2,range,smooth)
 

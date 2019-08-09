@@ -4,28 +4,33 @@
 \alias{vecchia_specify}
 \title{specify a general vecchia approximation}
 \usage{
-vecchia_specify(z, locs, m, ordering, cond.yz, locs.pred, ordering.pred,
-  pred.cond, conditioning)
+vecchia_specify(locs, m = -1, ordering, cond.yz, locs.pred,
+  ordering.pred, pred.cond, conditioning, mra.options = NULL,
+  verbose = FALSE)
 }
 \arguments{
 \item{locs:}{nxd matrix of observed locs}
 
 \item{ordering:}{options are 'coord' or 'maxmin'}
 
-\item{cond.yz:}{options are 'y', 'z', 'SGV', 'SGVT', and 'zy'}
+\item{cond.yz:}{options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'}
 
 \item{ordering.pred:}{options are 'obspred' or 'general'}
 
 \item{pred.cond:}{prediction conditioning, options are 'general' or 'independent'}
 
-\item{conditioning:}{conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)}
+\item{conditioning:}{conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
+or 'mra'}
 }
 \value{
-An object that specifies the vecchia approximation for later use in likelihood evaluation or prediction.
+An object that specifies the vecchia approximation for later use in likelihood
+evaluation or prediction.
 }
 \description{
-specify the vecchia approximation for later use in likelihood evaluation or prediction. This function does not depend on parameter values, and only has to be run once before repeated likelihood evaluations.
+specify the vecchia approximation for later use in likelihood evaluation or prediction.
+This function does not depend on parameter values, and only has to be run once before
+repeated likelihood evaluations.
 }
 \examples{
-z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia_specify=function(z,locs,m=5)
+locs=matrix(1:5,ncol=1); vecchia_specify=function(locs,m=2)
 }

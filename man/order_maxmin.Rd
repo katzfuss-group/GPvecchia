@@ -4,7 +4,8 @@
 \alias{order_maxmin}
 \title{Maximum minimum distance ordering}
 \usage{
-order_maxmin(locs, lonlat = FALSE, space_time = FALSE, st_scale = NULL)
+order_maxmin(locs, lonlat = FALSE, space_time = FALSE,
+  st_scale = NULL)
 }
 \arguments{
 \item{locs}{A matrix of locations. Each row of \code{locs} contains a location, which can
