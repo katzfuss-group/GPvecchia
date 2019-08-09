@@ -3,12 +3,13 @@
 #' specify the vecchia approximation for later use in likelihood evaluation or prediction.
 #' This function does not depend on parameter values, and only has to be run once before
 #' repeated likelihood evaluations.
-#' @param locs: nxd matrix of observed locs
-#' @param ordering: options are 'coord' or 'maxmin'
-#' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'
-#' @param ordering.pred: options are 'obspred' or 'general'
-#' @param pred.cond: prediction conditioning, options are 'general' or 'independent'
-#' @param conditioning: conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
+#' @param locs nxd matrix of observed locs
+#' @param m Number of nearby points to condition on
+#' @param ordering options are 'coord' or 'maxmin'
+#' @param cond.yz options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'
+#' @param ordering.pred options are 'obspred' or 'general'
+#' @param pred.cond prediction conditioning, options are 'general' or 'independent'
+#' @param conditioning conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
 #'  or 'mra'
 #'
 #' @return An object that specifies the vecchia approximation for later use in likelihood

@@ -1,9 +1,9 @@
 #' create the sparse triangular U matrix for specific parameters
 #'
-#' @param vecchia.approx: object returned by \code{\link{vecchia_specify}}
-#' @param covparms: vector of covariance parameters
-#' @param nuggets: nugget variances -- if a scalar is provided, variance is assumed constant
-#' @param covmodel: covariance model. currently implemented:
+#' @param vecchia.approx object returned by \code{\link{vecchia_specify}}
+#' @param covparms vector of covariance parameters
+#' @param nuggets nugget variances -- if a scalar is provided, variance is assumed constant
+#' @param covmodel covariance model. currently implemented:
 #    matern: with covparms (var,range,smoothness)
 #    esqe: exponential + squared exp with covparms (var1,range1,var2,range2)
 #'
