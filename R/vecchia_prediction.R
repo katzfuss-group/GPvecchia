@@ -164,6 +164,15 @@ vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
 
 ######  selected inverse of a sparse matrix   #######
 
+#' selected inverse of a sparse matrix
+#'
+#' @param cholmat: cholesky factor L of a positive definite sparseMatrix A
+#'
+#' @return sparse inverse of A, with same sparsity pattern as L
+#' @examples
+#' A=sparseMatrix(1:9,1:9,x=4); L=chol(A)
+#' SelInv(L)
+#' @export
 SelInv=function(cholmat){
   n.all=nrow(cholmat)
   sparseinv::Takahashi_Davis(Q=Matrix::sparseMatrix(c(),c(),dims=c(n.all,1)),

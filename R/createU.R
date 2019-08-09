@@ -1,9 +1,18 @@
-# this function creates the sparse U matrix for specific parameters
-# based on the output from specify.vecchia()
-# covmodel: currently implemented
+#' create the sparse triangular U matrix for specific parameters
+#'
+#' @param vecchia.approx: object returned by \code{\link{vecchia_specify}}
+#' @param covparms: vector of covariance parameters
+#' @param nuggets: nugget variances -- if a scalar is provided, variance is assumed constant
+#' @param covmodel: covariance model. currently implemented:
 #    matern: with covparms (var,range,smoothness)
 #    esqe: exponential + squared exp with covparms (var1,range1,var2,range2)
-
+#'
+#' @return list containing the sparse upper triangular U,
+#'     plus additional objects required for other functions
+#' @examples
+#' z=rnorm(9); locs=matrix(1:9,ncol=1); vecchia.approx=vecchia_specify(locs,m=5)
+#' U.obj=createU(vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+#' @export
 createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
 
   n=sum(vecchia.approx$obs)
