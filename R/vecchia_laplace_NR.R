@@ -262,7 +262,8 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 
   beta_score = function(y_o, z) exp(y_o)*beta*(log(z)-digamma(exp(y_o)*beta) + digamma(beta*(1+exp(y_o))))
 
-  beta_llh = function(y_o, z) sum((exp(y)*beta-1)*log(z) + (beta-1)*log(1-z)-
+  beta_llh = function(y_o, z) sum((exp(y_o
+                                       )*beta-1)*log(z) + (beta-1)*log(1-z)-
                                     log(beta(beta*exp(y_o), beta)))
 
   beta_link = function(y) 1/(1+exp(-y)) #logit link
@@ -280,8 +281,8 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
 
   beta_score = function(y_o, z) exp(y_o)*phi*(log(z/(1-z))-digamma(exp(y_o)*phi) + digamma(beta*(1-exp(y_o))))
 
-  beta_llh = function(y_o, z) sum((exp(y)*phi-1)*log(z) + ((1-exp(y))*phi-1)*log(1-z)-
-                                    log(beta(phi*exp(y_o), phi*(1-exp(y)))))
+  beta_llh = function(y_o, z) sum((exp(y_o)*phi-1)*log(z) + ((1-exp(y_o))*phi-1)*log(1-z)-
+                                    log(beta(phi*exp(y_o), phi*(1-exp(y_o)))))
 
   beta_link = function(y) 1/(1+exp(-y)) #logit link
   # return object with all components of model
@@ -305,7 +306,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
   negbin_score = 0 # function(y_o, z) z - exp(y_o)/(1+exp(y_o))
 
   # return object with all components of model
-  return(list("hess" = logistic_hess, "score"=logistic_score))
+  return(list("hess" = negbin_hess, "score"=negbin_score))
 
 }
 
