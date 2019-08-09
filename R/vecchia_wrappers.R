@@ -1,14 +1,14 @@
 #' estimate mean and covariance parameters using Vecchia
 #'
-#' @param data: data vector of length n
-#' @param locs: n x d matrix of spatial locations
-#' @param X: n x p matrix of trend covariates. default is vector of ones (constant trend).
+#' @param data data vector of length n
+#' @param locs n x d matrix of spatial locations
+#' @param X n x p matrix of trend covariates. default is vector of ones (constant trend).
 #'      set to NULL if data are already detrended
-#' @param m: number of neighbors for vecchia approximation. default is 20
-#' @param covmodel: covariance model. default is Matern.
+#' @param m number of neighbors for vecchia approximation. default is 20
+#' @param covmodel covariance model. default is Matern.
 #'    see \code{\link{vecchia_likelihood}} for details.
-#' @param theta.ini: initial values of covariance parameters. nugget variance must be last.
-#' @param ...: additional input parameters for \code{\link{vecchia_specify}}
+#' @param theta.ini initial values of covariance parameters. nugget variance must be last.
+#' @param ... additional input parameters for \code{\link{vecchia_specify}}
 #'
 #' @return object containing detrended data z, trend coefficients beta.hat,
 #'    covariance parameters theta.hat, and other quantities necessary for prediction
@@ -84,13 +84,13 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,...) {
 
 #' make spatial predictions using Vecchia based on estimated parameters
 #'
-#' @param vecchia.est: object returned by \code{\link{vecchia_estimate}}
-#' @param locs.pred: n.p x d matrix of prediction locations
-#' @param X.pred: n.p x p matrix of trend covariates at prediction locations.
+#' @param vecchia.est object returned by \code{\link{vecchia_estimate}}
+#' @param locs.pred n.p x d matrix of prediction locations
+#' @param X.pred n.p x p matrix of trend covariates at prediction locations.
 #'      does not need to be specified if constant or no trend was used in
 #'      \code{\link{vecchia_estimate}}
-#' @param m: number of neighbors for vecchia approximation. default is 30.
-#' @param ...: additional input parameters for \code{\link{vecchia_specify}}
+#' @param m number of neighbors for vecchia approximation. default is 30.
+#' @param ... additional input parameters for \code{\link{vecchia_specify}}
 #'
 #' @return object containing prediction means mean.pred and variances var.pred
 #' @examples

@@ -7,10 +7,13 @@
 #' @param m Number of nearby points to condition on
 #' @param ordering options are 'coord' or 'maxmin'
 #' @param cond.yz options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'
+#' @param locs.pred nxd matrix of locations at which to make predictions
 #' @param ordering.pred options are 'obspred' or 'general'
 #' @param pred.cond prediction conditioning, options are 'general' or 'independent'
 #' @param conditioning conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
 #'  or 'mra'
+#' @param mra.options Settings for number of levels and neighbors per level
+#' @param verbose Provide more detail when using MRA calculations.  Default is false.
 #'
 #' @return An object that specifies the vecchia approximation for later use in likelihood
 #' evaluation or prediction.
