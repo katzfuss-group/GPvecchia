@@ -1,9 +1,3 @@
-library(GPvecchia)
-library(testit)
-#source("/home/marcin/GPvecchia/GPvecchia/R/vecchia_specify.R")
-
-
-
 #Generate 1D data
 n = 10
 locs=matrix(runif(n),ncol=1)

@@ -73,7 +73,7 @@ U_sparsity <- function( locs, NNarray, obs, Cond ){
   allcolindices=c(colindices, Zcolindices)
 
   # number of cores to be used for creating U later
-  n.cores=detectCores(all.tests = FALSE, logical = TRUE)
+  n.cores=parallel::detectCores(all.tests = FALSE, logical = TRUE)
   
   return(list(revNNarray=revNNarray,revCond=revCondOnLatent,n.cores=n.cores,
         size=size,rowpointers=allrowpointers,colindices=allcolindices,y.ind=latent_map,observed_map=observed_map))

@@ -1,9 +1,9 @@
 #' create the sparse triangular U matrix for specific parameters
 #'
-#' @param vecchia.approx: object returned by \code{\link{vecchia_specify}}
-#' @param covparms: vector of covariance parameters
-#' @param nuggets: nugget variances -- if a scalar is provided, variance is assumed constant
-#' @param covmodel: covariance model. currently implemented:
+#' @param vecchia.approx object returned by \code{\link{vecchia_specify}}
+#' @param covparms vector of covariance parameters
+#' @param nuggets nugget variances -- if a scalar is provided, variance is assumed constant
+#' @param covmodel covariance model. currently implemented:
 #    matern: with covparms (var,range,smoothness)
 #    esqe: exponential + squared exp with covparms (var1,range1,var2,range2)
 #'
@@ -59,7 +59,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
       vals = createUcpp(ptrs, inds, vecchia.approx$locsord, covparms)
     }
 
-    Laux = sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
+    Laux = Matrix::sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
     Ulatent = Matrix::t(Matrix::solve(Laux, sparse=TRUE))
 
     N = nrow(vecchia.approx$U.prep$revNNarray)
@@ -86,7 +86,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     new.latent[-inds.lt.2nobs] = Ulatent@i[-inds.lt.2nobs]+n.obs
     LZinds[-nuggets.inds] = new.latent
 
-    U = Matrix::t(sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
+    U = Matrix::t(Matrix::sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
 
   } else {
 
@@ -103,7 +103,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
     Lentries=c(t(U.entries$Lentries))[not.na]
     allLentries=c(Lentries, U.entries$Zentries)
-    U=sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
+    U=Matrix::sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
                   x=allLentries,dims=c(size,size))
   }
 

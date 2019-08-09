@@ -1,5 +1,3 @@
-library(GPvecchia)
-
 set.seed(1988)
 spatial.dim=2# number of spatial dimensions
 n=20**2  # number of observed locs

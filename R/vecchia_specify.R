@@ -3,13 +3,17 @@
 #' specify the vecchia approximation for later use in likelihood evaluation or prediction.
 #' This function does not depend on parameter values, and only has to be run once before
 #' repeated likelihood evaluations.
-#' @param locs: nxd matrix of observed locs
-#' @param ordering: options are 'coord' or 'maxmin'
-#' @param cond.yz: options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'
-#' @param ordering.pred: options are 'obspred' or 'general'
-#' @param pred.cond: prediction conditioning, options are 'general' or 'independent'
-#' @param conditioning: conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
+#' @param locs nxd matrix of observed locs
+#' @param m Number of nearby points to condition on
+#' @param ordering options are 'coord' or 'maxmin'
+#' @param cond.yz options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'
+#' @param locs.pred nxd matrix of locations at which to make predictions
+#' @param ordering.pred options are 'obspred' or 'general'
+#' @param pred.cond prediction conditioning, options are 'general' or 'independent'
+#' @param conditioning conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
 #'  or 'mra'
+#' @param mra.options Settings for number of levels and neighbors per level
+#' @param verbose Provide more detail when using MRA calculations.  Default is false.
 #'
 #' @return An object that specifies the vecchia approximation for later use in likelihood
 #' evaluation or prediction.
@@ -146,7 +150,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   } else if( conditioning %in% c('firstm', 'NN')){
     if(spatial.dim==1) {
       NNarray=findOrderedNN_kdtree2(locsord,m)
-    } else NNarray <- find_ordered_nn(locsord,m)
+    } else NNarray <- GpGp::find_ordered_nn(locsord,m)
     if(conditioning == 'firstm'){
       first_m = NNarray[m+1,2:(m+1)]
       n.all=nrow(NNarray)

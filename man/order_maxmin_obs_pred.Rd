@@ -4,8 +4,8 @@
 \alias{order_maxmin_obs_pred}
 \title{Maximum minimum distance ordering, observations then predictions}
 \usage{
-order_maxmin_obs_pred(locs, locs_pred, lonlat = FALSE, space_time = FALSE,
-  st_scale = NULL)
+order_maxmin_obs_pred(locs, locs_pred, lonlat = FALSE,
+  space_time = FALSE, st_scale = NULL)
 }
 \arguments{
 \item{locs}{A matrix of locations. Each row of \code{locs} contains a location, which can

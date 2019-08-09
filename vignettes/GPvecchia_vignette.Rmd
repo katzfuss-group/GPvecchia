@@ -4,7 +4,8 @@ author: "Marcin Jurek, Daniel Zilber, Matthias Katzfuss"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{GPvecchia}
+  % \VignetteDepends{mvtnorm}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,7 +13,8 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.dim=c(7,5)
 )
 ```
 
@@ -21,6 +23,9 @@ In this vignette, we will demonstrate the main capabilities of the `GPvecchia` p
 We start by importing the `GPvecchia` library.
 ```{r}
 library(GPvecchia)
+library(Matrix)
+library(fields)
+
 ```
 
 
@@ -204,14 +209,15 @@ if(data.model=='poisson'){
 }
 
 # plot simulated data, 1 or 2D
-par(mfrow=c(1,2))
+defpar = par(mfrow=c(1,2))
 if(spatial.dim==1) {
   plot(locs,y, main = "latent")
   plot(locs,z, main = "observed")
 } else {
-  quilt.plot(locs,y, main = "Latent")
-  quilt.plot(locs,z, main = "Observed")
+  fields::quilt.plot(locs,y, main = "Latent")
+  fields::quilt.plot(locs,z, main = "Observed")
 }
+par(defpar)
 
 ```
 
@@ -236,21 +242,19 @@ laplace.cov = covfun(locs)
 if(m==0)laplace.cov = diag(diag(laplace.cov))
 post_lap = calculate_posterior_laplace(z, data.model,C = laplace.cov,return_all = TRUE)
 
-
 if (spatial.dim==1){
   par(mfrow=c(1,1))
   ord = order(locs) # order so that lines appear correctly
   y_limits = c(min(y, posterior$mean[ord]), max(y, posterior$mean[ord]))
   plot(locs[ord], y[ord], type = "l", ylim = y_limits )
   lines(locs[ord], posterior$mean[ord], type = "l", col=3, lwd=3)
-  lines(locs[ord], post_lap$mean[ord], type = "l", col=2)
-  legend("bottomright", legend = c("Latent", "VL", "Laplace"), col= c(1,3,2), lwd=c(1,3,1))
+  legend("bottomright", legend = c("Latent", "VL"), col= c(1,3), lwd=c(1,3))
 } else if (spatial.dim==2){
-  par(mfrow=c(1,3))
+  dfpar = par(mfrow=c(1,2))
   # ordering unnecessary; we are using a scatter plot rather than lines
   quilt.plot(locs, y, main= "Truth")
   quilt.plot(locs, posterior$mean,  main= "VL m=10")
-  quilt.plot(locs, array(post_lap$mean),  main= "Laplace")#, nx=50, ny=50)
+  par(defpar)
   
 }
 
@@ -279,7 +283,7 @@ preds = vecchia_laplace_prediction(posterior, vecchia.approx.pred, covparms)
 
 # plotting predicitions
 if (spatial.dim==1){
-  par(mfrow=c(1,1),mar=c(2,2,2,2))
+  defpar = par(mfrow=c(1,1))
   ord = order(locs) # order so that lines appear correctly
   plot(locs[ord], y[ord], type = "l", xlim=c(0,1.2), ylim = c(-1,3))
   lines(locs, posterior$mean, type = "p", col=4, lwd=3, lty=1)
@@ -288,13 +292,14 @@ if (spatial.dim==1){
   lines(locs.pred,preds$mu.pred-sqrt(preds$var.pred), type = "l", lty = 3, col=3)
   legend("topleft", legend = c("Latent", "VL: Pred", "VL: 1 stdev"), 
          col= c(1,3,3), lwd=c(1,2,1), lty = c(1,1,3))
+  par(defpar)
 } else if (spatial.dim==2){
-  par(mfrow=c(1,2), mar=c(2,3,2,3))
+  defpar =  par(mfrow=c(1,2))
   # ordering unnecessary; we are using a scatter plot rather than lines
-  quilt.plot(locs, array(post_lap$mean), main= "True Latent", 
+  quilt.plot(locs, y, main= "True Latent", 
              xlim = c(0,1), ylim = c(0,1), nx=64, ny=64)
   quilt.plot(locs.pred, preds$mu.pred,  main= "VL Prediction",nx = 30, ny=30)
-
+  par(defpar)
 }
 ```
 
