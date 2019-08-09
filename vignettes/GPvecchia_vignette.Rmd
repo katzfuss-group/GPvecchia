@@ -1,6 +1,6 @@
 ---
 title: "GPvecchia tutorial"
-author: "Marcin Jurek"
+author: "Marcin Jurek, Daniel Zilber, Matthias Katzfuss"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -16,21 +16,20 @@ knitr::opts_chunk$set(
 )
 ```
 
-Throughout this vignette we will demonstrate the main capabilities of the `GPvecchia` package. These include evaluating the likelihood, estimating the parameters and making predictions. We also show how to use the pakcage for processing non-linear, non-Gaussian data as well as working with spatio-temporal models. We start by importing the `GPvecchia` library.
+In this vignette, we will demonstrate the main capabilities of the `GPvecchia` package. These include estimating parameters and making spatial predictions. We also show how to use the package for processing non-linear, non-Gaussian data by combining the Vecchia with a Laplace approximation.
+
+We start by importing the `GPvecchia` library.
 ```{r}
 library(GPvecchia)
 ```
 
 
-### Likelihood evaluation
+### Simulating data for illustration
 
-We start our tutorial by simulating data from a two dimensional Gaussian Random Field. First, consider a unit square and randomly select observation locations.
+To illustrate our method, we simulate a small dataset. First, consider a unit square and randomly select observation locations. (Set spatial.dim=1 to consider data on the one-dimensional unit interval.)
 ```{r}
 spatial.dim=2
 n=100
-
-#simulate locations
-set.seed(10)
 if(spatial.dim==1){
   locs=matrix(runif(n),ncol=1)
 } else {
@@ -40,7 +39,7 @@ if(spatial.dim==1){
 
 Next, we define the covariance function of the field as well as the scale of the measurement error
 ```{r}
-# covariance parameters (only matern implemented so far)
+beta=2
 sig2=1; range=.1; smooth=1.5
 covparms =c(sig2,range,smooth)
 covfun <- function(locs) sig2*MaternFun(fields::rdist(locs),covparms)
@@ -49,37 +48,20 @@ nuggets=rep(.1,n)
 
 We are now ready to simulate the field and visualize it as a sanity check.
 ```{r fig4, out.width = '400px'}
-if(n < 1e4) {
-  Om0 <- covfun(locs)+diag(nuggets)
-  z=as.numeric(t(chol(Om0))%*%rnorm(n))
-} else z=rnorm(n)
+Om0 <- covfun(locs)+diag(nuggets)
+z=as.numeric(t(chol(Om0))%*%rnorm(n))
+data=z+beta
 
 # plot simulated data
 if(spatial.dim==1) {
-  plot(locs,z)
+  plot(locs,data)
 } else {
-  fields::quilt.plot(locs,z)
+  fields::quilt.plot(locs,data)
 }
 ```
 NEED TO FIX THE PLOT
 
-Next, we specify the parameters of the general Vecchia approximation. While most of them are set by default, the key one, $m$, which trades off accuracy and computational cost, has to be selected manually. Its value determines the size of the "neighbours" of each point, or, in other words, how many other points, a given point is allowed to be correlated with.
-```{r}
-m=20
-vecchia.approx=vecchia_specify(locs,m)
-vecchia_likelihood(z,vecchia.approx,covparms,nuggets)
-```
-We can also compare it to the true likelihood
-```{r}
-library(mvtnorm)
-dmvnorm(z,mean=rep(0,n),sigma=Om0,log=TRUE)
-```
-In this case the approximation is very good. In general, $m$ needs to increase as $n$ grows although it probably rarely needs to exceed $100$.
-
-
-### Spatial predictions
-
-Another important task often required in the analysis of spatial data is predicting the value of the process at a location with no data, or at a point where data is available but one wants to remove the measurement error. To demonstrate how GPvecchia can help with this task we start by selecting $n.p$ prediction locations.
+We also create a grid of $n.p$ locations at which we would like to make predictions.
 ```{r}
 n.p=100
 if(spatial.dim==1){  #  1-D case
@@ -90,17 +72,23 @@ if(spatial.dim==1){  #  1-D case
 }
 n.p=nrow(locs.pred)
 ```
-Similar to the previous section we next specify the approximation and indicate at which locations prediction is desired.
+
+
+### Basic functions for parameter estimation and prediction
+
+Let us now estimate the mean and covariance parameters using the default settings, which assume a spatially constant mean or trend, and a Matern covariance structure. Note that the following code might take a minute or so to run.
 ```{r}
-m=20
-vecchia.approx=vecchia_specify(locs,m,locs.pred=locs.pred)
-preds=vecchia_prediction(z,vecchia.approx,covparms,nuggets)
-# returns a list with elements mu.pred,mu.obs,var.pred,var.obs,V.ord
+vecchia.est=vecchia_estimate(data,locs)
 ```
-Finally, we compare the approximate predictions with the best possible ones, i.e. those obtained using analytic expressions for conditional mean in the Gaussian distribution. 
+Based on these parameter estimates, we can then make predictions at the grid of locations we had specified above.
+```{r}
+preds=vecchia_pred(vecchia.est,locs.pred)
+```
+
+Finally, we compare the approximate predictions with the best possible ones (i.e. those obtained using analytic expressions for conditional mean in the Gaussian distribution). 
 ```{r}
 ##  exact prediction
-mu.exact=as.numeric(covfun(rbind(locs,locs.pred))[,1:n]%*%solve(Om0,z))
+mu.exact=as.numeric(covfun(rbind(locs,locs.pred))[,1:n]%*%solve(Om0,data-beta))+beta
 cov.exact=covfun(rbind(locs,locs.pred))-
   covfun(rbind(locs,locs.pred))[,1:n]%*%solve(Om0,t(covfun(rbind(locs,locs.pred))[,1:n]))
 var.exact=diag(cov.exact)
@@ -110,9 +98,9 @@ cov.exact.pred=cov.exact[n+(1:n.p),n+(1:n.p)]
 ### plot Vecchia and exact predictions
 if(spatial.dim==1) {
   plot(locs,z)
-  lines(locs.pred,preds$mu.pred,col='blue')
-  lines(locs.pred,preds$mu.pred-1.96*sqrt(preds$var.pred),col='blue',lty=2)
-  lines(locs.pred,preds$mu.pred+1.96*sqrt(preds$var.pred),col='blue',lty=2)
+  lines(locs.pred,preds$mean.pred,col='blue')
+  lines(locs.pred,preds$mean.pred-1.96*sqrt(preds$var.pred),col='blue',lty=2)
+  lines(locs.pred,preds$mean.pred+1.96*sqrt(preds$var.pred),col='blue',lty=2)
   lines(locs.pred,mu.exact[n+(1:n.p)],col='red')
   lines(locs.pred,mu.exact[n+(1:n.p)]-1.96*sqrt(var.exact[n+(1:n.p)]),col='red',lty=2)
   lines(locs.pred,mu.exact[n+(1:n.p)]+1.96*sqrt(var.exact[n+(1:n.p)]),col='red',lty=2)
@@ -120,13 +108,42 @@ if(spatial.dim==1) {
   sdrange=range(sqrt(c(preds$var.pred,var.exact[n+(1:n.p)])))
   defpar = par(mfrow=c(2,3))
   fields::quilt.plot(locs,z)
-  fields::quilt.plot(locs.pred,preds$mu.pred)
+  fields::quilt.plot(locs.pred,preds$mean.pred)
   fields::quilt.plot(locs.pred,sqrt(preds$var.pred),zlim=sdrange)
   fields::quilt.plot(locs,z)
   fields::quilt.plot(locs.pred,mu.exact[n+(1:n.p)])
   fields::quilt.plot(locs.pred,sqrt(var.exact[n+(1:n.p)]),zlim=sdrange)
   par(defpar)
 }
+```
+
+
+### More details on likelihood evaluation
+
+Let's take a closer look at how the likelihood is evaluated using Vecchia. Most importantly, we can specify a parameter, $m$. Its value determines the number of "neighbours" of each point, or, in other words, how many other points a given point conditions on. The larger this parameter, the more accurate and expensive the approximation will be.
+```{r}
+m=20
+vecchia.approx=vecchia_specify(locs,m)
+vecchia_likelihood(z,vecchia.approx,covparms,nuggets)
+```
+Note that the function vecchia_specify determines the general properties of the approximation, but it does not depend on the data or the specific parameter values. Hence, it does not have to be re-run when searching over different parameter values in an estimation procedure.
+
+We can also compare the results to the exact likelihood:
+```{r}
+library(mvtnorm)
+dmvnorm(z,mean=rep(0,n),sigma=Om0,log=TRUE)
+```
+In this case the approximation is very good. In general, $m=20$ is a good value, and $m$ should usually be between 10 and 40. For one-dimensional space, we can get good approximations even with $m=5$ or smaller.
+
+
+### More details on spatial prediction
+
+Similar to the previous section we next specify the approximation and indicate at which locations prediction is desired.
+```{r}
+m=30
+vecchia.approx=vecchia_specify(locs,m,locs.pred=locs.pred)
+preds=vecchia_prediction(z,vecchia.approx,covparms,nuggets)
+# returns a list with elements mu.pred,mu.obs,var.pred,var.obs,V.ord
 ```
 
 It is also possible to print the entire predictive covariance matrix. We do it here only for the purpose of illustration. If $n.p$ is very large, this matrix might use up a lot of memory and we generally do not recommend plotting it directly.
@@ -141,7 +158,7 @@ par(mfrow=c(defpar))
 
 #### Linear combinations
 
-We might sometimes be interested in a linear combination of the predicted values. In particular, we can limit our attention to only a subset of our predictions. This can be accomplished by specifying the linear combination coefficients as a matrix.
+We might sometimes be interested in a linear combination of the predicted values. In particular, we can limit our attention to only a subset of our predictions. This can be accomplished by specifying the linear combination coefficients as a matrix. As an example, we assume we are only interested in predictions at the unobserved prediction locations (not at the first n observed locations):
 ```{r}
 H=Matrix::sparseMatrix(i=1:(n+n.p),j=1:(n+n.p),x=1)[(n+1):(n+n.p),]
 
@@ -150,7 +167,7 @@ lincomb.vars=vecchia_lincomb(H,preds$U.obj,preds$V.ord)
 plot(preds$var.pred,lincomb.vars)
 ```
 
-We can use a similar approach when all that we need is the overall mean of all predictions. Using the `vecchia_lincomb()` function enables us to get the variance estimates easily. 
+As another example, we consider the overall mean of the process at all prediction locations. Using the `vecchia_lincomb()` function enables us to get the variance estimates easily. 
 ```{r}
 mean(preds$mu.pred)
 
@@ -161,25 +178,16 @@ lincomb.cov=vecchia_lincomb(H,preds$U.obj,preds$V.ord,cov.mat=TRUE)
 
 
 
-
-
-
-### Estimating parameters
-
 ### Non-Gaussian data
 Here we demonstrate how GPVecchia can fit a latent model to non-Gaussian data using the Vecchia-Laplace method.  We simulate data by first generating a correlated latent field without noise, assuming the same covariance and locations generated earlier:
 
 ```{r}
 # simulate latent process
-if(n < 1e4) {
-  Om0 <- covfun(locs)
-  y=as.numeric(t(chol(Om0))%*%rnorm(n))
-} else y=rnorm(n)
+y=as.numeric(t(chol(Om0))%*%rnorm(n))
 ```
 
 
-Then we sample a single non-Gaussian value for each latent value.  The variability introduced by the sampling induces heterskedasticity, in contrast the the constant noise added to the Gaussian case.  Below we use a logistic model for binary data, but there are implementations for count and continuous positive data as well.
-
+Then we sample a single non-Gaussian value for each latent value.  The variability introduced by the sampling induces heteroskedasticity, in contrast the the constant noise added to the Gaussian case.  Below we use a logistic model for binary data, but there are implementations for count and continuous positive (right-skewed) data as well.
 
 ```{r}
 data.model = "logistic"
@@ -220,17 +228,13 @@ if(spatial.dim==1){
 With the approximated covariance structure, we can calculate the posterior estimate for the latent field using the Vecchia-Laplace method and plot the result.  Pure Laplace approximation is included for comparison; even with a samll value for $m$, we can get a result similar to Laplace but with much lower cost.
 
 ```{r}
-posterior = calculate_posterior_VL(z, 
-                                   vecchia.approx, 
-                                   likelihood_model=data.model,
+posterior = calculate_posterior_VL(z,vecchia.approx,likelihood_model=data.model,
                                    covparms = covparms)
 
 # Laplace approximation, for comparison (slow)
 laplace.cov = covfun(locs)
 if(m==0)laplace.cov = diag(diag(laplace.cov))
-post_lap = calculate_posterior_laplace(z, data.model, 
-                                       C = laplace.cov,
-                                       return_all = TRUE)
+post_lap = calculate_posterior_laplace(z, data.model,C = laplace.cov,return_all = TRUE)
 
 
 if (spatial.dim==1){
@@ -329,3 +333,8 @@ exp(res$par[1:3])
 vl_likelihood(x0)
 ```
 
+
+
+### Other GP approximations as special cases
+
+By specifying appropriate options in vecchia_specify, we can do everything described above for several other GP approximations: Modified predictive process, FSA, MRA, latent, standard Vecchia
