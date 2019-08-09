@@ -142,7 +142,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   ### obtain conditioning sets
   if( conditioning == 'mra' ){
     NNarray = findOrderedNN_mra(locsord, mra.options, m, verbose)
-    if(!hasArg(m)) m = ncol(NNarray)-1
+    if(!methods::hasArg(m)) m = ncol(NNarray)-1
   } else if( conditioning %in% c('firstm', 'NN')){
     if(spatial.dim==1) {
       NNarray=findOrderedNN_kdtree2(locsord,m)
