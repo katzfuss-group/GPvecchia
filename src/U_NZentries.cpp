@@ -1,3 +1,4 @@
+#define BOOST_DISABLE_ASSERTS
 #define ARMA_DONT_PRINT_ERRORS
 
 #include <iostream>
@@ -205,7 +206,7 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
   bool succ;
 
   if ((COV!="matern")&(COV!="esqe")){
-    cerr << "Error message: That covariance is not implemented"<< endl;
+    Rcerr << "Error message: That covariance is not implemented"<< endl;
   }
 
   omp_set_num_threads(Ncores);// selects the number of cores to use.
@@ -296,7 +297,7 @@ void ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
         vals[j] = sqrt( vals[j] - dp );
       }
       else
-        cout << "ERROR" << endl;
+        Rcout << "ERROR" << endl;
     }
   }
 }

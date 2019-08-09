@@ -50,7 +50,7 @@ double* create_coords2d(const int n) {
   int N = pow(n, 2);
   /*allocates a N times 2 array*/
   double* coords = (double*)malloc(sizeof(double) * 2 * N);
-  if (coords == NULL) exit(1);
+  //if (coords == NULL) exit(1);
   /*Fill the allocated array with the right coordinates*/
   for (k = 0; k < n; ++k) {
     for (l = 0; l < n; ++l) {
@@ -61,7 +61,7 @@ double* create_coords2d(const int n) {
   return coords;
 }
 
-/*creates a set of N point uniformly distributed in [0,1]^d*/
+/*creates a set of N point uniformly distributed in [0,1]^d
 double* create_coordsUnif(const unsigned int d, const unsigned int N) {
   
   double* coords = (double*)malloc(sizeof(double) * d * N);
@@ -71,14 +71,14 @@ double* create_coordsUnif(const unsigned int d, const unsigned int N) {
     coords[k] = ((double)rand()) / ((double)RAND_MAX);
   }
   return coords;
-}
+}*/
 
 /*creates point structs from an input of coordinates*/
 point* create_Points(double* const x, const int d, const int N) {
   //int k, l;
   int k;
   point* points = (point*)malloc(sizeof(point) * N);
-  if (points == NULL) exit(1);
+  //if (points == NULL) exit(1);
   for (k = 0; k < N; ++k) {
     points[k].Id = k;
     points[k].d = d;
@@ -119,7 +119,7 @@ int compareLevel(const void* p1, const void*p2) {
 void heap_init(heap* h, point* points, const int N) {
   h->elements = (point**)malloc(sizeof(point*) * N);
   h->N = N;
-  if (h->elements == NULL) exit(1);
+  //if (h->elements == NULL) exit(1);
   int k;
   for (k = 0; k < N; ++k) {
     h->elements[k] = &points[k];
@@ -161,14 +161,14 @@ void daycare_init(daycare* dc, const int N) {
   dc->sizeBuffer = 2 * N;
   dc->size = 0;
   dc->data = (point**)malloc(dc->sizeBuffer * sizeof(point*));
-  if (dc->data == NULL) exit(1);
+  //if (dc->data == NULL) exit(1);
 }
 
 void daycare_add(daycare* dc, point* addendum) {
   if (dc->size == dc->sizeBuffer) {
     dc->sizeBuffer *= 2;
     dc->data = (point**)realloc(dc->data, dc->sizeBuffer * sizeof(point*));
-    if (dc->data == NULL) exit(1);
+    //if (dc->data == NULL) exit(1);
   }
   ++dc->size;
   dc->data[dc->size - 1] = addendum;
@@ -311,9 +311,9 @@ void ijlookup_init(ijlookup* lookup, unsigned int N) {
   lookup->S = 0;
   lookup->S_Buffer = N;
   lookup->i = (unsigned int*)malloc((N + 1) * sizeof(unsigned int));
-  if (lookup->i == NULL) exit(1);
+  //if (lookup->i == NULL) exit(1);
   lookup->j = (unsigned int*)malloc(N * sizeof(unsigned int));
-  if (lookup->j == NULL) exit(1);
+  //if (lookup->j == NULL) exit(1);
   lookup->i[0] = 0;
   lookup->i[1] = 0;
 }
@@ -328,7 +328,7 @@ void ijlookup_newson(ijlookup* const lookup, const unsigned int Id) {
   if (lookup->S > lookup->S_Buffer) {
     lookup->S_Buffer *= 2;
     lookup->j = (unsigned int*)realloc(lookup->j, lookup->S_Buffer * sizeof(unsigned int));
-    if (lookup->j == NULL) exit(1);
+    //if (lookup->j == NULL) exit(1);
   }
   lookup->j[lookup->S - 1] = Id;
   ++lookup->i[lookup->pres_i + 1];
@@ -490,9 +490,9 @@ void create_ordering(unsigned int* P, unsigned int* revP, double* distances, con
   
   /*Allocate the heap structure:*/
   heapNode* nodes = (heapNode*)malloc(N * sizeof(heapNode));
-  if (nodes == NULL) exit(1);
+  //if (nodes == NULL) exit(1);
   heapNode** handles = (heapNode**)malloc(N * sizeof(heapNode*));
-  if (handles == NULL) exit(1);
+  //if (handles == NULL) exit(1);
   /*Initiate the heap structure*/
   heapInit(N, nodes, handles);
   /*initialising lookup*/
@@ -501,7 +501,7 @@ void create_ordering(unsigned int* P, unsigned int* revP, double* distances, con
   /*allocate array to store the parents of dof:
   *the i-th entry of parents will contain the number of its parent in the ordering */
   unsigned int* parents = (unsigned int*)malloc(N * sizeof(unsigned int));
-  if (parents == NULL) exit(1);
+  //if (parents == NULL) exit(1);
   
   /* Add the first parent node: */
   /*TODO Make random?*/
@@ -548,9 +548,9 @@ void create_ordering_2d(unsigned int* P, unsigned int* revP, double* distances, 
   
   /*Allocate the heap structure:*/
   heapNode* nodes = (heapNode*)malloc(N * sizeof(heapNode));
-  if (nodes == NULL) exit(1);
+  //if (nodes == NULL) exit(1);
   heapNode** handles = (heapNode**)malloc(N * sizeof(heapNode*));
-  if (handles == NULL) exit(1);
+  //if (handles == NULL) exit(1);
   /*Initiate the heap structure*/
   heapInit(N, nodes, handles);
   /*initialising lookup*/
@@ -559,7 +559,7 @@ void create_ordering_2d(unsigned int* P, unsigned int* revP, double* distances, 
   /*allocate array to store the parents of dof:
   *the i-th entry of parents will contain the number of its parent in the ordering */
   unsigned int* parents = (unsigned int*)malloc(N * sizeof(unsigned int));
-  if (parents == NULL) exit(1);
+  //if (parents == NULL) exit(1);
   
   /* Add the first parent node: */
   /*TODO Make random?*/
@@ -607,9 +607,9 @@ void create_ordering_3d(unsigned int* P, unsigned int* revP, double* distances, 
   
   /*Allocate the heap structure:*/
   heapNode* nodes = (heapNode*)malloc(N * sizeof(heapNode));
-  if (nodes == NULL) exit(1);
+  //if (nodes == NULL) exit(1);
   heapNode** handles = (heapNode**)malloc(N * sizeof(heapNode*));
-  if (handles == NULL) exit(1);
+  //if (handles == NULL) exit(1);
   /*Initiate the heap structure*/
   heapInit(N, nodes, handles);
   /*initialising lookup*/
@@ -618,7 +618,7 @@ void create_ordering_3d(unsigned int* P, unsigned int* revP, double* distances, 
   /*allocate array to store the parents of dof:
   *the i-th entry of parents will contain the number of its parent in the ordering */
   unsigned int* parents = (unsigned int*)malloc(N * sizeof(unsigned int));
-  if (parents == NULL) exit(1);
+  //if (parents == NULL) exit(1);
   
   /* Add the first parent node: */
   /*TODO Make random?*/

@@ -20,7 +20,7 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
   U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
 
   # remove NAs in data and U
-  na.rm()
+  removeNAs()
 
   # compute cholesky V for posterior inference
   V.ord=U2V(U.obj)
@@ -64,12 +64,12 @@ U2V=function(U.obj){
 
   if(U.obj$cond.yz=='zy') {
 
-    V.ord=rev.mat(U.y[,U.obj$latent,drop=FALSE])
+    V.ord=revMat(U.y[,U.obj$latent,drop=FALSE])
 
   } else if(U.obj$ord.pred!='obspred'){
 
     W=Matrix::tcrossprod(U.y)
-    W.rev=rev.mat(W)
+    W.rev=revMat(W)
     V.ord=Matrix::t(Matrix::chol(W.rev))
 
   } else {  # for obspred ordering
@@ -79,12 +79,12 @@ U2V=function(U.obj){
     latents.after=sum(U.obj$latent[-(1:last.obs)])
 
     # pred columns are unchanged
-    V.pr=rev.mat(U.y[,(last.obs+1):ncol(U.y),drop=FALSE])
+    V.pr=revMat(U.y[,(last.obs+1):ncol(U.y),drop=FALSE])
 
     # have to compute cholesky for obs block
     U.oo=U.y[1:latents.before,1:last.obs]
     A=Matrix::tcrossprod(U.oo)
-    A.rev=rev.mat(A)
+    A.rev=revMat(A)
     V.oor=Matrix::t(Matrix::chol(A.rev))
 
     # combine the blocks into one matrix
@@ -248,7 +248,7 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
 V2covmat=function(preds){
 
   # compute joint covariance matrix
-  Sigma.ord=solve(as.matrix(rev.mat(preds$V.ord%*%Matrix::t(preds$V.ord))))
+  Sigma.ord=solve(as.matrix(revMat(preds$V.ord%*%Matrix::t(preds$V.ord))))
 
   # for zero nugget, add zero rows/columns
   if(length(preds$U.obj$zero.nugg)>0){
@@ -415,7 +415,7 @@ vecchia_var=function(U.obj,V.ord,exact=FALSE){
 V2covmat=function(preds){
 
   # compute joint covariance matrix
-  Sigma.ord=solve(as.matrix(rev.mat(preds$V.ord%*%Matrix::t(preds$V.ord))))
+  Sigma.ord=solve(as.matrix(revMat(preds$V.ord%*%Matrix::t(preds$V.ord))))
 
   # for zero nugget, add zero rows/columns
   if(length(preds$U.obj$zero.nugg)>0){

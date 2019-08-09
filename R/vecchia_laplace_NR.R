@@ -110,7 +110,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     orig.order=order(vecchia.approx$ord)
     V.ord=preds$V.ord
     # if ZY_liklihood works, dont need W or V?
-    W = as(rev.mat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
+    W = as(revMat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
       V.ord = V.ord[1:n, 1:n]
@@ -261,9 +261,7 @@ calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list(
                                 -(exp(y_o)*beta)^2*(-trigamma(exp(y_o)*beta)  + trigamma(beta*(1+exp(y_o))))
 
   beta_score = function(y_o, z) exp(y_o)*beta*(log(z)-digamma(exp(y_o)*beta) + digamma(beta*(1+exp(y_o))))
-
-  beta_llh = function(y_o, z) sum((exp(y_o
-                                       )*beta-1)*log(z) + (beta-1)*log(1-z)-
+  beta_llh = function(y_o, z) sum((exp(y_o)*beta-1)*log(z) + (beta-1)*log(1-z)-
                                     log(beta(beta*exp(y_o), beta)))
 
   beta_link = function(y) 1/(1+exp(-y)) #logit link
