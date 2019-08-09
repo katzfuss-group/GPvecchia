@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/user/pkg.svg?branch=master)](https://travis-ci.org/katzfuss-group/GPvecchia)
+[![Build Status](https://travis-ci.org/katzfuss-group/GPvecchia.svg?branch=master)](https://travis-ci.org/katzfuss-group/GPvecchia)
 
 # GPvecchia
 Fast Gaussian-process inference using general Vecchia approximations
