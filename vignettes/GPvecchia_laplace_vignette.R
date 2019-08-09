@@ -5,17 +5,22 @@ rm(list = ls())
 ###  load GPvecchia package
 library(devtools)
 install_github("katzfuss-group/GPvecchia")
+install_local("../../Katzfuss/GPVecchia/",force = T)
 library(GPvecchia)
+
+
 require(fields)
+
+
 
 
 #####################   simulate data    #######################
 
-data.distr = 'gamma' #options: "gaussian","logistic", "poisson", "gamma"
+data.distr = 'beta' #options: "gaussian","logistic", "poisson", "gamma"
 spatial.dim = 2 # number of spatial dimensions
 n = 30^2 # number of observed locs
 
-default_lh_params = list("alpha"=2, "sigma"=sqrt(.1), "beta"=4, "phi"=1)
+default_lh_params = list("alpha"=2, "sigma"=sqrt(.1), "beta"=.5, "phi"=1.5)
 
 # simulate locations
 # set.seed(14)
