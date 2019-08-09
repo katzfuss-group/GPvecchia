@@ -136,7 +136,7 @@ order_coordinate <- function( locs, coordinate ){
 #' Dimensions d=2 and d=3 handled separately, dimensions d=1 and d>3 handled similarly.
 #' Algorithm is exact and scales quasilinearly.
 #'
-#' @param locs: Observation locations
+#' @param locs Observation locations
 #' @return A vector of indices giving the ordering, i.e.
 #' the first element of this vector is the index of the first location.
 #' @examples
