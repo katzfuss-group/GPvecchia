@@ -9,7 +9,7 @@ MaternFun(distmat, covparms)
 \arguments{
 \item{distmat}{A matrix with distances between points}
 
-\item{covparams}{A vector with parameters (marg. variance, range, smoothness)}
+\item{covparms}{A vector with parameters (marg. variance, range, smoothness)}
 }
 \description{
 Calculate Matern covariance function

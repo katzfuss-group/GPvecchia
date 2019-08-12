@@ -15,13 +15,13 @@ vecchia_laplace_prediction(vl_posterior, vecchia.approx, covparms,
 
 \item{covparms}{covariance parameters as a vector}
 
+\item{pred.mean}{provides the prior latent mean for the prediction locations}
+
 \item{var.exact}{should prediction variances be computed exactly, or is a (faster) approximation acceptable}
 
 \item{covmodel}{covariance model, 'matern' by default.}
 
 \item{return.values}{either 'mean' only, 'meanvar', 'meanmat', or 'all'}
-
-\item{pred_mean}{provides the prior latent mean for the prediction locations}
 }
 \value{
 (multivariate normal) loglikelihood implied by the Vecchia approximation

@@ -7,7 +7,7 @@
 order_maxmin_exact(locs)
 }
 \arguments{
-\item{locs:}{Observation locations}
+\item{locs}{Observation locations}
 }
 \value{
 A vector of indices giving the ordering, i.e.

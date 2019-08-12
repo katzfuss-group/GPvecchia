@@ -17,12 +17,18 @@ vecchia_specify(locs, m = -1, ordering, cond.yz, locs.pred,
 
 \item{cond.yz}{options are 'y', 'z', 'SGV', 'SGVT', 'RVP', 'LK', and 'zy'}
 
+\item{locs.pred}{nxd matrix of locations at which to make predictions}
+
 \item{ordering.pred}{options are 'obspred' or 'general'}
 
 \item{pred.cond}{prediction conditioning, options are 'general' or 'independent'}
 
 \item{conditioning}{conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
 or 'mra'}
+
+\item{mra.options}{Settings for number of levels and neighbors per level}
+
+\item{verbose}{Provide more detail when using MRA calculations.  Default is false.}
 }
 \value{
 An object that specifies the vecchia approximation for later use in likelihood

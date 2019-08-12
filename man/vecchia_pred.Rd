@@ -7,17 +7,17 @@
 vecchia_pred(vecchia.est, locs.pred, X.pred, m = 30, ...)
 }
 \arguments{
-\item{vecchia.est:}{object returned by \code{\link{vecchia_estimate}}}
+\item{vecchia.est}{object returned by \code{\link{vecchia_estimate}}}
 
-\item{locs.pred:}{n.p x d matrix of prediction locations}
+\item{locs.pred}{n.p x d matrix of prediction locations}
 
-\item{X.pred:}{n.p x p matrix of trend covariates at prediction locations.
+\item{X.pred}{n.p x p matrix of trend covariates at prediction locations.
 does not need to be specified if constant or no trend was used in
 \code{\link{vecchia_estimate}}}
 
-\item{m:}{number of neighbors for vecchia approximation. default is 30.}
+\item{m}{number of neighbors for vecchia approximation. default is 30.}
 
-\item{...:}{additional input parameters for \code{\link{vecchia_specify}}}
+\item{...}{additional input parameters for \code{\link{vecchia_specify}}}
 }
 \value{
 object containing prediction means mean.pred and variances var.pred

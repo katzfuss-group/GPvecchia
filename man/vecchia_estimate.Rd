@@ -8,21 +8,21 @@ vecchia_estimate(data, locs, X, m = 20, covmodel = "matern", theta.ini,
   ...)
 }
 \arguments{
-\item{data:}{data vector of length n}
+\item{data}{data vector of length n}
 
-\item{locs:}{n x d matrix of spatial locations}
+\item{locs}{n x d matrix of spatial locations}
 
-\item{X:}{n x p matrix of trend covariates. default is vector of ones (constant trend).
+\item{X}{n x p matrix of trend covariates. default is vector of ones (constant trend).
 set to NULL if data are already detrended}
 
-\item{m:}{number of neighbors for vecchia approximation. default is 20}
+\item{m}{number of neighbors for vecchia approximation. default is 20}
 
-\item{covmodel:}{covariance model. default is Matern.
+\item{covmodel}{covariance model. default is Matern.
 see \code{\link{vecchia_likelihood}} for details.}
 
-\item{theta.ini:}{initial values of covariance parameters. nugget variance must be last.}
+\item{theta.ini}{initial values of covariance parameters. nugget variance must be last.}
 
-\item{...:}{additional input parameters for \code{\link{vecchia_specify}}}
+\item{...}{additional input parameters for \code{\link{vecchia_specify}}}
 }
 \value{
 object containing detrended data z, trend coefficients beta.hat,

@@ -20,6 +20,8 @@ vecchia_laplace_likelihood(z, vecchia.approx, likelihood_model, covparms,
 
 \item{likparms}{likelihood parameters for the likelihood_model, as a list}
 
+\item{covmodel}{describes the covariance model, "matern" by default}
+
 \item{max.iter}{maximum iterations to perform}
 
 \item{convg}{convergence criteria.  End iterations if the Newton step is this small}
