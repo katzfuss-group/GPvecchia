@@ -52,7 +52,7 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,...) {
   ## initial covariance parameter values
   if(missing(theta.ini)){
     if(covmodel=='matern'){
-      var.res=var(z)
+      var.res=stats::var(z)
       n=length(z)
       dists.sample=fields::rdist(locs[sample(1:n,min(n,300)),])
       theta.ini=c(.9*var.res,mean(dists.sample)/4,.8,.1*var.res) # var,range,smooth,nugget
@@ -68,7 +68,7 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,...) {
                         covmodel=covmodel)
 
   ## find MLE of theta (given beta.hat)
-  opt.result=optim(par=log(theta.ini),fn=negloglik.vecchia,
+  opt.result=stats::optim(par=log(theta.ini),fn=negloglik.vecchia,
                    control=list(trace=1,maxit=300)) # trace=1 outputs iteration counts
   theta.hat=exp(opt.result$par)
 

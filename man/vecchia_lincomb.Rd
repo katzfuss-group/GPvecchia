@@ -24,10 +24,9 @@ linear combination of predictions
 compute the distribution of a linear combination Hy
 }
 \examples{
-z=rnorm(5);
-locs=matrix(1:5,ncol=1)
-n.p=5
+n=5; z=rnorm(n); locs=matrix(1:n,ncol=1); n.p=5
 vecchia.approx = vecchia_specify(locs,m=3,locs.pred=locs+.5)
-preds=vecchia_prediction=function(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
-vecchia_lincomb(Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p),vecchia.approx,preds$V.ord,cov.mat=TRUE)
+preds=vecchia_prediction(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+H=Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
+vecchia_lincomb(H,vecchia.approx,preds$V.ord,cov.mat=TRUE)
 }

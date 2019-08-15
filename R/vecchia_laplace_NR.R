@@ -118,7 +118,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     orig.order=order(vecchia.approx$ord)
     V.ord=preds$V.ord
     # if ZY_liklihood works, dont need W or V?
-    W = as(revMat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
+    W = methods::as(revMat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
       V.ord = V.ord[1:n, 1:n]
@@ -164,7 +164,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   # begin NR iteration
   for( i in 1:50){
     D_inv = ell_dbl_prime(y_o, z)
-    D = sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x= 1/D_inv)
+    D = Matrix::sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x= 1/D_inv)
     u =  ell_prime(y_o,z)
     t = D%*%u+y_o - prior_mean
     y_prev = y_o
@@ -178,7 +178,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   Lap_time = as.double(difftime(t_end, t_start, units = "secs"))
   if(return_all){
     # Caclulating sd is expensive
-    D_inv_mat = sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x= D_inv)
+    D_inv_mat = Matrix::sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x= D_inv)
     W = D_inv_mat +  solve(C)
     sd_posterior = sqrt(Matrix::diag(solve(W)))
     return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters,

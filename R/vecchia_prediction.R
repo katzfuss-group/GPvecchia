@@ -91,7 +91,7 @@ U2V=function(U.obj){
     # combine the blocks into one matrix
     zeromat.sparse=Matrix::sparseMatrix(c(),c(),dims=c(latents.after,latents.before))
     V.or=rbind(zeromat.sparse,V.oor)
-    V.ord=as(cbind(V.pr,V.or),'dtCMatrix')
+    V.ord=methods::as(cbind(V.pr,V.or),'dtCMatrix')
 
   }
 
@@ -141,12 +141,11 @@ vecchia_mean=function(z,U.obj,V.ord){
 #'
 #' @return Variance of linear combination of predictions.
 #' @examples
-#' z=rnorm(5);
-#' locs=matrix(1:5,ncol=1)
-#' n.p=5
+#' n=5; z=rnorm(n); locs=matrix(1:n,ncol=1); n.p=5
 #' vecchia.approx = vecchia_specify(locs,m=3,locs.pred=locs+.5)
-#' preds=vecchia_prediction=function(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
-#' vecchia_lincomb(Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p),vecchia.approx,preds$V.ord,cov.mat=TRUE)
+#' preds=vecchia_prediction(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
+#' H=Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
+#' vecchia_lincomb(H,vecchia.approx,preds$V.ord,cov.mat=TRUE)
 #' @export
 
 vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
