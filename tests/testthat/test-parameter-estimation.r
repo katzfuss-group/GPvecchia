@@ -24,8 +24,7 @@ Om0 <- covfun(locs_good)+diag(nuggets)
 z=as.numeric(t(chol(Om0))%*%rnorm(n))
 data_good=z+beta
 
-
 test_that("VL Posterior mean for fixed Poisson data returns expected values for first 3", {
-  expect_error(vecchia_estimate(data_bad,locs_bad), "The smoothness parameter did not converge. Try a custom optimization routine.")
+  expect_error(vecchia_estimate(data_bad,locs_bad, output.level=0), "The default optimization routine to find parameters did not converge. Try writing your own optimization.")
   expect_output(vecchia_estimate(data_good,locs_good), "Exiting from Nelder Mead minimizer")
 })
