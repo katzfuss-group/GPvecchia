@@ -81,7 +81,7 @@ n.p=nrow(locs.pred)
 ### Basic functions for parameter estimation and prediction
 
 Let us now estimate the mean and covariance parameters using the default settings, which assume a spatially constant mean or trend, and a Matern covariance structure. Note that the following code might take a minute or so to run.
-```{r}
+```{r paramm-est, cache=TRUE}
 vecchia.est=vecchia_estimate(data,locs)
 ```
 Based on these parameter estimates, we can then make predictions at the grid of locations we had specified above.
@@ -178,6 +178,49 @@ mean(preds$mu.pred)
 # compute entire covariance matrix of Hy (here, 1x1)
 H=Matrix::sparseMatrix(i=rep(1,n.p),j=n+(1:n.p),x=1/n.p)
 lincomb.cov=vecchia_lincomb(H,preds$U.obj,preds$V.ord,cov.mat=TRUE)
+```
+
+
+
+### Other GP approximations as special cases
+
+By specifying appropriate options in vecchia_specify, we can do everything described above for several other GP approximations: Modified predictive process, FSA, MRA, latent, standard Vecchia
+
+Setting $M=1$ results in **block full-scale approximation**, specifically one with $r_0 = \frac{m}{2}$ knots spread over the entire domain and the remaining locations being partitioned into blocks of size $<\frac{m}{2}+1$.
+```{r}
+m=20
+mra.options.fulls=list(M=1)
+blockFS = vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.fulls, verbose=TRUE)
+```
+
+Another popular existing approximation method, **modified predictive process (MPP)**, can also be obtained by specifying appropriate parameter settings:
+```{r}
+mra.options.mpproc=list(r=c(m,1))
+MPP = vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.mpproc, verbose=TRUE)
+```
+As we can see, MPP can be viewed as a special case of the **multi-resolution approximation (MRA)**.
+
+A general MRA is obtained my specifying all of its three parameters
+```{r}
+mra.options.mra = list(r=c(10, 5, 5), M=2, J=2)
+MRA_rJM = vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.mra, verbose=TRUE)
+```
+We should note two things to note about this full specifiction of an MRA. First, providing all three $r$,$J$ and $M$ overrides whatever value of $m$ was provided. Second, in order to be able to place a knot at each point of the grid, the provided parameters might need to be adjusted. 
+
+Finally, we can also use  the `GPvecchia` package to specify a **Nearest Neighbour Gaussian Process (NNGP)** approximation. This can be accomplished as shown below. 
+```{r}
+NNGP = vecchia_specify(locs, m, cond.yz='y')
+```
+
+
+We can now easily compare different approximation methods and compare it with SGV and exact likelihood.
+```{r}
+vecchia_likelihood(z,blockFS,covparms,nuggets)
+vecchia_likelihood(z,MPP,covparms,nuggets)
+vecchia_likelihood(z,MRA_rJM,covparms,nuggets)
+vecchia_likelihood(z,NNGP,covparms,nuggets)
+vecchia_likelihood(z, vecchia_specify(locs, m), covparms, nuggets)
+dmvnorm(z,mean=rep(0,n),sigma=Om0,log=TRUE)
 ```
 
 
@@ -330,9 +373,3 @@ res = optim(x0, vl_likelihood, method = "Nelder-Mead", control = list("trace" = 
 exp(res$par[1:3])
 vl_likelihood(x0)
 ```
-
-
-
-### Other GP approximations as special cases
-
-By specifying appropriate options in vecchia_specify, we can do everything described above for several other GP approximations: Modified predictive process, FSA, MRA, latent, standard Vecchia
