@@ -1,8 +1,8 @@
 Package: GPvecchia
 Type: Package
-Title: Approximation of Gaussian processes generalizing the Vecchia approximation
+Title: Approximation of Gaussian Processes Using the Generalized Vecchia Approach
 Version: 0.1
-Date: 2018-03-23
+Date: 2019-08-15
 Author: Matthias Katzfuss, Marcin Jurek, Daniel Zilber, Wenlong Gong
 Maintainer: Matthias Katzfuss <katzfuss@gmail.com>
 Description: Fast scalable Gaussian process approximations, particularly well suited to spatial (aerial, remote-sensed) and environmental data.
