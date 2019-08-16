@@ -65,7 +65,7 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.le
   ## specify vecchia loglikelihood
   n.par=length(theta.ini)
   negloglik.vecchia=function(logparms){
-      if(exp(logparms[3])>5){
+      if(exp(logparms[3])>10 & covmodel=='matern'){
           stop("The default optimization routine to find parameters did not converge. Try writing your own optimization.")
       }
       -vecchia_likelihood(z,vecchia.approx,exp(logparms)[-n.par],exp(logparms)[n.par],
