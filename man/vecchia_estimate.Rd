@@ -5,7 +5,7 @@
 \title{estimate mean and covariance parameters using Vecchia}
 \usage{
 vecchia_estimate(data, locs, X, m = 20, covmodel = "matern", theta.ini,
-  ...)
+  output.level = 1, ...)
 }
 \arguments{
 \item{data}{data vector of length n}
@@ -21,6 +21,8 @@ set to NULL if data are already detrended}
 see \code{\link{vecchia_likelihood}} for details.}
 
 \item{theta.ini}{initial values of covariance parameters. nugget variance must be last.}
+
+\item{output.level}{passed on to trace in the \code{stats::optim} function}
 
 \item{...}{additional input parameters for \code{\link{vecchia_specify}}}
 }

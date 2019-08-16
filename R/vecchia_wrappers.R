@@ -8,6 +8,7 @@
 #' @param covmodel covariance model. default is Matern.
 #'    see \code{\link{vecchia_likelihood}} for details.
 #' @param theta.ini initial values of covariance parameters. nugget variance must be last.
+#' @param output.level passed on to trace in the \code{stats::optim} function
 #' @param ... additional input parameters for \code{\link{vecchia_specify}}
 #'
 #' @return object containing detrended data z, trend coefficients beta.hat,
