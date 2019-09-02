@@ -79,6 +79,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ic0
+NumericVector ic0(NumericVector ptrs, NumericVector inds, NumericVector vals);
+RcppExport SEXP _GPvecchia_ic0(SEXP ptrsSEXP, SEXP indsSEXP, SEXP valsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type ptrs(ptrsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type inds(indsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(ic0(ptrs, inds, vals));
+    return rcpp_result_gen;
+END_RCPP
+}
 // createUcppM
 NumericVector createUcppM(NumericVector ptrs, NumericVector inds, NumericVector cov_vals);
 RcppExport SEXP _GPvecchia_createUcppM(SEXP ptrsSEXP, SEXP indsSEXP, SEXP cov_valsSEXP) {
@@ -128,6 +141,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GPvecchia_EsqeFun", (DL_FUNC) &_GPvecchia_EsqeFun, 2},
     {"_GPvecchia_U_NZentries_mat", (DL_FUNC) &_GPvecchia_U_NZentries_mat, 9},
     {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 9},
+    {"_GPvecchia_ic0", (DL_FUNC) &_GPvecchia_ic0, 3},
     {"_GPvecchia_createUcppM", (DL_FUNC) &_GPvecchia_createUcppM, 3},
     {"_GPvecchia_createUcpp", (DL_FUNC) &_GPvecchia_createUcpp, 4},
     {"_GPvecchia_generateNNarray", (DL_FUNC) &_GPvecchia_generateNNarray, 5},

@@ -279,8 +279,15 @@ double dot_prod(int l1, int u1, int l2, int u2, NumericVector row_inds, NumericV
 
 
 
-
-void ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
+//' Incomplete Cholesky decomposition of a sparse matrix passed in
+//' the compressed sparse row format
+//'
+//' @param ptrs pointers to the beginning of the row
+//' @param inds indices of nonzero elements in a row
+//' @param vals nonzero values
+//' @export
+// [[Rcpp::export]]
+NumericVector ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
 
   const int N = ptrs.size()-1;
 
@@ -300,6 +307,7 @@ void ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){
         Rcout << "ERROR" << endl;
     }
   }
+  return vals;
 }
 
 

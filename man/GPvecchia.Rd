@@ -6,6 +6,5 @@
 \alias{GPvecchia-package}
 \title{GPvecchia: fast, scalable Gaussian process approximations}
 \description{
-The foo package provides three categories of important functions:
-foo, bar and baz.
+The package can be used for parameter inference and prediction for Gaussian and non-Gaussian spatial data using many popular GP approximation methods.
 }

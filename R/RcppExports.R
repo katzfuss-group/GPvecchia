@@ -26,6 +26,17 @@ U_NZentries <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, n
     .Call('_GPvecchia_U_NZentries', PACKAGE = 'GPvecchia', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms)
 }
 
+#' Incomplete Cholesky decomposition of a sparse matrix passed in
+#' the compressed sparse row format
+#'
+#' @param ptrs pointers to the beginning of the row
+#' @param inds indices of nonzero elements in a row
+#' @param vals nonzero values
+#' @export
+ic0 <- function(ptrs, inds, vals) {
+    .Call('_GPvecchia_ic0', PACKAGE = 'GPvecchia', ptrs, inds, vals)
+}
+
 createUcppM <- function(ptrs, inds, cov_vals) {
     .Call('_GPvecchia_createUcppM', PACKAGE = 'GPvecchia', ptrs, inds, cov_vals)
 }

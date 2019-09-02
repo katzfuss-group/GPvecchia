@@ -189,8 +189,8 @@ typedef struct heapNode {
   /*distance squared to closest point that is already taken out, negative for points that are taken out*/
   double dist;
   struct heapNode** handleHandle;
-  struct heapNode* const leftChild;
-  struct heapNode* const rightChild;
+  struct heapNode* leftChild;
+  struct heapNode* rightChild;
   /*might not be needed:*/
   unsigned int Id;
 } heapNode;
