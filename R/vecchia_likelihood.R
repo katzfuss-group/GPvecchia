@@ -60,12 +60,20 @@ vecchia_likelihood_U=function(z,U.obj) {
   logdet.num=-2*sum(log(Matrix::diag(U)))
 
   # denominator
-  U.y=U[latent,]
-  z2=as.numeric(U.y%*%z1)
-  V.ord=U2V(U.obj)
-  z3=Matrix::solve(V.ord,rev(z2),system='L')
-  quadform.denom=sum(z3^2)
-  logdet.denom=-2*sum(log(Matrix::diag(V.ord)))
+  if(sum(latent)==0){ # no latents -> denominator not needed
+
+    logdet.denom=quadform.denom=0
+
+  } else {  # if latents, need denominator
+
+    U.y=U[latent,]
+    z2=as.numeric(U.y%*%z1)
+    V.ord=U2V(U.obj)
+    z3=Matrix::solve(V.ord,rev(z2),system='L')
+    quadform.denom=sum(z3^2)
+    logdet.denom=-2*sum(log(Matrix::diag(V.ord)))
+
+  }
 
   # putting everything together
   neg2loglik=logdet.num-logdet.denom+quadform.num-quadform.denom+const
