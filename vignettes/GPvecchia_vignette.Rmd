@@ -61,7 +61,7 @@ data=z+beta
 if(spatial.dim==1) {
   plot(locs,data)
 } else {
-  fields::quilt.plot(locs,data)
+  fields::quilt.plot(locs,data, nx=n, ny=n)
 }
 ```
 
@@ -111,12 +111,12 @@ if(spatial.dim==1) {
 } else {
   sdrange=range(sqrt(c(preds$var.pred,var.exact[n+(1:n.p)])))
   defpar = par(mfrow=c(2,3))
-  fields::quilt.plot(locs,z)
-  fields::quilt.plot(locs.pred,preds$mean.pred)
-  fields::quilt.plot(locs.pred,sqrt(preds$var.pred),zlim=sdrange)
-  fields::quilt.plot(locs,z)
-  fields::quilt.plot(locs.pred,mu.exact[n+(1:n.p)])
-  fields::quilt.plot(locs.pred,sqrt(var.exact[n+(1:n.p)]),zlim=sdrange)
+  fields::quilt.plot(locs,z, nx=sqrt(n.p), ny=sqrt(n.p))
+  fields::quilt.plot(locs.pred,preds$mean.pred, nx=sqrt(n.p), ny=sqrt(n.p))
+  fields::quilt.plot(locs.pred,sqrt(preds$var.pred),zlim=sdrange, nx=sqrt(n.p), ny=sqrt(n.p))
+  fields::quilt.plot(locs,z, nx=sqrt(n.p), ny=sqrt(n.p))
+  fields::quilt.plot(locs.pred,mu.exact[n+(1:n.p)], nx=sqrt(n.p), ny=sqrt(n.p))
+  fields::quilt.plot(locs.pred,sqrt(var.exact[n+(1:n.p)]),zlim=sdrange, nx=sqrt(n.p), ny=sqrt(n.p))
   par(defpar)
 }
 ```
