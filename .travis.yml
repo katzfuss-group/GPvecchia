@@ -2,7 +2,6 @@
 
 os:
   - linux
-  - osx
 
 language: R
 
@@ -13,6 +12,3 @@ cache: packages
 script:
 - R CMD build .
 - R CMD check *tar.gz
-
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then mkdir -p ~/.R && echo "SHLIB_OPENMP_CXXFLAGS = " >>~/.R/Makevars; fi

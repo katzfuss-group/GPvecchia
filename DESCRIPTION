@@ -1,7 +1,7 @@
 Package: GPvecchia
 Type: Package
 Title: Approximation of Gaussian Processes Using the Generalized Vecchia Approach
-Version: 0.1
+Version: 0.1.0
 Date: 2019-08-15
 Author: Matthias Katzfuss, Marcin Jurek, Daniel Zilber, Wenlong Gong
 Maintainer: Matthias Katzfuss <katzfuss@gmail.com>

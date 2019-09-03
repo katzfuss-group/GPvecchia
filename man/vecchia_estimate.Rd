@@ -38,7 +38,8 @@ estimate mean and covariance parameters using Vecchia
 n=10^2; locs=cbind(runif(n),runif(n))
 covparms=c(1,.1,.5); nuggets=rep(.1,n)
 Sigma=exp(-fields::rdist(locs)/covparms[2])+diag(nuggets)
-z=as.numeric(t(chol(Sigma))\%*\%rnorm(n)); data=z+1
+z=as.numeric(t(chol(Sigma))\%*\%rnorm(n));
+data=z+1
 vecchia.est=vecchia_estimate(data,locs,theta.ini=c(covparms,nuggets[1]))
 }
 }
