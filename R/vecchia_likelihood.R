@@ -27,20 +27,29 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
   vecchia_likelihood_U(z,U.obj)
 }
 
-## remove missing data (NA)
+# ## remove missing data (NA)
+# removeNAs.old=function(){ # overwrites z and U.obj
+#   p = parent.frame()
+#   if(any(is.na(p$z))){
+#     #ind.na=(((1:nrow(p$U.obj$U))[!p$U.obj$latent])[p$U.obj$ord.z])[is.na(p$z)]
+#     ind.na=(((1:nrow(p$U.obj$U))[!p$U.obj$latent])[p$U.obj$ord.z])[is.na(p$z[p$U.obj$ord.z])]
+#     if(any(apply(p$U.obj$U[,ind.na,drop=FALSE],2,Matrix::nnzero)>2)) stop(
+#       'NA data is conditioned upon')
+#     p$U.obj$U = p$U.obj$U[-ind.na,-ind.na]
+#     p$U.obj$latent = p$U.obj$latent[-ind.na]
+#     p$U.obj$ord.z = order(order(p$U.obj$ord.z[p$U.obj$ord.z %in% which(!is.na(p$z))]))
+#     p$z = p$z[!is.na(p$z)]
+#   }
+# }
+
+
 removeNAs=function(){ # overwrites z and U.obj
   p = parent.frame()
   if(any(is.na(p$z))){
-    ind.na=(((1:nrow(p$U.obj$U))[!p$U.obj$latent])[p$U.obj$ord.z])[is.na(p$z)]
-    if(any(apply(p$U.obj$U[,ind.na,drop=FALSE],2,Matrix::nnzero)>2)) stop(
-      'NA data is conditioned upon')
-    p$U.obj$U = p$U.obj$U[-ind.na,-ind.na]
-    p$U.obj$latent = p$U.obj$latent[-ind.na]
-    p$U.obj$ord.z = order(order(p$U.obj$ord.z[p$U.obj$ord.z %in% which(!is.na(p$z))]))
-    p$z = p$z[!is.na(p$z)]
+    p$nuggets[is.na(p$z)] = Inf
+    p$z[is.na(p$z)] = 0
   }
 }
-
 
 ## evaluate vecchia likelihood based on U
 

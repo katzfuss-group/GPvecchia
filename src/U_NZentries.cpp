@@ -173,6 +173,21 @@ List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat&
     Lentries(k,span(0,n0-1)) = M.t();
   }
 
+//
+//   uvec inf = find_nonfinite(nuggets_obsord);
+//   uvec fin = find_finite(nuggets_obsord);
+//
+//   for(const auto& i : inf){
+//     Zentries[2*i] = 0;
+//     Zentries[2*i+1] = 0;
+//   }
+//
+//   for(const auto& i : fin){
+//     Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
+//     Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
+//   }
+
+
   for (int i = 0; i < n; i++){
     Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
     Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
@@ -186,21 +201,21 @@ List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat&
 
 // [[Rcpp::export]]
 List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& revNNarray,const arma::mat& revCondOnLatent,const arma::vec& nuggets,const arma::vec& nuggets_obsord, std::string COV, const arma::vec covparms){
+
   // initialize the output matrix
   int m= revNNarray.n_cols-1;
   int nnp=locs.n_rows;
   arma::mat Lentries=zeros(nnp,m+1);
   int n0; //number of !is_na elements
-  arma::uvec inds;//
-  arma::vec revCon_row;//
-  arma::uvec inds00;//
-  arma::vec nug;//
-  arma::mat covmat;//
-  arma::vec onevec;//
-  arma::vec M;//
-  arma::mat dist;//
-  //int n_extras; // number of try-catches executed
-  int k;//
+  arma::uvec inds;
+  arma::vec revCon_row;
+  arma::uvec inds00;
+  arma::vec nug;
+  arma::mat covmat;
+  arma::vec onevec;
+  arma::vec M;
+  arma::mat dist;
+  int k;
   mat Zentries=zeros(2*n);
   int attempt;
   bool succ;
@@ -211,48 +226,71 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
 
   omp_set_num_threads(Ncores);// selects the number of cores to use.
   // initialized all elements outside of omp part, and claim them as private
-#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
-    for (k = 0; k < nnp; k++) {
 
-     inds=revNNarray.row(k).t();
-     revCon_row=revCondOnLatent.row(k).t();
-     n0 = get_nonzero_count_general(inds); // for general case
-     inds00 = get_idx_vals_general(n0, inds);
+  #pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,M,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00,succ,attempt) default(none) schedule(static)
 
-     // "%" indicates element-wise multiplication
-     nug=nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m))); // vec is vec, cannot convert to mat
-     dist = calcPWD(locs.rows(inds00));
-    // if (locs.n_cols==1){
-    //   dist=calcPWD1(locs.rows(inds00));
-    // } else {
-    //   dist=calcPWD2(locs.rows(inds00));
-    // }
+  for (k = 0; k < nnp; k++) {
 
-#pragma omp critical
-{
+    inds=revNNarray.row(k).t();
+    revCon_row=revCondOnLatent.row(k).t();
+    n0 = get_nonzero_count_general(inds); // for general case
+    inds00 = get_idx_vals_general(n0, inds);
+
+    nug=nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m))); // vec is vec, cannot convert to mat
+    dist = calcPWD(locs.rows(inds00));
+
+    // Rcout << "k: " << k << endl;
+    // Rcout << nuggets.elem(inds00) << endl;
+    // Rcout << (ones(n0)-revCon_row(span(m+1-n0,m))) << endl;
+    // Rcout << inf * 0 << endl;
+
+    #pragma omp critical
+    {
     // add nugget if cond on observed i.e., not in CondOnLatent
+
+    //uvec nnf = find_nonfinite(nug);
+    //if(nnf.size()>0){
+    //  nug(nnf) = 1e3 * ones<vec>(nnf.size());
+    //}
+
+
     if( COV=="matern"){
       covmat= MaternFun(dist,covparms) + diagmat(nug) ; // summation from arma
-    }else if(COV=="esqe") {
+    } else if(COV=="esqe") {
       covmat= EsqeFun(dist,covparms) + diagmat(nug) ; // summation from arma
     }
-}
 
-    // get Cholesky decomposition : upper triagular
-    //cholmat = chol(covmat,"upper");
-    // get last row of inverse Cholesky
+    //}
+
     onevec.resize(n0);
     onevec = zeros(n0);
     onevec[n0-1] = 1;
+
     M=solve(chol(covmat,"upper"),onevec);
+
     // save the entries to matrix
     Lentries(k,span(0,n0-1)) = M.t();
   }
 
-   for (int i = 0; i < n; i++){
-     Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
-     Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
-   }
+    // uvec inf = find_nonfinite(nuggets_obsord);
+    // uvec fin = find_finite(nuggets_obsord);
+
+    // for(const auto& i : inf){
+    //   Zentries[2*i] = 0;
+    //   Zentries[2*i+1] = 0;
+    // }
+
+    // for(const auto& i : fin){
+    //   Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
+    //   Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
+    // }
+
+   //nuggets_obsord << endl;
+
+  for (int i = 0; i < n; i++){
+    Zentries[2*i] = 1;//(-1)/sqrt(nuggets_obsord[i]);
+    Zentries[2*i+1] = 1;///sqrt(nuggets_obsord[i]);
+  }
 
   List LZentries;
   LZentries["Lentries"]=Lentries;
