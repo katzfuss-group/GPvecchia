@@ -254,13 +254,15 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
     //}
 
 
-    if( COV=="matern"){
-      covmat= MaternFun(dist,covparms) + diagmat(nug) ; // summation from arma
-    } else if(COV=="esqe") {
-      covmat= EsqeFun(dist,covparms) + diagmat(nug) ; // summation from arma
+      if( COV=="matern"){
+	covmat= MaternFun(dist,covparms) + diagmat(nug) ; // summation from arma
+      } else if(COV=="esqe") {
+	covmat= EsqeFun(dist,covparms) + diagmat(nug) ; // summation from arma
+      }
+
+
     }
 
-    //}
 
     onevec.resize(n0);
     onevec = zeros(n0);
@@ -288,8 +290,8 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
    //nuggets_obsord << endl;
 
   for (int i = 0; i < n; i++){
-    Zentries[2*i] = 1;//(-1)/sqrt(nuggets_obsord[i]);
-    Zentries[2*i+1] = 1;///sqrt(nuggets_obsord[i]);
+    Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
+    Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
   }
 
   List LZentries;
