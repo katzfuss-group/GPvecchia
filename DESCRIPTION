@@ -3,7 +3,7 @@ Type: Package
 Title: Approximation of Gaussian Processes Using the Generalized Vecchia Approach
 Version: 0.1.0
 Date: 2019-08-15
-Author: Matthias Katzfuss, Marcin Jurek, Daniel Zilber, Wenlong Gong
+Author: Matthias Katzfuss, Marcin Jurek, Daniel Zilber, Wenlong Gong, Joe Guinness, Jingjie Zhang
 Maintainer: Matthias Katzfuss <katzfuss@gmail.com>
 Description: Fast scalable Gaussian process approximations, particularly well suited to spatial (aerial, remote-sensed) and environmental data.
 License: GPL (>=2)
