@@ -17,11 +17,11 @@
 vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
                             covmodel='matern',return.values='all') {
 
-  # create the U matrix
-  U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
-
   # remove NAs in data and U
   removeNAs()
+
+  # create the U matrix
+  U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
 
   # compute cholesky V for posterior inference
   V.ord=U2V(U.obj)
@@ -72,7 +72,6 @@ U2V=function(U.obj){
     W=Matrix::tcrossprod(U.y)
     W.rev=revMat(W)
     V.ord=Matrix::t(Matrix::chol(W.rev))
-
   } else {  # for obspred ordering
 
     last.obs=max(which(!U.obj$latent))
@@ -102,7 +101,6 @@ U2V=function(U.obj){
 ######  posterior mean (predictions)   #######
 
 vecchia_mean=function(z,U.obj,V.ord){
-
   U=U.obj$U
   # compute entire posterior mean vector
   z.ord=z[U.obj$ord.z]
