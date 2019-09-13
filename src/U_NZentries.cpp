@@ -143,7 +143,7 @@ List U_NZentries_mat (int Ncores,int n, const arma::mat& locs, const arma::umat&
 
   omp_set_num_threads(Ncores);// selects the number of cores to use.
   // initialized all elements outside of omp part, and claim them as private
-#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV,covparms) private(k,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00) schedule(static)
+#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00) schedule(static)
   for (k = 0; k < nnp; k++) {
     // extract a row to work with
 
@@ -222,7 +222,7 @@ List U_NZentries (int Ncores,int n, const arma::mat& locs, const arma::umat& rev
   omp_set_num_threads(Ncores);// selects the number of cores to use.
   // initialized all elements outside of omp part, and claim them as private
 
-#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV,covparms) private(k,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00)  schedule(static)
+#pragma omp parallel for shared(locs,revNNarray,revCondOnLatent,nuggets, nnp,m,Lentries,COV) private(k,dist,onevec,covmat,nug,n0,inds,revCon_row,inds00)  schedule(static)
 
   for (k = 0; k < nnp; k++) {
 
