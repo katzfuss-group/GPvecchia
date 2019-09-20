@@ -19,6 +19,7 @@ using namespace std;
 //'
 //' @param distmat A matrix with distances between points
 //' @param covparms A vector with parameters (marg. variance, range, smoothness)
+//' @return A matrix with covariance values corrsponding to the distance matrix
 //' @export
 // [[Rcpp::export]]
 arma::mat MaternFun( arma::mat distmat, arma::vec  covparms ){ //covparms=c(sig2,range,smooth)

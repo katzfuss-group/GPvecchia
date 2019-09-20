@@ -57,7 +57,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
 
   # The fully independent case with no conditioning
   if(m==0){
-    if(!missing(locs.pred)) cat("Attempting to make predictions with m=0.  Prediction ignored")
+    if(!missing(locs.pred)) warning("Attempting to make predictions with m=0.  Prediction ignored")
     ord = 1:n
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
@@ -168,7 +168,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
         NNarray.pred[j,]=c(n+j,m.nearest.obs)
       }
       NNarray[n+(1:n.p),]=NNarray.pred
-    } else print('indep. conditioning currently only implemented for obspred ordering')
+    } else warning('indep. conditioning currently only implemented for obspred ordering')
   }
 
 
@@ -203,7 +203,7 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
       NNarray.yp=matrix(nrow=0,ncol=m+1)
       ordering.pred='obspred'
     } else {
-      if(ordering.pred!='obspred') print('Warning: ZY only implemented for obspred ordering')
+      if(ordering.pred!='obspred') warning('ZY only implemented for obspred ordering')
       if(cond.yz=='zy'){
         NNarray.yp=NNarray[n+(1:n.p),]+n
       } else {

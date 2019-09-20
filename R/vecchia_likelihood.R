@@ -8,7 +8,6 @@
 #'
 #' @return (multivariate normal) loglikelihood implied by the Vecchia approximation
 #' @examples
-#' print("hello")
 #' z=rnorm(5); locs=matrix(1:5,ncol=1); vecchia.approx=vecchia_specify(locs,m=3)
 #' vecchia_likelihood(z,vecchia.approx,covparms=c(1,2,.5),nuggets=.2)
 #' @export

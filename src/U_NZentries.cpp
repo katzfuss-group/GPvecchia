@@ -319,6 +319,7 @@ double dot_prod(int l1, int u1, int l2, int u2, NumericVector row_inds, NumericV
 //' @param ptrs pointers to the beginning of the row
 //' @param inds indices of nonzero elements in a row
 //' @param vals nonzero values
+//' @return vector of the values of the incomplete Cholesky factor
 //' @export
 // [[Rcpp::export]]
 NumericVector ic0(NumericVector ptrs, NumericVector inds, NumericVector vals){

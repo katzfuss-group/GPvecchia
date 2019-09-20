@@ -25,7 +25,6 @@ findOrderedNN_kdtree1 <- function(locs,m,mult=2){
         NNarray[ query_inds[ind_less_than_k], ] <- NN_m
 
         query_inds <- query_inds[-ind_less_than_k]
-        #print(length(query_inds))
         msearch <- min( length(data_inds), msearch )
 
 
@@ -62,7 +61,6 @@ findOrderedNN_kdtree2 <- function(locs,m,mult=2){
         NNarray[ query_inds[ind_less_than_k], ] <- NN_m
 
         query_inds <- query_inds[-ind_less_than_k]
-        # print(length(query_inds))
 
     }
 

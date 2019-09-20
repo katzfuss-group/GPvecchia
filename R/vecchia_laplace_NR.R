@@ -30,7 +30,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
                                   likelihood_model=c("gaussian","logistic", "poisson", "gamma", "beta", "gamma_alt"),
                                   covparms, likparms = list("alpha"=2, "sigma"=sqrt(.1)),
                                   max.iter=50, convg = 1e-6, return_all = FALSE, y_init = NA,
-                                  prior_mean = rep(0,length(z))){
+                                  prior_mean = rep(0,length(z)), verbose=FALSE){
 
   likelihood_model <- match.arg(likelihood_model)
 
@@ -64,8 +64,10 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
   # for logging purposes, output scenario
 
-  log_comment = print(paste("Running VL-NR for",likelihood_model, "with m=",
-                            ncol(vecchia.approx$U.prep$revNNarray)-1," and sample size",length(z)))
+  if(verbose){ 
+      log_comment = cat(paste("Running VL-NR for",likelihood_model, "with m=",
+                              ncol(vecchia.approx$U.prep$revNNarray)-1," and sample size",length(z)))
+  }
 
   # record duration of NR
   t_start = Sys.time()
@@ -97,7 +99,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
     if(is.na(max(abs(y_o-y_prev)))){
       # convergence failed due to machine precision?
-      fail_comment = print(paste("VL-NR hit NA on iteration ",tot_iters,", convergence failed."))
+      fail_comment = message(paste("VL-NR hit NA on iteration ",tot_iters,", convergence failed."))
 
       y_o = y_prev
       break
@@ -143,7 +145,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
 
 .calculate_posterior_laplace = function(z, likelihood_model, C,  likparms = list("alpha"=2, "sigma"=sqrt(.1)),
-                                       convg = 1e-6, return_all = FALSE, prior_mean = 0){
+                                       convg = 1e-6, return_all = FALSE, prior_mean = 0,verbose=FALSE){
   # pull out score and second derivative for readability
   model_funs = switch(likelihood_model,
                       "gaussian" = .gauss_model(likparms),
@@ -156,7 +158,9 @@ calculate_posterior_VL = function(z,vecchia.approx,
   ell_prime = model_funs$score
 
   log_comment = paste("Running Laplace for",likelihood_model, "with sample size", length(z) )
-  print(log_comment)
+  if(verbose){
+      cat(log_comment)
+  }
 
   t_start = Sys.time()
   y_o = rep(1, length(z))
@@ -349,7 +353,7 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
   posterior = calculate_posterior_VL(z,vecchia.approx, likelihood_model, covparms, likparms,
                                      max.iter, convg, return_all, y_init, prior_mean)
 
-  if(!posterior$cnvgd){print("Convergence Failed, returning -Inf"); return(-Inf)}
+  if(!posterior$cnvgd){warning("Convergence Failed, returning -Inf"); return(-Inf)}
 
   m = ncol(vecchia.approx$U.prep$revNNarray)-1
   locs = as.matrix(vecchia.approx$locsord[order(vecchia.approx$ord.z),])

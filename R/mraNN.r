@@ -33,7 +33,6 @@ choose.M = function(n, m) {
   }
 
   ### check that choices are valid
-  #if(sum(r)>m | sum(r*cumprod(J))<n) print('ERROR')
   if(sum(r)>m | sum(r*cumprod(c(1,J)))<n) stop("couldn't find valid mra parameters")
   else return(list(M=M, r=r, J=J))
 }
@@ -138,7 +137,7 @@ findOrderedNN_mra = function(locs, mra.options, m=-1, verbose){
     }
     r.eff[r.eff==1e8] = NA
 
-    cat(paste("MRA params: m=",eff.m, "; J=", paste(J.eff, collapse=","), "; r=", paste(r.eff, collapse=","), "; M=", M.eff, sep=""), '\n')
+    message(paste("MRA params: m=",eff.m, "; J=", paste(J.eff, collapse=","), "; r=", paste(r.eff, collapse=","), "; M=", M.eff, sep=""), '\n')
   }
   return(mat)
 }

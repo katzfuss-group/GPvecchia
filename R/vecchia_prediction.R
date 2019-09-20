@@ -27,7 +27,7 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
   V.ord=U2V(U.obj)
 
   if(length(U.obj$zero.nugg)>0)
-    print('Warning: Rows/cols of V have been removed for data with zero noise')
+    warning('Rows/cols of V have been removed for data with zero noise')
 
   # compute the posterior mean
   vecchia.mean=vecchia_mean(z,U.obj,V.ord)
