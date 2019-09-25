@@ -5,6 +5,7 @@
 #'
 #' @param distmat A matrix with distances between points
 #' @param covparms A vector with parameters (marg. variance, range, smoothness)
+#' @return A matrix with covariance values corresponding to the distance matrix
 #' @export
 MaternFun <- function(distmat, covparms) {
     .Call('_GPvecchia_MaternFun', PACKAGE = 'GPvecchia', distmat, covparms)
@@ -32,6 +33,7 @@ U_NZentries <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, n
 #' @param ptrs pointers to the beginning of the row
 #' @param inds indices of nonzero elements in a row
 #' @param vals nonzero values
+#' @return vector of the values of the incomplete Cholesky factor
 #' @export
 ic0 <- function(ptrs, inds, vals) {
     .Call('_GPvecchia_ic0', PACKAGE = 'GPvecchia', ptrs, inds, vals)

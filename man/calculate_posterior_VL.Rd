@@ -2,13 +2,13 @@
 % Please edit documentation in R/vecchia_laplace_NR.R
 \name{calculate_posterior_VL}
 \alias{calculate_posterior_VL}
-\title{Vecchia Laplace extendion of GPVecchia for non-Gaussian data}
+\title{Vecchia Laplace extension of GPVecchia for non-Gaussian data}
 \usage{
 calculate_posterior_VL(z, vecchia.approx,
   likelihood_model = c("gaussian", "logistic", "poisson", "gamma",
   "beta", "gamma_alt"), covparms, likparms = list(alpha = 2, sigma =
   sqrt(0.1)), max.iter = 50, convg = 1e-06, return_all = FALSE,
-  y_init = NA, prior_mean = rep(0, length(z)))
+  y_init = NA, prior_mean = rep(0, length(z)), verbose = FALSE)
 }
 \arguments{
 \item{z}{an array of real numbers representing observations}
@@ -30,12 +30,14 @@ calculate_posterior_VL(z, vecchia.approx,
 \item{y_init}{Specify initial guess for posterior mode}
 
 \item{prior_mean}{specify the prior latent mean}
+
+\item{verbose}{if TRUE messages about the posterior estimation will be displayed}
 }
 \value{
 multivariate normal posterior parameters calculated by the Vecchia-Laplace approximation
 }
 \description{
-Vecchia Laplace extendion of GPVecchia for non-Gaussian data
+Vecchia Laplace extension of GPVecchia for non-Gaussian data
 }
 \examples{
 z=rnorm(10); locs=matrix(1:10,ncol=1); vecchia.approx=vecchia_specify(locs,m=5)

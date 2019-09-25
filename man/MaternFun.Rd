@@ -11,6 +11,9 @@ MaternFun(distmat, covparms)
 
 \item{covparms}{A vector with parameters (marg. variance, range, smoothness)}
 }
+\value{
+A matrix with covariance values corresponding to the distance matrix
+}
 \description{
 Calculate Matern covariance function
 }

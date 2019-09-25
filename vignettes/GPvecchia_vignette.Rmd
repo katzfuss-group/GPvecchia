@@ -273,7 +273,7 @@ if(spatial.dim==1){
 }
 ```
 
-With the approximated covariance structure, we can calculate the posterior estimate for the latent field using the Vecchia-Laplace method and plot the result.  Pure Laplace approximation is included for comparison; even with a samll value for $m$, we can get a result similar to Laplace but with much lower cost.
+With the approximated covariance structure, we can calculate the posterior estimate for the latent field using the Vecchia-Laplace method and plot the result.  Pure Laplace approximation is included for comparison; even with a small value for $m$, we can get a result similar to Laplace but with much lower cost.
 
 ```{r}
 posterior = calculate_posterior_VL(z,vecchia.approx,likelihood_model=data.model,
