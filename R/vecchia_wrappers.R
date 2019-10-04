@@ -80,8 +80,8 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.le
 
   ## return estimated parameters
   if(output.level>0){  
-      message('estimated trend coefficients: beta.hat=',beta.hat,"\n",sep='')
-      message('estimated covariance parameters: theta.hat=',theta.hat,"\n",sep=',')
+    print('estimated trend coefficients:'); print(beta.hat)
+    print('estimated covariance parameters:'); print(theta.hat)
   }
   return(list(z=z,beta.hat=beta.hat,theta.hat=theta.hat,
               trend=trend,locs=locs,covmodel=covmodel))
