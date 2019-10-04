@@ -41,7 +41,7 @@ R CMD INSTALL GPvecchia_0.1.tar.gz
 <!---
 .tar.gz file from the main directory here and then run:
 ```{r}
-install.packages("GPvecchia_0.1.tar.gz", repos = NULL, type = "source")
+install.packages("GPvecchia_0.1.0.tar.gz", repos = NULL, type = "source")
 ```
 -->
 
