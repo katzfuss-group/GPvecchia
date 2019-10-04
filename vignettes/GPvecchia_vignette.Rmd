@@ -82,7 +82,7 @@ n.p=nrow(locs.pred)
 
 Let us now estimate the mean and covariance parameters using the default settings, which assume a spatially constant mean or trend, and a Matern covariance structure. Note that the following code might take a minute or so to run.
 ```{r paramm-est, cache=TRUE}
-vecchia.est=vecchia_estimate(data,locs)
+vecchia.est=vecchia_estimate(data,locs,,output.level=0)
 ```
 Based on these parameter estimates, we can then make predictions at the grid of locations we had specified above.
 ```{r}
