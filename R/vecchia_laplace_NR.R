@@ -173,7 +173,6 @@ calculate_posterior_VL = function(z,vecchia.approx,
     u =  ell_prime(y_o,z)
     t = D%*%u+y_o - prior_mean
     y_prev = y_o
-    #y_o = solve(W , D_inv) %*% t # prior mean 0 update
     y_o = t - D%*%Matrix::solve(D+C,t) + prior_mean # woodbury morrison of previous line
     #W = D_inv +  C_inv
     tot_iters = i
@@ -184,8 +183,8 @@ calculate_posterior_VL = function(z,vecchia.approx,
   if(return_all){
     # Caclulating sd is expensive
     D_inv_mat = Matrix::sparseMatrix(i=1:length(y_o), j = 1:length(y_o), x= D_inv)
-    W = D_inv_mat +  solve(C)
-    sd_posterior = sqrt(Matrix::diag(solve(W)))
+    W = D_inv_mat +  Matrix::solve(C)
+    sd_posterior = sqrt(Matrix::diag(Matrix::solve(W)))
     return (list("mean" = y_o, "W"=W,"sd" = sd_posterior, "iter"=tot_iters,
                  "C"=C, "t" = t, "D" = D, "runtime"=Lap_time))
   }

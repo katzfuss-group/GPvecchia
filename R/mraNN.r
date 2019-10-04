@@ -123,7 +123,7 @@ findOrderedNN_mra = function(locs, mra.options, m=-1, verbose){
   eff.m = ncol(mat)-1
 
   if(eff.m > 100) message(paste("Effective m is ", ncol(mat)-1, " which might slow down computations", sep=""))
-  if(!verbose && eff.m!=m) message("info: effective m is ",eff.m,"\n")
+  if(!verbose && eff.m!=m) message("info: effective m is ",eff.m)
   if(verbose){
     r.eff = as.numeric(NNarrayList$reff);
     J.eff = as.numeric(NNarrayList$Jeff);

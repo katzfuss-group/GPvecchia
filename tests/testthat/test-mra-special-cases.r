@@ -34,16 +34,19 @@ mra.options.mpproc=list(r=c(m,1))# Modified predictive process: Pick the first 2
 mra.options.indep=list(r=c(0,m))# Independent blocks: The locations would be split into groups of maximum size 20+1=21, and each group is then assumed to be independent.
 
 
+
+
+
 test_that("normal MRA", {
-  expect_warning(vecchia_specify(locs, m, conditioning='mra'),"ordering for the selected conditioning scheme changed to required 'maxmin'")
-})
+   expect_warning(vecchia_specify(locs, m, conditioning='mra'),"ordering for the selected conditioning scheme changed to required 'maxmin'")
+ })
 test_that("hierarchical Vecchia allows block full-scale", {
-   expect_output(vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.fulls, verbose=TRUE), paste("r=",m/2,sep=""))
+   expect_message(vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.fulls, verbose=TRUE), paste("r=",m/2,sep=""))
 })
 test_that("hierarchical Vecchia allows MPP", {
-   expect_output(vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.mpproc, verbose=TRUE), paste("r=",m,sep=""))
+   expect_message(vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.mpproc, verbose=TRUE), paste("r=",m,sep=""))
 })
 test_that("hierarchical Vecchia allows for independent blocks", {
-   expect_output(vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.indep, verbose=TRUE), "r=0,")
+   expect_message(vecchia_specify(locs, m, 'maxmin', conditioning='mra', mra.options=mra.options.indep, verbose=TRUE), "r=0,")
 })
 

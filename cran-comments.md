@@ -1,5 +1,18 @@
+## Resubmission
+This is a resubmission. Per the reviewer's comments in this version I have:
+
+* shortened description title to under 65 characters
+
+* added references 
+
+* removed "print" statements and added a "verbose" option (where appropriate)
+
+* added the "\value" field in Rd files where it was missing
+
+
+
 ## Test environments
-* local ubuntu 18.04, R 3.6.1
+* local ubuntu 18.04, R 3.4.4
 * ubuntu 16.04 (Travis CI), R 3.6.1
 * local OS X install, R 3.5.1
 

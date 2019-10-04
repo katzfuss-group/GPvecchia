@@ -42,7 +42,7 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.le
   } else {
   ## otherwise, estimate and de-trend
 
-    beta.hat=solve(crossprod(X),crossprod(X,data))
+    beta.hat=Matrix::solve(crossprod(X),crossprod(X,data))
     z=data-X%*%beta.hat
     trend='userspecified'
 
