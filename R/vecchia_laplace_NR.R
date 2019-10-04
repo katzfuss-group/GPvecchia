@@ -65,7 +65,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
   # for logging purposes, output scenario
 
-  if(verbose){ 
+  if(verbose){
       log_comment = cat(paste("Running VL-NR for",likelihood_model, "with m=",
                               ncol(vecchia.approx$U.prep$revNNarray)-1," and sample size",length(z)))
   }
@@ -209,7 +209,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
 #################  Poisson  #########################
 .poisson_model = function(){
-  pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-log(factorial(z)))
+  pois_llh = function(y_o, z) sum(z*y_o -exp(y_o)-lfactorial(z))
   pois_hess =function(y_o, z) exp(y_o)
   pois_score = function(y_o, z) z-exp(y_o)
   pois_link = function(y) exp(y)
@@ -239,7 +239,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   gamma_hess = function(y_o, z)  z*exp(y_o)
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
   #gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +alpha*log(y_o)-n*log(gamma(alpha))) # canonical link
-  gamma_llh = function(y_o, z) sum(-exp(y_o)*z + (alpha-1)*log(z) +alpha*y_o - log(gamma(alpha))) # log link
+  gamma_llh = function(y_o, z) sum(-exp(y_o)*z + (alpha-1)*log(z) +alpha*y_o - lgamma(alpha)) # log link
   gamma_link = function(y) alpha/exp(y)
   return(list("hess" = gamma_hess, "score"=gamma_score, "llh" = gamma_llh, "link" = gamma_link))
 }
@@ -251,7 +251,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   alpha = ifelse("alpha" %in% names(likparms),likparms$alpha, 2)
   gamma_hess = function(y_o, z)  alpha*z*exp(-y_o)
   gamma_score = function(y_o, z) alpha*(z*exp(-y_o)-1)
-  gamma_llh = function(y_o, z) sum(-alpha*z*exp(-y_o) + (alpha-1)*log(z) -alpha*y_o +alpha*log(alpha) - log(gamma(alpha))) # log link
+  gamma_llh = function(y_o, z) sum(-alpha*z*exp(-y_o) + (alpha-1)*log(z) -alpha*y_o +alpha*log(alpha) - lgamma(alpha)) # log link
 
   #gamma_score_alpha = function(a, y_o, z) sum(-exp(-y_o)*z+log(z)-y_o+log(a)+1-digamma(a))
   #gamma_hess_alpha = function(a, y_o, z) length(z)*(1/a-trigamma(a))

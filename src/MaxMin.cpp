@@ -706,7 +706,7 @@ IntegerVector MaxMincpp(NumericMatrix locations)
     }
   }
   
-  delete(average_arr);
+  delete[] average_arr;
   if (dim == 2)
   {
     create_ordering_2d(P, revP, distances, N, coords, first_node);
@@ -721,11 +721,19 @@ IntegerVector MaxMincpp(NumericMatrix locations)
   }
   else
   {
+    free(P);
+    free(revP);
+    free(distances);
+    destruct_coords(coords);
     return res;
   }
   res[0] = first_node + 1;
   for (int i = 1; i < (int)N; i++)
     res[i] = P[i] + 1;
+  free(P);
+  free(revP);
+  free(distances);
+  destruct_coords(coords);
   return res;
 }
 
