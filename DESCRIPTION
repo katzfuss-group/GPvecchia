@@ -1,7 +1,7 @@
 Package: GPvecchia
 Type: Package
 Title: Scalable Gaussian-Process Approximations
-Version: 0.1.0
+Version: 0.1.1
 Date: 2019-09-25
 Author: Matthias Katzfuss, Marcin Jurek, Daniel Zilber, Wenlong Gong, Joe Guinness, Jingjie Zhang
 Maintainer: Matthias Katzfuss <katzfuss@gmail.com>
