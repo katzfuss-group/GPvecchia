@@ -35,13 +35,13 @@ install.packages("GPvecchia")
 Alternatively, one can download the repository and then build the package manually:
 ```{bash}
 R CMD build GPvecchia
-R CMD INSTALL GPvecchia_0.1.tar.gz
+R CMD INSTALL GPvecchia_0.1_0.tar.gz
 ```
 
 <!---
 .tar.gz file from the main directory here and then run:
 ```{r}
-install.packages("GPvecchia_0.1.tar.gz", repos = NULL, type = "source")
+install.packages("GPvecchia_0.1.0.tar.gz", repos = NULL, type = "source")
 ```
 -->
 
