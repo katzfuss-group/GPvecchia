@@ -1,13 +1,12 @@
-## Resubmission
-This is a resubmission. Per the reviewer's comments in this version I have:
+## Resubmission 2
+This is a second resubmission.
 
-* shortened description title to under 65 characters
+* fixed an alloc-dealloc-mismatch error as reported here
+  https://cran.r-project.org/web/checks/check_results_GPvecchia.html
 
-* added references 
 
-* removed "print" statements and added a "verbose" option (where appropriate)
 
-* added the "\value" field in Rd files where it was missing
+
 
 
 
