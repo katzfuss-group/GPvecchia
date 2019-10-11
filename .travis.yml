@@ -4,6 +4,8 @@ os:
   - linux
 
 language: R
+r:
+  - devel
 
 sudo: false
 
