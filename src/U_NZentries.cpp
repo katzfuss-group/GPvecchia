@@ -359,7 +359,7 @@ NumericVector createUcppM(NumericVector ptrs, NumericVector inds, NumericVector 
 NumericVector createUcpp(NumericVector ptrs, NumericVector inds, arma::mat locsord, arma::vec covparams){
 
   const int nvals = inds.size();
-  const int N = ptrs.size();
+  const int N = ptrs.size()-1;
   NumericVector vals(nvals);
 
   for(int i=0; i<N; ++i){
