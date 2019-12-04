@@ -8,3 +8,5 @@ inst/doc
 .httr-oauth
 *.so
 *.o
+doc
+Meta
