@@ -35,7 +35,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     zero.cond=which(vecchia.approx$U.prep$revNNarray %in% which(nuggets.ord==0))
     vecchia.approx$U.prep$revCond[zero.cond]=TRUE
   }
-
+    
   # in the mra case we calculate the U matrix using incomplete Cholesky (ic0)
   if(vecchia.approx$conditioning=="mra"){
     inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
@@ -60,8 +60,8 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     }
 
     Laux = Matrix::sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
-    Ulatent = Matrix::t(Matrix::solve(Laux, sparse=TRUE))
-
+    Ulatent = Matrix::triu(Matrix::t(Matrix::solve(Laux, sparse=TRUE)))
+    
     N = nrow(vecchia.approx$U.prep$revNNarray)
 
     # build new matrix
@@ -90,6 +90,8 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
 
   } else {
 
+    #browser()
+      
     if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
                                                       vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
                                                       nuggets.all.ord, nuggets.ord, covmodel, covparms)
@@ -106,8 +108,6 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     U=Matrix::sparseMatrix(i=vecchia.approx$U.prep$colindices,j=vecchia.approx$U.prep$rowpointers,
                   x=allLentries,dims=c(size,size))
   }
-
-
 
   # for zy ordering, remove rows/columns corresponding to dummy y's
   if(vecchia.approx$cond.yz=='zy') {

@@ -38,7 +38,6 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
     else if(is.null(mra.options$r)) stop("neither m nor r defined!")
   }
 
-
   spatial.dim=ncol(locs)
   n=nrow(locs)
 

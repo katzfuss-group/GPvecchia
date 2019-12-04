@@ -33,16 +33,19 @@ calculate_posterior_VL = function(z,vecchia.approx,
                                   max.iter=50, convg = 1e-6, return_all = FALSE, y_init = NA,
                                   prior_mean = rep(0,length(z)), verbose=FALSE){
 
-  likelihood_model <- match.arg(likelihood_model)
 
+  likelihood_model <- match.arg(likelihood_model)
+  
   # Avoid crashes due to bad data
+  obs.inds = which(!is.na(z))
+  z.obs = z[obs.inds]
   invalid_data_support = switch(likelihood_model,
                       "gaussian" = FALSE,
-                      "logistic" = .logistic_data_req(z),
-                      "poisson" = .poisson_data_req(z),
-                      "gamma" = .gamma_data_reqs(z),
-                      "gamma_alt" = .gamma_data_reqs(z),
-                      "beta" = .beta_data_reqs(z))
+                      "logistic" = .logistic_data_req(z.obs),
+                      "poisson" = .poisson_data_req(z.obs),
+                      "gamma" = .gamma_data_reqs(z.obs),
+                      "gamma_alt" = .gamma_data_reqs(z.obs),
+                      "beta" = .beta_data_reqs(z.obs))
   if(invalid_data_support){
     stop("Data invalid for likelihood type.  Correct negative or non-integer values and try again.")
   }
@@ -57,8 +60,6 @@ calculate_posterior_VL = function(z,vecchia.approx,
                       "beta" = .beta_model(likparms))
 
 
-
-
   ell_dbl_prime = model_funs$hess
   ell_prime = model_funs$score
   link_fun = model_funs$link
@@ -67,7 +68,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 
   if(verbose){
       log_comment = cat(paste("Running VL-NR for",likelihood_model, "with m=",
-                              ncol(vecchia.approx$U.prep$revNNarray)-1," and sample size",length(z)))
+                              ncol(vecchia.approx$U.prep$revNNarray)-1," and sample size",length(z.obs)))
   }
 
   # record duration of NR
@@ -77,27 +78,38 @@ calculate_posterior_VL = function(z,vecchia.approx,
   y_o = y_init
   if(any(is.na(y_o))) y_o = prior_mean
 
+  if(length(y_o)>1) y_o = y_o[obs.inds]
+  
   convgd = FALSE
   tot_iters = 0
+
   for( i in 1:max.iter){
 
     y_prev = y_o    # save y_prev for convergence test
 
     # update pseudo-data and -variances
-    D_inv = ell_dbl_prime(y_o, z)
+    D_inv = ell_dbl_prime(y_o, z.obs)
+    
     if(any(D_inv<0)) {
       stop("Negative variances occurred, check parameters")
       D_inv = abs(D_inv)
-      }
-    D = 1/D_inv
-    u = ell_prime(y_o,z)
-    pseudo.data = D * u + y_o - prior_mean
-    nuggets = D
-    # make prediction
-    preds=vecchia_prediction(pseudo.data,vecchia.approx,covparms,
-                             nuggets,return.values='meanmat')
-    y_o = preds$mu.obs + prior_mean
+    }
 
+    D = 1/D_inv
+    u = ell_prime(y_o,z.obs)
+    pseudo.data = rep(NA, length(z))
+    pseudo.data[obs.inds] = D * u + y_o - prior_mean[obs.inds]
+
+    nuggets = rep(0, length(z))
+    nuggets[obs.inds] = D
+    nuggets[-obs.inds] = 1e8
+    # make prediction
+
+    preds=vecchia_prediction(pseudo.data,vecchia.approx,covparms,#locs.pred=vecchia.approx$locsord,
+                             nuggets,return.values='meanmat')
+
+    y_o = preds$mu.obs[obs.inds] + prior_mean[obs.inds]
+    
     if(is.na(max(abs(y_o-y_prev)))){
       # convergence failed due to machine precision?
       fail_comment = message(paste("VL-NR hit NA on iteration ",tot_iters,", convergence failed."))
@@ -130,7 +142,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     optional_data = list( "V"=V.ord, "W" = W)
   }
 
-  posterior_data = list("mean" = y_o, "cnvgd" = convgd, "runtime" = LV_time,
+  posterior_data = list("mean" = preds$mu.obs + prior_mean, "cnvgd" = convgd, "runtime" = LV_time,
                         "iter" = tot_iters, "t"=pseudo.data+prior_mean, "D" = D,
                         "prediction" = preds, "data_link"=link_fun, "model_llh"=  model_funs$llh,
                         "prior_mean"=prior_mean)
@@ -350,6 +362,7 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
                                       vecchia.approx.IW = NA) {
 
   # vecchia.approx.IW can be passed in for parameter estimation to reduce cpu time,
+
   posterior = calculate_posterior_VL(z,vecchia.approx, likelihood_model, covparms, likparms,
                                      max.iter, convg, return_all, y_init, prior_mean)
 
