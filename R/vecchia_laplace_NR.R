@@ -33,7 +33,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
                                   max.iter=50, convg = 1e-6, return_all = FALSE, y_init = NA,
                                   prior_mean = rep(0,length(z)), verbose=FALSE){
 
-
+  
   likelihood_model <- match.arg(likelihood_model)
   
   # Avoid crashes due to bad data
@@ -100,9 +100,8 @@ calculate_posterior_VL = function(z,vecchia.approx,
     pseudo.data = rep(NA, length(z))
     pseudo.data[obs.inds] = D * u + y_o - prior_mean[obs.inds]
 
-    nuggets = rep(0, length(z))
+    nuggets = rep(Inf, length(z))
     nuggets[obs.inds] = D
-    nuggets[-obs.inds] = 1e8
     # make prediction
 
     preds=vecchia_prediction(pseudo.data,vecchia.approx,covparms,#locs.pred=vecchia.approx$locsord,

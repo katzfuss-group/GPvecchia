@@ -99,9 +99,15 @@ vecchia_specify=function(locs,m=-1,ordering,cond.yz,locs.pred,ordering.pred,pred
   if(missing(locs.pred)){  # no prediction
 
     if(ordering=='coord') { ord=order_coordinate(locs)
-    } else if(ordering=='maxmin'){ ord = order_maxmin_exact(locs)
-    } else if(ordering=='outsidein'){ord = order_outsidein(locs)
-    } else if(ordering=='none'){ord = seq(n)}
+    } else if(ordering=='maxmin'){ 
+      ord = order_maxmin_exact(locs)
+      cut = min(n, 9)
+      ord = c(ord[1], ord[-seq(1,cut)], ord[2:cut])
+    } else if(ordering=='outsidein'){
+      ord = order_outsidein(locs)
+    } else if(ordering=='none'){
+      ord = seq(n)
+    }
 
     ord.z=ord
     locsord=locs[ord,,drop=FALSE]
