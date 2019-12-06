@@ -29,7 +29,7 @@
 #' @export
 calculate_posterior_VL = function(z,vecchia.approx,
                                   likelihood_model=c("gaussian","logistic", "poisson", "gamma", "beta", "gamma_alt"),
-                                  covparms, likparms = list("alpha"=2, "sigma"=sqrt(.1)),
+                                  covparms, covmodel='matern', likparms = list("alpha"=2, "sigma"=sqrt(.1)),
                                   max.iter=50, convg = 1e-6, return_all = FALSE, y_init = NA,
                                   prior_mean = rep(0,length(z)), verbose=FALSE){
 
@@ -82,7 +82,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
   
   convgd = FALSE
   tot_iters = 0
-
+  
   for( i in 1:max.iter){
 
     y_prev = y_o    # save y_prev for convergence test
@@ -104,7 +104,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     nuggets[obs.inds] = D
     # make prediction
 
-    preds=vecchia_prediction(pseudo.data,vecchia.approx,covparms,#locs.pred=vecchia.approx$locsord,
+    preds=vecchia_prediction(pseudo.data,vecchia.approx,covparms,covmodel=covmodel,
                              nuggets,return.values='meanmat')
 
     y_o = preds$mu.obs[obs.inds] + prior_mean[obs.inds]
@@ -132,7 +132,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
     orig.order=order(vecchia.approx$ord)
     V.ord=preds$V.ord
     # if ZY_liklihood works, dont need W or V?
-    W = methods::as(revMat(V.ord%*%t(V.ord))[orig.order,orig.order], 'dgCMatrix')
+    W = methods::as(revMat(V.ord%*%Matrix::t(V.ord))[orig.order,orig.order], 'dgCMatrix')
     if (vecchia.approx$cond.yz=="zy"){
       n = length(y_o)
       V.ord = V.ord[1:n, 1:n]

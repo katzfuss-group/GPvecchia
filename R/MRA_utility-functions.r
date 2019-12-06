@@ -71,7 +71,9 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
 
 ### This function is used mainly for testing.
 ### It takes the entire covariance matrix and creates
-### a matrix of covariances
+### a matrix of covariances based on the vecchia approximatino object
+
+
 getMatCov = function(V, Sigma){
   revNNarray = V$U.prep$revNNarray
   rows = c()
@@ -85,12 +87,15 @@ getMatCov = function(V, Sigma){
   }
   n = dim(Sigma)[1]
   inds = cbind(rows, cols)
-  inds = as.vector(sapply(seq(nrow(inds)), function(r) inds[r,1]-1+n*(inds[r,2]-1)+1))
-
-  Sig.sel = rep(NA, length(revNNarray))
-  inds_to_fill=which(!is.na(revNNarray))
+  inds = as.vector(sapply(seq(nrow(inds)), function(r) inds[r,2]-1+n*(inds[r,1]-1)+1))
+  
+  Sig.sel = matrix(rep(NA, length(revNNarray)), nrow=ncol(revNNarray))
+  inds_to_fill=which(!is.na(t(revNNarray)))
   Sigma.ord = Sigma[V$ord, V$ord]
   Sig.sel[inds_to_fill] = Sigma.ord[inds]
-  Sig.sel = matrix(Sig.sel, ncol=ncol(revNNarray), byrow=TRUE)
+  Sig.sel = t(Sig.sel)
   return(Sig.sel)
 }
+
+
+
