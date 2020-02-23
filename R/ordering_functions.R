@@ -153,6 +153,7 @@ order_maxmin_exact<-function(locs){
 
 ## extension of the maxmin function, orders pred.locs last
 # should be improved by extending MaxMincpp itself
+#' @export
 order_maxmin_exact_obs_pred<-function(locs, locs_pred){
 
   ord<-MaxMincpp(locs)
