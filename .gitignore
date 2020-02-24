@@ -1,3 +1,5 @@
+vignettes/GPvecchia_vignette_cache
+vignettes/GPvecchia_vignette_files
 inst/doc
 .Rproj.user
 .Rhistory
@@ -8,3 +10,5 @@ inst/doc
 .httr-oauth
 *.so
 *.o
+doc
+Meta

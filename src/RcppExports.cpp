@@ -6,6 +6,18 @@
 
 using namespace Rcpp;
 
+// EsqeFun
+arma::mat EsqeFun(arma::mat distmat, arma::vec covparms);
+RcppExport SEXP _GPvecchia_EsqeFun(SEXP distmatSEXP, SEXP covparmsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type distmat(distmatSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type covparms(covparmsSEXP);
+    rcpp_result_gen = Rcpp::wrap(EsqeFun(distmat, covparms));
+    return rcpp_result_gen;
+END_RCPP
+}
 // MaternFun
 arma::mat MaternFun(arma::mat distmat, arma::vec covparms);
 RcppExport SEXP _GPvecchia_MaternFun(SEXP distmatSEXP, SEXP covparmsSEXP) {
@@ -29,21 +41,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// EsqeFun
-arma::mat EsqeFun(arma::mat distmat, arma::vec covparms);
-RcppExport SEXP _GPvecchia_EsqeFun(SEXP distmatSEXP, SEXP covparmsSEXP) {
+// U_NZentries
+List U_NZentries(const int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, const std::string covType, const arma::vec covparms);
+RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP covTypeSEXP, SEXP covparmsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type distmat(distmatSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type covparms(covparmsSEXP);
-    rcpp_result_gen = Rcpp::wrap(EsqeFun(distmat, covparms));
+    Rcpp::traits::input_parameter< const int >::type Ncores(NcoresSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type locs(locsSEXP);
+    Rcpp::traits::input_parameter< const arma::umat& >::type revNNarray(revNNarraySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type revCondOnLatent(revCondOnLatentSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type nuggets(nuggetsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type nuggets_obsord(nuggets_obsordSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type covType(covTypeSEXP);
+    Rcpp::traits::input_parameter< const arma::vec >::type covparms(covparmsSEXP);
+    rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, covType, covparms));
     return rcpp_result_gen;
 END_RCPP
 }
 // U_NZentries_mat
-List U_NZentries_mat(int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, arma::mat& COV, const arma::vec covparms);
-RcppExport SEXP _GPvecchia_U_NZentries_mat(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP COVSEXP, SEXP covparmsSEXP) {
+List U_NZentries_mat(int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, arma::mat& covVals, const arma::vec covparms);
+RcppExport SEXP _GPvecchia_U_NZentries_mat(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP covValsSEXP, SEXP covparmsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -54,28 +73,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type revCondOnLatent(revCondOnLatentSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type nuggets(nuggetsSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type nuggets_obsord(nuggets_obsordSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type COV(COVSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type covVals(covValsSEXP);
     Rcpp::traits::input_parameter< const arma::vec >::type covparms(covparmsSEXP);
-    rcpp_result_gen = Rcpp::wrap(U_NZentries_mat(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms));
+    rcpp_result_gen = Rcpp::wrap(U_NZentries_mat(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, covVals, covparms));
     return rcpp_result_gen;
 END_RCPP
 }
-// U_NZentries
-List U_NZentries(int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, std::string COV, const arma::vec covparms);
-RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP COVSEXP, SEXP covparmsSEXP) {
+// generateNNarray
+List generateNNarray(arma::mat locs, arma::uvec J, int M, arma::uvec r, int m);
+RcppExport SEXP _GPvecchia_generateNNarray(SEXP locsSEXP, SEXP JSEXP, SEXP MSEXP, SEXP rSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type Ncores(NcoresSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type locs(locsSEXP);
-    Rcpp::traits::input_parameter< const arma::umat& >::type revNNarray(revNNarraySEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type revCondOnLatent(revCondOnLatentSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type nuggets(nuggetsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type nuggets_obsord(nuggets_obsordSEXP);
-    Rcpp::traits::input_parameter< std::string >::type COV(COVSEXP);
-    Rcpp::traits::input_parameter< const arma::vec >::type covparms(covparmsSEXP);
-    rcpp_result_gen = Rcpp::wrap(U_NZentries(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, COV, covparms));
+    Rcpp::traits::input_parameter< arma::mat >::type locs(locsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type J(JSEXP);
+    Rcpp::traits::input_parameter< int >::type M(MSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type r(rSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(generateNNarray(locs, J, M, r, m));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -119,32 +134,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// generateNNarray
-List generateNNarray(arma::mat locs, arma::uvec J, int M, arma::uvec r, int m);
-RcppExport SEXP _GPvecchia_generateNNarray(SEXP locsSEXP, SEXP JSEXP, SEXP MSEXP, SEXP rSEXP, SEXP mSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type locs(locsSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type J(JSEXP);
-    Rcpp::traits::input_parameter< int >::type M(MSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type r(rSEXP);
-    Rcpp::traits::input_parameter< int >::type m(mSEXP);
-    rcpp_result_gen = Rcpp::wrap(generateNNarray(locs, J, M, r, m));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_GPvecchia_EsqeFun", (DL_FUNC) &_GPvecchia_EsqeFun, 2},
     {"_GPvecchia_MaternFun", (DL_FUNC) &_GPvecchia_MaternFun, 2},
     {"_GPvecchia_MaxMincpp", (DL_FUNC) &_GPvecchia_MaxMincpp, 1},
-    {"_GPvecchia_EsqeFun", (DL_FUNC) &_GPvecchia_EsqeFun, 2},
-    {"_GPvecchia_U_NZentries_mat", (DL_FUNC) &_GPvecchia_U_NZentries_mat, 9},
     {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 9},
+    {"_GPvecchia_U_NZentries_mat", (DL_FUNC) &_GPvecchia_U_NZentries_mat, 9},
+    {"_GPvecchia_generateNNarray", (DL_FUNC) &_GPvecchia_generateNNarray, 5},
     {"_GPvecchia_ic0", (DL_FUNC) &_GPvecchia_ic0, 3},
     {"_GPvecchia_createUcppM", (DL_FUNC) &_GPvecchia_createUcppM, 3},
     {"_GPvecchia_createUcpp", (DL_FUNC) &_GPvecchia_createUcpp, 4},
-    {"_GPvecchia_generateNNarray", (DL_FUNC) &_GPvecchia_generateNNarray, 5},
     {NULL, NULL, 0}
 };
 
