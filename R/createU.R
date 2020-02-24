@@ -89,8 +89,6 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     U = Matrix::t(Matrix::sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
 
   } else {
-
-    #browser()
       
     if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
                                                       vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,

@@ -69,11 +69,18 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
 }
 
 
-### This function is used mainly for testing.
-### It takes the entire covariance matrix and creates
-### a matrix of covariances based on the vecchia approximatino object
-
-
+#' extract the required elements from the covariance matrix
+#'
+#' This function takes the entire covariance matrix and creates
+#' a matrix of covariances based on the vecchia approximatino object
+#' @param V the object returned by vecchia_specify
+#' @param Sigma The full covariance matrix
+#'
+#' @return matrix of size n x (m+1) with only those elements that 
+#' are used by the incomplete Cholesky decomposition
+#' @examples
+#' 
+#' @export
 getMatCov = function(V, Sigma){
   revNNarray = V$U.prep$revNNarray
   rows = c()
