@@ -28,9 +28,9 @@ Rcpp::sourceCpp('GPvecchia/src/MaxMin.cpp')
 ```
 --->
  
-This package can be installed directly from CRAN by running
+This package can be installed directly from Github by running
 ```{r}
-install.packages("GPvecchia")
+devtools::install_github("katzfuss-group/GPvecchia")
 ```
 Alternatively, one can download the repository and then build the package manually:
 ```{bash}
