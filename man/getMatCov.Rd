@@ -19,6 +19,3 @@ are used by the incomplete Cholesky decomposition
 This function takes the entire covariance matrix and creates
 a matrix of covariances based on the vecchia approximatino object
 }
-\examples{
-
-}

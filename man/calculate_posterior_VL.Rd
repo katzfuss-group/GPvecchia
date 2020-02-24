@@ -20,6 +20,8 @@ calculate_posterior_VL(z, vecchia.approx,
 
 \item{covparms}{covariance parameters as a vector}
 
+\item{covmodel}{type of the model covariance or selected elements of the covariance matrix}
+
 \item{likparms}{likelihood parameters for the likelihood_model, as a list.  Default values are sqrt(.1) for Gaussian noise and 2 for the alpha parameter for Gamma data.}
 
 \item{max.iter}{maximum iterations to perform}

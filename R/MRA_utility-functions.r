@@ -78,7 +78,6 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
 #'
 #' @return matrix of size n x (m+1) with only those elements that 
 #' are used by the incomplete Cholesky decomposition
-#' @examples
 #' 
 #' @export
 getMatCov = function(V, Sigma){

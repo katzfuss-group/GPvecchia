@@ -153,6 +153,24 @@ order_maxmin_exact<-function(locs){
 
 ## extension of the maxmin function, orders pred.locs last
 # should be improved by extending MaxMincpp itself
+
+#' Maximum minimum distance ordering for prediction
+#'
+#' Return the indices of an exact maximum-minimum distance ordering.
+#' The first point is chosen as the "center" point, minimizing L2 distance.
+#' Dimensions d=2 and d=3 handled separately, dimensions d=1 and d>3 handled similarly.
+#' Algorithm is exact and scales quasilinearly.
+#'
+#' @param locs Observation locations
+#' @param locs_pred Prediction locations
+#' @return A vector of indices giving the ordering, i.e.
+#' the first element of this vector is the index of the first location.
+#' @examples
+#' n=100; locs <- cbind(runif(n),runif(n))
+#' locs_pred = cbind(runif(n), runif(n))
+#' ord <- order_maxmin_exact_obs_pred(locs, locs_pred)
+#'
+#' @export
 order_maxmin_exact_obs_pred<-function(locs, locs_pred){
 
   ord<-MaxMincpp(locs)
