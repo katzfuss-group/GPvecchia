@@ -7,7 +7,7 @@ spatial.dim=2
 n=20**2
 m=25
 frac.obs = 0.3
-Tmax = 10
+Tmax = 2
 
 ## covariance parameters
 sig2=0.5; range=.15; smooth=1.5; me.var=1e-4;
@@ -100,7 +100,7 @@ preds[[1]] = list(state=x0, L=L.00)
 
 forecast=x0; Fmat=L.00
 for(t in 1:Tmax){
-  cat(paste("filtering: t=", t, "\n", sep=""))
+  #cat(paste("filtering: t=", t, "\n", sep=""))
   obs.aux = as.numeric(XY$y[[t]])# - forecast)
   covmodel = getMatCov(vecchia.approx, Fmat %*% Matrix::t(Fmat) + covfun(locs))
   preds.aux = calculate_posterior_VL( obs.aux, vecchia.approx, likelihood_model = 'gaussian', covmodel=covmodel, covparms = covparms, likparms = list("sigma"=sqrt(me.var)), return_all = TRUE)
@@ -115,14 +115,14 @@ for(t in 1:Tmax){
 
 
 ## plot results ##
-for(t in 2:Tmax){
-  zrange = range(c(preds[[t]][["state"]], unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
-  defpar = par(mfrow=c(1, 3), oma=c(0, 0, 2, 0))
-  nna.obs = which(!is.na(XY$y[[t]]))
-  fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], main="data",zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
-  fields::quilt.plot( locs, as.numeric(XY$x[[t]]), main="latent", zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
-  fields::quilt.plot( locs, preds[[t]]$state, main="Vecchia pred.", zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
-  #fields::quilt.plot(locs, preds[[t]]$state, main="prediction", zlim=zrange, nx=sqrt(n), ny=sqrt(n))
-  mtext(paste("t=", t, sep=""), outer = TRUE, cex = 1.5)
-  par(defpar)
-}
+#for(t in 2:Tmax){
+#  zrange = range(c(preds[[t]][["state"]], unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
+#  defpar = par(mfrow=c(1, 3), oma=c(0, 0, 2, 0))
+#  nna.obs = which(!is.na(XY$y[[t]]))
+#  fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], main="data",zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
+#  fields::quilt.plot( locs, as.numeric(XY$x[[t]]), main="latent", zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
+#  fields::quilt.plot( locs, preds[[t]]$state, main="Vecchia pred.", zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
+#  #fields::quilt.plot(locs, preds[[t]]$state, main="prediction", zlim=zrange, nx=sqrt(n), ny=sqrt(n))
+#  mtext(paste("t=", t, sep=""), outer = TRUE, cex = 1.5)
+#  par(defpar)
+#}

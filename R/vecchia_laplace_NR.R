@@ -361,8 +361,7 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
                                       vecchia.approx.IW = NA) {
 
   # vecchia.approx.IW can be passed in for parameter estimation to reduce cpu time,
-
-  posterior = calculate_posterior_VL(z,vecchia.approx, likelihood_model, covparms, likparms,
+  posterior = calculate_posterior_VL(z,vecchia.approx, likelihood_model, covparms, covmodel, likparms,
                                      max.iter, convg, return_all, y_init, prior_mean)
 
   if(!posterior$cnvgd){warning("Convergence Failed, returning -Inf"); return(-Inf)}
