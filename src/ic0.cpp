@@ -22,7 +22,7 @@ double dot_prod(int l1, int u1, int l2, int u2, NumericVector row_inds, NumericV
       result += cells[l1]*cells[l2];
       l1++; l2++;
     }
-    else if(l1<l2)
+    else if(row_inds[l1]<row_inds[l2])
       l1++;
     else
       l2++;
