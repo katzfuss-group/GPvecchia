@@ -4,10 +4,12 @@
 \alias{getMatCov}
 \title{extract the required elements from the covariance matrix}
 \usage{
-getMatCov(V, Sigma)
+getMatCov(V, covariances, factor = FALSE)
 }
 \arguments{
 \item{V}{the object returned by vecchia_specify}
+
+\item{factor}{True if we are passing a factor of a matrix}
 
 \item{Sigma}{The full covariance matrix}
 }

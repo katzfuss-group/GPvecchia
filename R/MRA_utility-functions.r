@@ -75,12 +75,21 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
 #' a matrix of covariances based on the vecchia approximatino object
 #' @param V the object returned by vecchia_specify
 #' @param Sigma The full covariance matrix
+#' @param factor True if we are passing a factor of a matrix
 #'
 #' @return matrix of size n x (m+1) with only those elements that 
 #' are used by the incomplete Cholesky decomposition
 #' 
 #' @export
-getMatCov = function(V, Sigma){
+getMatCov = function(V, covariances, factor=FALSE){
+  if (factor){
+    getMatCovFromFactor(V, covariances)
+  } else {
+    getMatCovFromMat(V, covariances)
+  }
+}
+
+getMatCovFromMat = function(V, Sigma){
   revNNarray = V$U.prep$revNNarray
   rows = c()
   cols = c()
@@ -100,8 +109,32 @@ getMatCov = function(V, Sigma){
   Sigma.ord = Sigma[V$ord, V$ord]
   Sig.sel[inds_to_fill] = Sigma.ord[inds]
   Sig.sel = t(Sig.sel)
-  return(Sig.sel)
+  return(Sig.sel)  
 }
 
 
-
+getMatCovFromFactor = function(V, L.org){
+  revNNarray = V$U.prep$revNNarray
+  
+  Sig.sel = Matrix::Matrix(rep(NA, nrow(revNNarray)*ncol(revNNarray)), ncol = ncol(revNNarray))
+  
+  if( class(L.org)=="dgCMatrix" ){
+    L = as(L.org, "RsparseMatrix")
+  } else {
+    L = L.org
+  }
+  
+  for(i in 1:nrow(revNNarray)){
+    r = revNNarray[i,]
+    r.inds = r[which(!is.na(r))]
+    this.row = Matrix::Matrix(L[i,], nrow=1)
+    nrow = length(r.inds)
+    if(nrow==1){
+      submatrix = Matrix::Matrix(L[r.inds,], nrow=length(r.inds))  
+    } else {
+      submatrix = Matrix::Matrix(L[r.inds,])  
+    }
+    Sig.sel[i, which(!is.na(r))] = submatrix %*% Matrix::t(this.row)
+  }
+  return(Sig.sel)
+}
