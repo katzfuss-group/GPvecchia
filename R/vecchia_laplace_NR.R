@@ -34,7 +34,6 @@ calculate_posterior_VL = function(z,vecchia.approx,
                                   max.iter=50, convg = 1e-6, return_all = FALSE, y_init = NA,
                                   prior_mean = rep(0,length(z)), verbose=FALSE){
 
-  
   likelihood_model <- match.arg(likelihood_model)
   
   # Avoid crashes due to bad data

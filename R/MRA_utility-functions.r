@@ -72,7 +72,7 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
 #' This function takes the entire covariance matrix and creates
 #' a matrix of covariances based on the vecchia approximatino object
 #' @param V the object returned by vecchia_specify
-#' @param Sigma The full covariance matrix or a covariance function
+#' @param covariances The full covariance matrix or a covariance function
 #' @param factor True if we are passing a factor of a matrix
 #'
 #' @return matrix of size n x (m+1) with only those elements that 
@@ -82,20 +82,27 @@ cluster.equal = function(locs, size, K=NULL, dim.start=2){
 getMatCov = function(V, covariances, factor=FALSE){
 
   if (factor){
-    getMatCovFromFactor(V, covariances)
+    if (methods::is(covariances, "sparseMatrix")) {
+      L = methods::as(covariances, "CsparseMatrix")[V$ord, V$ord]
+      M = getMatCovFromFactorCpp(L, V$U.prep$revNNarray)
+      M[ M==0 ] = NA
+      return(M)
+    } else {
+      getMatCovFromFactor(V, covariances) 
+    }
   } else if (class(covariances)=='function') {
     getMatCovFromFunction(V, covariances)
   } else if (class(covariances)=='matrix') {
     getMatCovFromMat(V, covariances)
   } else {
-    error("Wrong covariance format passed")
+    stop("Wrong covariance format passed")
   }
 }
 
 
 getMatCovFromFunction = function(V, covfun){
   revNNarray = V$U.prep$revNNarray
-  
+  browser()
   rows = c()
   cols = c()
   for(i in 1:nrow(revNNarray)){
@@ -109,7 +116,7 @@ getMatCovFromFunction = function(V, covfun){
   
   Sig.sel = matrix(rep(NA, length(revNNarray)), nrow=ncol(revNNarray))
   inds_to_fill=which(!is.na(t(revNNarray)))
-  
+  browser()
   d = matrix(sqrt(rowSums((V$locsord[rows,] - V$locsord[cols,])**2)))
   vals = as.numeric(covfun(d))
 
@@ -144,13 +151,14 @@ getMatCovFromMat = function(V, Sigma){
 }
 
 
+
 getMatCovFromFactor = function(V, L.org){
   revNNarray = V$U.prep$revNNarray
   
   Sig.sel = Matrix::Matrix(rep(NA, nrow(revNNarray)*ncol(revNNarray)), ncol = ncol(revNNarray))
   
   if( class(L.org)=="dgCMatrix" ){
-    L = as(L.org, "RsparseMatrix")[V$ord, V$ord]
+    L = methods::as(L.org, "RsparseMatrix")[V$ord, V$ord]
   } else {
     L = L.org[V$ord, V$ord]
   }

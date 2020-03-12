@@ -94,6 +94,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getMatCovFromFactorCpp
+arma::mat getMatCovFromFactorCpp(arma::sp_mat F, arma::umat revNNarray);
+RcppExport SEXP _GPvecchia_getMatCovFromFactorCpp(SEXP FSEXP, SEXP revNNarraySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat >::type F(FSEXP);
+    Rcpp::traits::input_parameter< arma::umat >::type revNNarray(revNNarraySEXP);
+    rcpp_result_gen = Rcpp::wrap(getMatCovFromFactorCpp(F, revNNarray));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ic0
 NumericVector ic0(NumericVector ptrs, NumericVector inds, NumericVector vals);
 RcppExport SEXP _GPvecchia_ic0(SEXP ptrsSEXP, SEXP indsSEXP, SEXP valsSEXP) {
@@ -142,6 +154,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 9},
     {"_GPvecchia_U_NZentries_mat", (DL_FUNC) &_GPvecchia_U_NZentries_mat, 9},
     {"_GPvecchia_generateNNarray", (DL_FUNC) &_GPvecchia_generateNNarray, 5},
+    {"_GPvecchia_getMatCovFromFactorCpp", (DL_FUNC) &_GPvecchia_getMatCovFromFactorCpp, 2},
     {"_GPvecchia_ic0", (DL_FUNC) &_GPvecchia_ic0, 3},
     {"_GPvecchia_createUcppM", (DL_FUNC) &_GPvecchia_createUcppM, 3},
     {"_GPvecchia_createUcpp", (DL_FUNC) &_GPvecchia_createUcpp, 4},

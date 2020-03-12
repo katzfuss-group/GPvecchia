@@ -31,6 +31,17 @@ generateNNarray <- function(locs, J, M, r, m) {
     .Call('_GPvecchia_generateNNarray', PACKAGE = 'GPvecchia', locs, J, M, r, m)
 }
 
+#' Calculate the covariance values required by HV for
+#' matrix factors passed as sparse matrices
+#'
+#' @param F factor of a matrix in a sparse format
+#' @param revNNarray array with the neighbourhood structure
+#' @return matrix with covariance values
+#' @export
+getMatCovFromFactorCpp <- function(F, revNNarray) {
+    .Call('_GPvecchia_getMatCovFromFactorCpp', PACKAGE = 'GPvecchia', F, revNNarray)
+}
+
 #' Incomplete Cholesky decomposition of a sparse matrix passed in
 #' the compressed sparse row format
 #'
