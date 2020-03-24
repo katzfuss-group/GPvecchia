@@ -1,3 +1,4 @@
+#define ARMA_64BIT_WORD 1
 #define ARMA_DONT_PRINT_ERRORS
 
 #include <iostream>
