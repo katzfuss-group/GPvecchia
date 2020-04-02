@@ -84,7 +84,6 @@ getMatCov = function(V, covariances, factor=FALSE){
     if (methods::is(covariances, "sparseMatrix")) {
       L = methods::as(covariances, "CsparseMatrix")[V$ord, V$ord]
       M = getMatCovFromFactorCpp(L, V$U.prep$revNNarray)
-      print(M)
       M[ M==0 ] = NA
       return(M)
     } else {

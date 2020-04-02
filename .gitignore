@@ -12,3 +12,4 @@ inst/doc
 *.o
 doc
 Meta
+*.rds
