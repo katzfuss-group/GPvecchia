@@ -1,13 +1,33 @@
-## Resubmission 2
+### Resubmission 3
+This is a third resubmission
+
+* fixed the problem with variable types (unsigned int) in src/U_NZentries.cpp
+
+
+## Test environments
+* local ubuntu 18.04, R 3.4.4
+* ubuntu 16.04 (Travis CI), R-devel
+* Windows Server 2008 R2 SP1, R-devel, 32/64 bit (R-hub)
+
+There was 1 NOTE:
+* checking installed package size ... NOTE
+  installed size is  7.0Mb
+  sub-directories of 1Mb or more:
+    libs   6.5Mb
+
+This is not unexpected in packages with compiled code as observed by Dirk Eddelbuettel
+https://stackoverflow.com/questions/53819970/r-package-libs-directory-too-large-after-compilation-to-submit-on-cran
+
+
+
+
+
+
+### Resubmission 2
 This is a second resubmission.
 
 * fixed an alloc-dealloc-mismatch error as reported here
   https://cran.r-project.org/web/checks/check_results_GPvecchia.html
-
-
-
-
-
 
 
 ## Test environments

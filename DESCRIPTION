@@ -1,19 +1,19 @@
 Package: GPvecchia
 Type: Package
 Title: Scalable Gaussian-Process Approximations
-Version: 0.1.1
-Date: 2019-10-11
+Version: 0.1.2
+Date: 2020-04-03
 Authors@R: c(
-	   person("Matthias", "Katzfuss", role=c("aut", "cre"), email="katzfuss@gmail.com"),
-	   person("Marcin", "Jurek", role="aut", email="marcinjurek1988@gmail.com"),
+	   person("Matthias", "Katzfuss", role=c("aut"), email="katzfuss@gmail.com"),
+	   person("Marcin", "Jurek", role=c("aut", "cre"), email="marcinjurek1988@gmail.com"),
 	   person("Daniel", "Zilber", role="aut"),
 	   person("Wenlong", "Gong", role="aut"),
 	   person("Joe", "Guinness", role="ctb"),
 	   person("Jingjie", "Zhang", role="ctb"),
 	   person("Florian", "Schaefer", role="ctb"))
 Maintainer: Marcin Jurek <marcinjurek1988@gmail.com>
-Author: Matthias Katzfuss [aut, cre],
-  Marcin Jurek [aut],
+Author: Matthias Katzfuss [aut],
+  Marcin Jurek [aut, cre],
   Daniel Zilber [aut],
   Wenlong Gong [aut],
   Joe Guinness [ctb],
