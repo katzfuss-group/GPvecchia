@@ -26,19 +26,19 @@ List U_NZentries (const int Ncores, int n, const arma::mat& locs, const arma::um
     Rcerr << "Error message: " << covType << " covariance is not implemented"<< endl;
   }
   
-  const int m = revNNarray.n_cols - 1;
-  const int Nlocs = locs.n_rows;
+  const uword m = revNNarray.n_cols - 1;
+  const uword Nlocs = locs.n_rows;
   arma::mat Lentries = zeros( Nlocs, m + 1 );
 
   #pragma omp parallel for num_threads(Ncores) shared(Lentries) schedule(static)
   
-  for (int k = 0; k < Nlocs; k++) {
+  for (uword k = 0; k < Nlocs; k++) {
        
     arma::uvec inds = revNNarray.row( k ).t();
     arma::vec revCon_row = revCondOnLatent.row(k).t();
 
     arma::uvec inds00 = inds.elem( find( inds ) ) - 1;
-    int n0 = inds00.n_elem;
+    uword n0 = inds00.n_elem;
     
     arma::vec nug = nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m)));
     arma::mat dist = calcPWD(locs.rows( inds00 ));
@@ -59,7 +59,7 @@ List U_NZentries (const int Ncores, int n, const arma::mat& locs, const arma::um
 
 
   arma::mat Zentries=zeros(2*n);
-  for (int i = 0; i < n; i++){
+  for (uword i = 0; i < n; i++){
     Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
     Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
   }
@@ -75,19 +75,19 @@ List U_NZentries (const int Ncores, int n, const arma::mat& locs, const arma::um
 // [[Rcpp::export]]
 List U_NZentries_mat (int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, arma::mat& covVals, const arma::vec covparms){
   
-  const int m = revNNarray.n_cols - 1;
-  const int Nlocs = locs.n_rows;
+  const uword m = revNNarray.n_cols - 1;
+  const uword Nlocs = locs.n_rows;
   arma::mat Lentries = zeros( Nlocs, m + 1 );
 
   #pragma omp parallel for num_threads(Ncores) shared(Lentries) schedule(static)
   
-  for (int k = 0; k < Nlocs; k++) {
+  for (uword k = 0; k < Nlocs; k++) {
        
     arma::uvec inds = revNNarray.row( k ).t();
     arma::vec revCon_row = revCondOnLatent.row(k).t();
 
     arma::uvec inds00 = inds.elem( find( inds ) ) - 1;
-    int n0 = inds00.n_elem;
+    uword n0 = inds00.n_elem;
 
     arma::mat covmat = covVals.submat(inds00, inds00);
 
@@ -100,7 +100,7 @@ List U_NZentries_mat (int Ncores, int n, const arma::mat& locs, const arma::umat
 
 
   arma::mat Zentries=zeros(2*n);
-  for (int i = 0; i < n; i++){
+  for (uword i = 0; i < n; i++){
     Zentries[2*i] = (-1)/sqrt(nuggets_obsord[i]);
     Zentries[2*i+1] = 1/sqrt(nuggets_obsord[i]);
   }
