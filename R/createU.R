@@ -89,15 +89,20 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     U = Matrix::t(Matrix::sparseMatrix(j=LZinds, p=LZp, x=LZvals, index1=FALSE))
 
   } else {
+
+    #replace all NAs in revNNarray with 0s, so that there is no type conflict when
+    #the array is passed to C++
+    
+    revNN = vecchia.approx$U.prep$revNNarray
+    revNN[is.na(revNN)] = 0
       
     if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
-                                                      vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+                                                      revNN, vecchia.approx$U.prep$revCond,
                                                       nuggets.all.ord, nuggets.ord, covmodel, covparms)
     else if(is.character(covmodel)) U.entries=U_NZentries(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
-                                                      vecchia.approx$U.prep$revNNarray, vecchia.approx$U.prep$revCond,
+                                                      revNN, vecchia.approx$U.prep$revCond,
                                                       nuggets.all.ord, nuggets.ord, covmodel, covparms)
     else stop("argument 'covmodel' type not supported")
-
 
     # create sparse U matrix
     not.na=c(!is.na(apply(vecchia.approx$U.prep$revNNarray, 1,rev)))
