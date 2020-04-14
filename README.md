@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/katzfuss-group/GPvecchia.svg?branch=master)](https://travis-ci.org/katzfuss-group/GPvecchia)
+[![CRAN status](https://www.r-pkg.org/badges/version/tidyverse)](https://cran.r-project.org/package=tidyverse)
 
 # GPvecchia
 Fast Gaussian-process inference using general Vecchia approximations
