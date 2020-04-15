@@ -1,3 +1,12 @@
+### Resubmission 5
+This is a fifth resubmission
+
+* fixed problems reported in https://cran.r-project.org/web/checks/check_results_GPvecchia.html
+
+
+
+
+
 ### Resubmission 4
 This is a fourth resubmission
 
@@ -56,7 +65,8 @@ There were 2 NOTEs on Travis:
 * checking installed package size ... NOTE
   installed size is  5.1Mb
   sub-directories of 1Mb or more:
-    libs   4.6Mb
+
+libs   4.6Mb
 
 This is not unexpected in packages with compiled code as observed by Dirk Eddelbuettel
 https://stackoverflow.com/questions/53819970/r-package-libs-directory-too-large-after-compilation-to-submit-on-cran
