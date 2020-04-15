@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <RcppArmadillo.h>
-#include <omp.h>
 #include <Rcpp.h>
 #include "dist.h"
 // [[Rcpp::depends(RcppArmadillo)]]

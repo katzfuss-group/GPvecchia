@@ -5,7 +5,6 @@
 #include <iostream>
 #include <math.h>
 #include <RcppArmadillo.h>
-#include <omp.h>
 #include <Rcpp.h>
 #include "Matern.h"
 #include <boost/math/special_functions/bessel.hpp>

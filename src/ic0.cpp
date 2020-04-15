@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <RcppArmadillo.h>
-#include <omp.h>
 #include <Rcpp.h>
 #include "Matern.h"
 #include "dist.h"

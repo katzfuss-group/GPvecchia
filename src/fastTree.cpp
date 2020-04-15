@@ -45,15 +45,16 @@ arma::uvec clusterEqual(arma::mat locs, int K, int dimStart){
       arma::uvec r2 = regInds( find(regLocs.col(d)<cutoff) );
 
       arma::uvec border = regInds( find(regLocs.col(d)==cutoff) );
-      int lengthDiff = r1.size() - r2.size();
-      if(lengthDiff>0){
+      arma::uword lengthDiff = abs(int(r1.size() - r2.size()));
+      bool sign = r1.size() > r2.size();
+      if( sign > 0 ){
         r2 = join_cols(r2, border.head(lengthDiff));
       } else {
-        r1 = join_cols(r1, border.head(abs(lengthDiff)));
+        r1 = join_cols(r1, border.head(lengthDiff));
       }
 
-      if(border.size() - abs(lengthDiff)>0){
-        border = border.tail(border.size() - abs(lengthDiff));
+      if(border.size() - lengthDiff>0){
+        border = border.tail(border.size() - lengthDiff);
 	      int halfLength = border.size()/2;
 	      r1 = join_cols(r1, border.head(halfLength));
 	      r2 = join_cols(r2, border.tail(border.size() - halfLength));
