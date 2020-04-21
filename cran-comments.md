@@ -1,3 +1,11 @@
+### Resubmission 6
+This is a sixth resubmission
+
+* fixed problems reported in https://www.stats.ox.ac.uk/pub/bdr/memtests/clang-UBSAN/GPvecchia/build_vignettes.log by ensuring that .head() is never called on an empty vector
+
+
+
+
 ### Resubmission 5
 This is a fifth resubmission
 
