@@ -19,14 +19,14 @@ arma::mat getMatCovFromFactorCpp(arma::sp_mat F, arma::umat revNNarray){
   
   arma::mat sigSel = arma::zeros<arma::mat>(revNNarray.n_rows, revNNarray.n_cols);
 
-  for(int i=0; i < revNNarray.n_rows; i++) {
+  for(arma::uword i=0; i < revNNarray.n_rows; i++) {
     
     arma::uvec r = revNNarray.row( i ).t();
     arma::uvec inds = find( r );
     arma::uvec cols = r.elem( inds ) - 1;
     arma::sp_mat thisCol = F.col( i ).t();
      
-    for(int colnum=0; colnum<cols.n_rows; colnum++){
+    for(arma::uword colnum=0; colnum<cols.n_rows; colnum++){
       arma::sp_mat cl = F.col( cols(colnum) ); 
       arma::sp_mat val = thisCol * cl;
       sigSel( i, inds(colnum) ) = val( 0, 0 );

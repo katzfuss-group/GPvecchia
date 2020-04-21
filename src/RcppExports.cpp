@@ -42,13 +42,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // U_NZentries
-List U_NZentries(const int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, const std::string covType, const arma::vec covparms);
+List U_NZentries(const int Ncores, const arma::uword n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, const std::string covType, const arma::vec covparms);
 RcppExport SEXP _GPvecchia_U_NZentries(SEXP NcoresSEXP, SEXP nSEXP, SEXP locsSEXP, SEXP revNNarraySEXP, SEXP revCondOnLatentSEXP, SEXP nuggetsSEXP, SEXP nuggets_obsordSEXP, SEXP covTypeSEXP, SEXP covparmsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int >::type Ncores(NcoresSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type n(nSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type locs(locsSEXP);
     Rcpp::traits::input_parameter< const arma::umat& >::type revNNarray(revNNarraySEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type revCondOnLatent(revCondOnLatentSEXP);

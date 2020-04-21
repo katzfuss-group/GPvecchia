@@ -387,7 +387,7 @@ inline double in_dist2(const unsigned int i, const unsigned int j, const double*
     ret += (coords[d * i + k] - coords[d * j + k]) * (coords[d * i + k] - coords[d * j + k]);
   }
   return ret;
-};
+}
 
 void  determineChildren(heapNode* const nodes, heapNode** const handles, ijlookup* const lookup, unsigned int* const parents, const double* const coords, const unsigned int d, const unsigned int N, const unsigned int Id, const unsigned int iter) {
   const double pivotDist = nodes[0].dist;

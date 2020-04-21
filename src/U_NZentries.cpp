@@ -22,7 +22,7 @@ using namespace std;
 
 
 // [[Rcpp::export]]
-List U_NZentries (const int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, const std::string covType, const arma::vec covparms){
+List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, const std::string covType, const arma::vec covparms){
 
   if ((covType!="matern")&(covType!="esqe")){
     Rcerr << "Error message: " << covType << " covariance is not implemented"<< endl;
@@ -108,7 +108,7 @@ List U_NZentries (const int Ncores, int n, const arma::mat& locs, const arma::um
 
 
 // [[Rcpp::export]]
-List U_NZentries_mat (int Ncores, int n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, arma::mat& covVals, const arma::vec covparms){
+List U_NZentries_mat (int Ncores, const arma::uword n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, arma::mat& covVals, const arma::vec covparms){
   
   const uword m = revNNarray.n_cols - 1;
   const uword Nlocs = locs.n_rows;
