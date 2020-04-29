@@ -30,9 +30,9 @@ Rcpp::sourceCpp('GPvecchia/src/MaxMin.cpp')
 --->
  
 This package can be installed directly from CRAN by running
-'''{r}
+```{r}
 install.packages("GPvecchia")
-'''
+```
 
 OMP library is required for the package to run fast. Mac OS users, where OMP has not been supported for a while could consult [this page](https://stackoverflow.com/questions/43555410/enable-openmp-support-in-clang-in-mac-os-x-sierra-mojave)
 
