@@ -99,6 +99,29 @@ U2V=function(U.obj){
 }
 
 
+
+######  wrapper for incomplete Cholesky   #######
+ichol = function(M, S=NULL){
+  if(!is(M, "sparseMatrix")){
+    warning("Passing a dense matrix")
+  }
+  if(!is(M, "CsparseMatrix") || !Matrix::isTriangular(M)){
+    M = as(triu(M), "CsparseMatrix")
+  }
+  if(!is.null(S)){
+    if(!is(S, "sparseMatrix")) S=as(triu(S), "CsparseMatrix")
+    p=S@p; i=S@i
+  } else {
+    p=M@p; i=M@i
+  }
+  vals = ic0(p, i, M@x)
+  Msp = sparseMatrix(i=i, p=p, x=vals, index1=FALSE)
+  Msp@x = vals
+  return(Msp)
+}
+
+
+
 ######  posterior mean (predictions)   #######
 
 vecchia_mean=function(z,U.obj,V.ord){
