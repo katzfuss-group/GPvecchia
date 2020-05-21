@@ -112,13 +112,13 @@ ichol = function(M, S=NULL){
     M = as(Matrix::triu(M), "CsparseMatrix")
   }
   if(!is.null(S)){
-    if(!is(S, "sparseMatrix")) S=as(triu(S), "CsparseMatrix")
+    if(!is(S, "sparseMatrix")) S=as(Matrix::triu(S), "CsparseMatrix")
     p=S@p; i=S@i
   } else {
     p=M@p; i=M@i
   }
   vals = ic0(p, i, M@x)
-  Msp = sparseMatrix(i=i, p=p, x=vals, index1=FALSE)
+  Msp = Matrix::sparseMatrix(i=i, p=p, x=vals, index1=FALSE)
   Msp@x = vals
   return(Msp)
 }
