@@ -109,7 +109,7 @@ ichol = function(M, S=NULL){
     warning("Passing a dense matrix")
   }
   if(!is(M, "CsparseMatrix") || !Matrix::isTriangular(M)){
-    M = as(triu(M), "CsparseMatrix")
+    M = as(Matrix::triu(M), "CsparseMatrix")
   }
   if(!is.null(S)){
     if(!is(S, "sparseMatrix")) S=as(triu(S), "CsparseMatrix")
