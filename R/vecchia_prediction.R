@@ -71,7 +71,9 @@ U2V=function(U.obj){
 
     W=Matrix::tcrossprod(U.y)
     W.rev=revMat(W)
-    V.ord=Matrix::t(Matrix::chol(W.rev))
+    if(U.obj$ic0){ V.ord=Matrix::t(ichol(W.rev))
+      }     else   V.ord=Matrix::t(Matrix::chol(W.rev))
+    
   } else {  # for obspred ordering
 
     last.obs=max(which(!U.obj$latent))
@@ -85,8 +87,9 @@ U2V=function(U.obj){
     U.oo=U.y[1:latents.before,1:last.obs]
     A=Matrix::tcrossprod(U.oo)
     A.rev=revMat(A)
-    V.oor=Matrix::t(Matrix::chol(A.rev))
-
+    if(U.obj$ic0){ V.oor=Matrix::t(ichol(A.rev))
+      }     else   V.oor=Matrix::t(Matrix::chol(A.rev))
+    
     # combine the blocks into one matrix
     zeromat.sparse=Matrix::sparseMatrix(c(),c(),dims=c(latents.after,latents.before))
     V.or=rbind(zeromat.sparse,V.oor)

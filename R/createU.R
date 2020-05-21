@@ -145,7 +145,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
   # return object
   U.obj=list(U=U,latent=latent,ord=ord,obs=obs,zero.nugg=zero.nugg,
              ord.pred=vecchia.approx$ord.pred,ord.z=vecchia.approx$ord.z,
-             cond.yz=vecchia.approx$cond.yz)
+             cond.yz=vecchia.approx$cond.yz,ic0=vecchia.approx$ic0)
   return(U.obj)
 
 }
