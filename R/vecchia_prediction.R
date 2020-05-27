@@ -71,7 +71,9 @@ U2V=function(U.obj){
 
     W=Matrix::tcrossprod(U.y)
     W.rev=revMat(W)
-    V.ord=Matrix::t(Matrix::chol(W.rev))
+    if(U.obj$ic0){ V.ord=Matrix::t(ichol(W.rev))
+      }     else   V.ord=Matrix::t(Matrix::chol(W.rev))
+    
   } else {  # for obspred ordering
 
     last.obs=max(which(!U.obj$latent))
@@ -85,8 +87,9 @@ U2V=function(U.obj){
     U.oo=U.y[1:latents.before,1:last.obs]
     A=Matrix::tcrossprod(U.oo)
     A.rev=revMat(A)
-    V.oor=Matrix::t(Matrix::chol(A.rev))
-
+    if(U.obj$ic0){ V.oor=Matrix::t(ichol(A.rev))
+      }     else   V.oor=Matrix::t(Matrix::chol(A.rev))
+    
     # combine the blocks into one matrix
     zeromat.sparse=Matrix::sparseMatrix(c(),c(),dims=c(latents.after,latents.before))
     V.or=rbind(zeromat.sparse,V.oor)
@@ -97,6 +100,29 @@ U2V=function(U.obj){
 
   return(V.ord)
 }
+
+
+
+######  wrapper for incomplete Cholesky   #######
+ichol = function(M, S=NULL){
+  if(!is(M, "sparseMatrix")){
+    warning("Passing a dense matrix")
+  }
+  if(!is(M, "CsparseMatrix") || !Matrix::isTriangular(M)){
+    M = as(Matrix::triu(M), "CsparseMatrix")
+  }
+  if(!is.null(S)){
+    if(!is(S, "sparseMatrix")) S=as(Matrix::triu(S), "CsparseMatrix")
+    p=S@p; i=S@i
+  } else {
+    p=M@p; i=M@i
+  }
+  vals = ic0(p, i, M@x)
+  Msp = Matrix::sparseMatrix(i=i, p=p, x=vals, index1=FALSE)
+  Msp@x = vals
+  return(Msp)
+}
+
 
 
 ######  posterior mean (predictions)   #######
