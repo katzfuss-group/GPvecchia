@@ -45,10 +45,11 @@ vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern')
 removeNAs=function(){ # overwrites z and U.obj
   p = parent.frame()
   if(any(is.na(p$z))){
-    p$nuggets[is.na(p$z)] = 1e8
-    p$z[is.na(p$z)] = 0
+    p$nuggets[is.na(p$z)] = var(p$z,na.rm=TRUE)*1e8
+    p$z[is.na(p$z)] = mean(p$z,na.rm=TRUE)
   }
 }
+
 
 ## evaluate vecchia likelihood based on U
 

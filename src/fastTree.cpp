@@ -47,7 +47,7 @@ arma::uvec clusterEqual(arma::mat locs, int K, int dimStart){
       arma::uvec border = regInds( find(regLocs.col(d)==cutoff) );
       if( border.size() > 0 ){
       
-        Rcout << "border size=" << border.size() << endl;
+        //Rcout << "border size=" << border.size() << endl;
         arma::uword lengthDiff = abs(int(r1.size() - r2.size()));
         bool sign = r1.size() > r2.size();
         if( sign > 0 ){
