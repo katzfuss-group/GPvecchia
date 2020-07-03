@@ -1,11 +1,9 @@
 #' create the sparse triangular U matrix for specific parameters
 #'
 #' @param vecchia.approx object returned by \code{\link{vecchia_specify}}
-#' @param covparms vector of covariance parameters
+#' @param covparms vector of covariance parameters used if \code{covmodel} is a string. For the Matern option it is then a vector (var,range,smoothness) and for the squared exponential it is (var1,range1,var2,range2).
 #' @param nuggets nugget variances -- if a scalar is provided, variance is assumed constant
-#' @param covmodel covariance model. currently implemented:
-#    matern: with covparms (var,range,smoothness)
-#    esqe: exponential + squared exp with covparms (var1,range1,var2,range2)
+#' @param covmodel covariance model. In most cases f \code{vecchia_approx.locsord} is of size \eqn{n} then this argument can be either an \eqn{n \times n} matrix or one of the two strings: "\emph{matern}" coresponding to the matern covariance function, or "\emph{esqe}" for squared exponential. If \code{vecchia.approx$conditioning} is set to \code{mra} then this argument can be either a string as described above or an R function or an \code{n \times (m+1)} matrix returned by \code{link{getMatCov}}.
 #'
 #' @return list containing the sparse upper triangular U,
 #'     plus additional objects required for other functions
@@ -96,9 +94,14 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     revNN = vecchia.approx$U.prep$revNNarray
     revNN[is.na(revNN)] = 0
       
-    if(is.matrix(covmodel)) U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
-                                                      revNN, vecchia.approx$U.prep$revCond,
-                                                      nuggets.all.ord, nuggets.ord, covmodel, covparms)
+    if(is.matrix(covmodel)){
+
+      covmodel = covmodel[vecchia.approx$ord, vecchia.approx$ord]
+         
+      U.entries=U_NZentries_mat(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
+                                revNN, vecchia.approx$U.prep$revCond,
+                                nuggets.all.ord, nuggets.ord, covmodel, covparms)
+    }
     else if(is.character(covmodel)) U.entries=U_NZentries(vecchia.approx$U.prep$n.cores, n, vecchia.approx$locsord,
                                                       revNN, vecchia.approx$U.prep$revCond,
                                                       nuggets.all.ord, nuggets.ord, covmodel, covparms)

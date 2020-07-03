@@ -260,7 +260,7 @@ tuple<map<string, arma::uvec>, int, arma::uvec, arma::uvec > knotTree(arma::mat 
     remaining.pop();
   }
 
-  eff_r[M] = eff_r[M]/noVerticesFinestRes;
+  eff_r[M] = (eff_r[M]+0.0)/noVerticesFinestRes;
 
   return std::make_tuple(knots, eff_M, J, eff_r);
 

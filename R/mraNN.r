@@ -128,7 +128,7 @@ findOrderedNN_mra = function(locs, mra.options, m=-1, verbose){
     r.eff = as.numeric(NNarrayList$reff);
     J.eff = as.numeric(NNarrayList$Jeff);
     M.eff = as.numeric(NNarrayList$Meff)
-
+    browser()
     firstZero = match(0, r.eff)
     if(!is.na(firstZero) && firstZero>1){
       M.eff = firstZero-2

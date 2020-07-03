@@ -9,11 +9,11 @@ createU(vecchia.approx, covparms, nuggets, covmodel = "matern")
 \arguments{
 \item{vecchia.approx}{object returned by \code{\link{vecchia_specify}}}
 
-\item{covparms}{vector of covariance parameters}
+\item{covparms}{vector of covariance parameters used if \code{covmodel} is a string. For the Matern option it is then a vector (var,range,smoothness) and for the squared exponential it is (var1,range1,var2,range2).}
 
 \item{nuggets}{nugget variances -- if a scalar is provided, variance is assumed constant}
 
-\item{covmodel}{covariance model. currently implemented:}
+\item{covmodel}{covariance model. In most cases f \code{vecchia_approx.locsord} is of size \eqn{n} then this argument can be either an \eqn{n \times n} matrix or one of the two strings: "\emph{matern}" coresponding to the matern covariance function, or "\emph{esqe}" for squared exponential. If \code{vecchia.approx$conditioning} is set to \code{mra} then this argument can be either a string as described above or an R function or an \code{n \times (m+1)} matrix returned by \code{link{getMatCov}}.}
 }
 \value{
 list containing the sparse upper triangular U,
