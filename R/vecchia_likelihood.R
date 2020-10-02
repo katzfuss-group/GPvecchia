@@ -14,10 +14,10 @@
 vecchia_likelihood=function(z,vecchia.approx,covparms,nuggets,covmodel='matern') {
 
   if(vecchia.approx$cond.yz=='zy')
-    warning("cond.yz='zy' will produce a poor likelihood approximation. Use 'SGV' instead.")
+      warning("cond.yz='zy' will produce a poor likelihood approximation. Use 'SGV' instead.")
 
   # create the U matrix
-  U.obj=createU(vecchia.approx,covparms,nuggets,covmodel)
+  U.obj=createU( vecchia.approx, covparms, nuggets, covmodel)
 
   # remove NAs in data and U
   removeNAs()

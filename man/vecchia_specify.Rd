@@ -6,7 +6,7 @@
 \usage{
 vecchia_specify(locs, m = -1, ordering, cond.yz, locs.pred,
   ordering.pred, pred.cond, conditioning, mra.options = NULL,
-  verbose = FALSE)
+  ic0 = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{locs}{nxd matrix of observed locs}

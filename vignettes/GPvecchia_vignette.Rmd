@@ -216,10 +216,10 @@ NNGP = vecchia_specify(locs, m, cond.yz='y')
 We can now easily compare different approximation methods and compare it with SGV and exact likelihood.
 ```{r}
 vecchia_likelihood(z,blockFS,covparms,nuggets)
-vecchia_likelihood(z,MPP,covparms,nuggets)
-vecchia_likelihood(z,MRA_rJM,covparms,nuggets)
-vecchia_likelihood(z,NNGP,covparms,nuggets)
-vecchia_likelihood(z, vecchia_specify(locs, m), covparms, nuggets)
+#vecchia_likelihood(z,MPP,covparms,nuggets)
+#vecchia_likelihood(z,MRA_rJM,covparms,nuggets)
+#vecchia_likelihood(z,NNGP,covparms,nuggets)
+#vecchia_likelihood(z, vecchia_specify(locs, m), covparms, nuggets)
 dmvnorm(z,mean=rep(0,n),sigma=Om0,log=TRUE)
 ```
 
