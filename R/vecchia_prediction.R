@@ -60,6 +60,8 @@ vecchia_prediction=function(z,vecchia.approx,covparms,nuggets,var.exact,
 ######  compute V for posterior inference   #######
 
 U2V=function(U.obj){
+### when changing this function make sure it returns a dtCMatrix!
+### Otherwise solve in the parent function will be very slow
   
   U.y=U.obj$U[U.obj$latent,]
 
@@ -71,8 +73,15 @@ U2V=function(U.obj){
 
     W=Matrix::tcrossprod(U.y)
     W.rev=revMat(W)
-    if(U.obj$ic0){ V.ord=Matrix::t(ichol(W.rev))
-      }     else   V.ord=Matrix::t(Matrix::chol(W.rev))
+
+    if(U.obj$ic0){
+        V.ord=Matrix::t(ichol(W.rev))
+    } else {
+        V.ord=Matrix::t(Matrix::chol(W.rev))
+    }
+
+    V.ord = as(V.ord, 'dtCMatrix')
+      
     
   } else {  # for obspred ordering
 
