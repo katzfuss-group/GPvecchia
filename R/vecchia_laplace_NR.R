@@ -371,7 +371,12 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
 
   # get pseudodata and nuggets from the latent y discovered by VL
   z_pseudo = posterior$t - prior_mean
-  nuggets_pseudo = posterior$D
+  if( length(posterior$D) <  length(z_pseudo) & any(is.na(z_pseudo)) ){
+      nuggets_pseudo = rep(NA, length(z_pseudo))
+      nuggets_pseudo[ !is.na(z_pseudo) ] = posterior$D
+  } else {
+      nuggets_pseudo = posterior$D
+  }
 
   # create an approximation to llh using interweaved ordering.
   if(all(is.na(vecchia.approx.IW))){
@@ -383,15 +388,17 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
   pseudo_marginal_loglik_vecchia = vecchia_likelihood(z_pseudo, vecchia.approx.IW,
                                                       covparms,nuggets_pseudo, covmodel)
 
+  
   # get true model log likelihood
-  true_llh = posterior$model_llh(posterior$mean, z)
+  ind.obs = which(!is.na(z))
+  true_llh = posterior$model_llh(posterior$mean[ind.obs], z[ind.obs])
 
   # get gaussian (pseudo-data) approximate log likelihood
-  pseudo_cond_loglik = sum(stats::dnorm(z_pseudo, mean = posterior$mean - prior_mean, sd =sqrt(nuggets_pseudo), log = TRUE))
+  pseudo_cond_loglik = sum(stats::dnorm(z_pseudo, mean = posterior$mean - prior_mean, sd =sqrt(nuggets_pseudo), log = TRUE), na.rm=TRUE)
 
   # combine three log likelihood terms
   loglik_vecchia = pseudo_marginal_loglik_vecchia + true_llh - pseudo_cond_loglik
-
+    
   if(any(is.na(y_init))){ return(loglik_vecchia)
   }else{ return(list("llv"=loglik_vecchia, "mean" = posterior$mean))}
 }

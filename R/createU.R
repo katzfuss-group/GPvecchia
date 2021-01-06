@@ -46,7 +46,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
       vals = createUcppM(ptrs, inds, cov.vals)
     } else if(is.function(covmodel)){
       ## function has to be of a certain form, specifically, it has to be able
-      ## to take k pairs of locations and return a vector with distances which is
+      ## to take k pairs of locations and return a vector with covariances which is
       ## of length k.
       f = function(r) rep(r[length(r)], length(which(!is.na(r))))
       inds1 = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray)))
@@ -58,6 +58,7 @@ createU <- function(vecchia.approx,covparms,nuggets,covmodel='matern') {
     } else {
       vals = createUcpp(ptrs, inds, vecchia.approx$locsord, covparms)
     }
+
 
     Laux = Matrix::sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
     Ulatent = Matrix::triu(Matrix::t(Matrix::solve(Laux, sparse=TRUE)))

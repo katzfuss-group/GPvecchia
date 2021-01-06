@@ -1,4 +1,4 @@
-#' estimate mean and covariance parameters using Vecchia
+#' estimate mean and covariance parameters of a Matern covariance function using Vecchia
 #'
 #' @param data data vector of length n
 #' @param locs n x d matrix of spatial locations
@@ -52,23 +52,24 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.le
   ## specify vecchia approximation
   vecchia.approx=vecchia_specify(locs,m,...)
 
-  ## initial covariance parameter values
-  if(missing(theta.ini) || is.na(theta.ini)){
-    if(covmodel=='matern'){
+
+   ## initial covariance parameter values
+   if(is.character(covmodel) && covmodel=='matern'){
+     if(missing(theta.ini) || is.na(theta.ini)){
+
       var.res=stats::var(z)
       n=length(z)
       dists.sample=fields::rdist(locs[sample(1:n,min(n,300)),])
-      theta.ini=c(.9*var.res,mean(dists.sample)/4,.8,.1*var.res) # var,range,smooth,nugget
-    } else {
-      stop("Initial cov. parameter values must be specified if cov.model!='matern'")
-    }
+         theta.ini=c(.9*var.res,mean(dists.sample)/4,.8,.1*var.res) # var,range,smooth,nugget
+         
+     } 
   }
 
   ## specify vecchia loglikelihood
   n.par=length(theta.ini)
 
   negloglik.vecchia=function(logparms){
-    if(exp(logparms[3])>10 & covmodel=='matern'){
+    if(exp(logparms[3])>10 && is.character(covmodel) && covmodel=='matern'){
       stop("The default optimization routine to find parameters did not converge. Try writing your own optimization.")
     }
     -vecchia_likelihood(z,vecchia.approx,exp(logparms)[-n.par],exp(logparms)[n.par],covmodel=covmodel)
