@@ -35,7 +35,11 @@ calculate_posterior_VL = function(z,vecchia.approx,
                                   prior_mean = rep(0,length(z)), verbose=FALSE){
 
   likelihood_model <- match.arg(likelihood_model)
-  
+
+
+    if(is.character(covmodel) && covmodel=='matern' && length(covparms)!=3) {
+        stop(sprintf("Matern kernel requires 3 parameters but %d were passed", length(covparms)))
+    }
   # Avoid crashes due to bad data
   obs.inds = which(!is.na(z))
   z.obs = z[obs.inds]
@@ -360,12 +364,15 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
                                       prior_mean = rep(0,length(z)),
                                       vecchia.approx.IW = NA) {
 
+
   # vecchia.approx.IW can be passed in for parameter estimation to reduce cpu time,
   posterior = calculate_posterior_VL(z,vecchia.approx, likelihood_model, covparms, covmodel, likparms,
                                      max.iter, convg, return_all, y_init, prior_mean)
 
   if(!posterior$cnvgd){warning("Convergence Failed, returning -Inf"); return(-Inf)}
 
+
+    
   m = ncol(vecchia.approx$U.prep$revNNarray)-1
   locs = as.matrix(vecchia.approx$locsord[order(vecchia.approx$ord.z),])
 
@@ -388,7 +395,7 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
   pseudo_marginal_loglik_vecchia = vecchia_likelihood(z_pseudo, vecchia.approx.IW,
                                                       covparms,nuggets_pseudo, covmodel)
 
-  
+
   # get true model log likelihood
   ind.obs = which(!is.na(z))
   true_llh = posterior$model_llh(posterior$mean[ind.obs], z[ind.obs])
@@ -398,9 +405,12 @@ vecchia_laplace_likelihood <- function(z,vecchia.approx,likelihood_model, covpar
 
   # combine three log likelihood terms
   loglik_vecchia = pseudo_marginal_loglik_vecchia + true_llh - pseudo_cond_loglik
-    
-  if(any(is.na(y_init))){ return(loglik_vecchia)
-  }else{ return(list("llv"=loglik_vecchia, "mean" = posterior$mean))}
+
+    if(any(is.na(y_init))){
+        return(loglik_vecchia)
+    } else {
+        return(list("llv"=loglik_vecchia, "mean" = posterior$mean))
+    }
 }
 
 
