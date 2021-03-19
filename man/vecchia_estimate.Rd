@@ -2,10 +2,19 @@
 % Please edit documentation in R/vecchia_wrappers.R
 \name{vecchia_estimate}
 \alias{vecchia_estimate}
-\title{estimate mean and covariance parameters using Vecchia}
+\title{estimate mean and covariance parameters of a Matern covariance function using Vecchia}
 \usage{
-vecchia_estimate(data, locs, X, m = 20, covmodel = "matern", theta.ini,
-  output.level = 1, ...)
+vecchia_estimate(
+  data,
+  locs,
+  X,
+  m = 20,
+  covmodel = "matern",
+  theta.ini,
+  output.level = 1,
+  reltol = sqrt(.Machine$double.eps),
+  ...
+)
 }
 \arguments{
 \item{data}{data vector of length n}
@@ -31,7 +40,7 @@ object containing detrended data z, trend coefficients beta.hat,
    covariance parameters theta.hat, and other quantities necessary for prediction
 }
 \description{
-estimate mean and covariance parameters using Vecchia
+estimate mean and covariance parameters of a Matern covariance function using Vecchia
 }
 \examples{
 \donttest{

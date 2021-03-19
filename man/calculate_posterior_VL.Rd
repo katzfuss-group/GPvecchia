@@ -4,12 +4,20 @@
 \alias{calculate_posterior_VL}
 \title{Vecchia Laplace extension of GPVecchia for non-Gaussian data}
 \usage{
-calculate_posterior_VL(z, vecchia.approx,
-  likelihood_model = c("gaussian", "logistic", "poisson", "gamma",
-  "beta", "gamma_alt"), covparms, covmodel = "matern",
-  likparms = list(alpha = 2, sigma = sqrt(0.1)), max.iter = 50,
-  convg = 1e-06, return_all = FALSE, y_init = NA,
-  prior_mean = rep(0, length(z)), verbose = FALSE)
+calculate_posterior_VL(
+  z,
+  vecchia.approx,
+  likelihood_model = c("gaussian", "logistic", "poisson", "gamma", "beta", "gamma_alt"),
+  covparms,
+  covmodel = "matern",
+  likparms = list(alpha = 2, sigma = sqrt(0.1)),
+  max.iter = 50,
+  convg = 1e-06,
+  return_all = FALSE,
+  y_init = NA,
+  prior_mean = rep(0, length(z)),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{z}{an array of real numbers representing observations}

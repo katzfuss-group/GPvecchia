@@ -4,8 +4,7 @@
 \alias{vecchia_likelihood}
 \title{evaluation of the likelihood}
 \usage{
-vecchia_likelihood(z, vecchia.approx, covparms, nuggets,
-  covmodel = "matern")
+vecchia_likelihood(z, vecchia.approx, covparms, nuggets, covmodel = "matern")
 }
 \arguments{
 \item{z}{the observed data}

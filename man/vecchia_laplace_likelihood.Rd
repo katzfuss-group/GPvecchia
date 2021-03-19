@@ -4,10 +4,20 @@
 \alias{vecchia_laplace_likelihood}
 \title{Wrapper for VL version of vecchia_likelihood}
 \usage{
-vecchia_laplace_likelihood(z, vecchia.approx, likelihood_model, covparms,
-  likparms = list(alpha = 2, sigma = sqrt(0.1)), covmodel = "matern",
-  max.iter = 50, convg = 1e-05, return_all = FALSE, y_init = NA,
-  prior_mean = rep(0, length(z)), vecchia.approx.IW = NA)
+vecchia_laplace_likelihood(
+  z,
+  vecchia.approx,
+  likelihood_model,
+  covparms,
+  likparms = list(alpha = 2, sigma = sqrt(0.1)),
+  covmodel = "matern",
+  max.iter = 50,
+  convg = 1e-05,
+  return_all = FALSE,
+  y_init = NA,
+  prior_mean = rep(0, length(z)),
+  vecchia.approx.IW = NA
+)
 }
 \arguments{
 \item{z}{an array of real numbers representing observations}

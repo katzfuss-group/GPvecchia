@@ -4,8 +4,15 @@
 \alias{vecchia_prediction}
 \title{Vecchia prediction}
 \usage{
-vecchia_prediction(z, vecchia.approx, covparms, nuggets, var.exact,
-  covmodel = "matern", return.values = "all")
+vecchia_prediction(
+  z,
+  vecchia.approx,
+  covparms,
+  nuggets,
+  var.exact,
+  covmodel = "matern",
+  return.values = "all"
+)
 }
 \arguments{
 \item{z}{observed data}

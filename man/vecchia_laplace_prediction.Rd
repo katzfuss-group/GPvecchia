@@ -4,9 +4,15 @@
 \alias{vecchia_laplace_prediction}
 \title{Wrapper for VL version of vecchia_prediction}
 \usage{
-vecchia_laplace_prediction(vl_posterior, vecchia.approx, covparms,
-  pred.mean = 0, var.exact = FALSE, covmodel = "matern",
-  return.values = "all")
+vecchia_laplace_prediction(
+  vl_posterior,
+  vecchia.approx,
+  covparms,
+  pred.mean = 0,
+  var.exact = FALSE,
+  covmodel = "matern",
+  return.values = "all"
+)
 }
 \arguments{
 \item{vl_posterior}{a posterior estimate object produced by calculate_posterior_VL}
