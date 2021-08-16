@@ -80,7 +80,7 @@ U2V=function(U.obj){
         V.ord=Matrix::t(Matrix::chol(W.rev))
     }
 
-    V.ord = as(V.ord, 'dtCMatrix')
+    V.ord = methods::as(V.ord, 'dtCMatrix')
       
     
   } else {  # for obspred ordering
@@ -110,27 +110,6 @@ U2V=function(U.obj){
   return(V.ord)
 }
 
-
-
-######  wrapper for incomplete Cholesky   #######
-ichol = function(M, S=NULL){
-  if(!is(M, "sparseMatrix")){
-    warning("Passing a dense matrix")
-  }
-  if(!is(M, "CsparseMatrix") || !Matrix::isTriangular(M)){
-    M = as(Matrix::triu(M), "CsparseMatrix")
-  }
-  if(!is.null(S)){
-    if(!is(S, "sparseMatrix")) S=as(Matrix::triu(S), "CsparseMatrix")
-    p=S@p; i=S@i
-  } else {
-    p=M@p; i=M@i
-  }
-  vals = ic0(p, i, M@x)
-  Msp = Matrix::sparseMatrix(i=i, p=p, x=vals, index1=FALSE)
-  Msp@x = vals
-  return(Msp)
-}
 
 
 

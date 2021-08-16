@@ -33,6 +33,9 @@ see \code{\link{vecchia_likelihood}} for details.}
 
 \item{output.level}{passed on to trace in the \code{stats::optim} function}
 
+\item{reltol}{tolerance for the optimization function; by default set to the sqrt of machine
+precision}
+
 \item{...}{additional input parameters for \code{\link{vecchia_specify}}}
 }
 \value{

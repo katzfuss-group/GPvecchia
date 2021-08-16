@@ -13,6 +13,7 @@
 #' @param conditioning conditioning on 'NN' (nearest neighbor) or 'firstm' (fixed set for low rank)
 #'  or 'mra'
 #' @param mra.options Settings for number of levels and neighbors per level
+#' @param ic0 Specifies if ic0 decomposition should be used as opposed to regular Cholesky
 #' @param verbose Provide more detail when using MRA calculations.  Default is false.
 #'
 #' @return An object that specifies the vecchia approximation for later use in likelihood

@@ -9,6 +9,8 @@
 #'    see \code{\link{vecchia_likelihood}} for details.
 #' @param theta.ini initial values of covariance parameters. nugget variance must be last.
 #' @param output.level passed on to trace in the \code{stats::optim} function
+#' @param reltol tolerance for the optimization function; by default set to the sqrt of machine
+#'      precision
 #' @param ... additional input parameters for \code{\link{vecchia_specify}}
 #'
 #' @return object containing detrended data z, trend coefficients beta.hat,
@@ -25,7 +27,7 @@
 #' @export
 vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.level=1,
                           reltol=sqrt(.Machine$double.eps), ...) {
-
+ 
   ## default trend is constant over space (intercept)
   if(missing(X)){
 
@@ -68,19 +70,25 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.le
   ## specify vecchia loglikelihood
   n.par=length(theta.ini)
 
-  negloglik.vecchia=function(logparms){
-    if(exp(logparms[3])>10 && is.character(covmodel) && covmodel=='matern'){
-      stop("The default optimization routine to find parameters did not converge. Try writing your own optimization.")
+    negloglik.vecchia=function(logparms){
+        if(exp(logparms[3])>10 && is.character(covmodel) && covmodel=='matern'){
+            stop("The default optimization routine to find parameters did not converge. Try writing your own optimization.")
+        }
+        
+        -vecchia_likelihood(z,vecchia.approx,exp(logparms)[-n.par],exp(logparms)[n.par],covmodel=covmodel)
     }
-    -vecchia_likelihood(z,vecchia.approx,exp(logparms)[-n.par],exp(logparms)[n.par],covmodel=covmodel)
-  }
+    
 
-  ## find MLE of theta (given beta.hat)
-  opt.result=stats::optim(par=log(theta.ini),fn=negloglik.vecchia,
-                          control=list(
-                              trace=output.level,maxit=300, parscale=log(theta.ini),
-                              reltol=reltol
+    ## find MLE of theta (given beta.hat)
+    print(negloglik.vecchia(log(theta.ini)))
+    opt.result=stats::optim(par=log(theta.ini),
+                            fn=negloglik.vecchia,
+                            method = "Nelder-Mead",
+                            control=list(
+                                trace=100,maxit=300, parscale=log(theta.ini),
+                                reltol=reltol
                           )) # trace=1 outputs iteration counts
+    
     theta.hat=exp(opt.result$par)
     names(theta.hat) = c("variance", "range", "smoothness", "nugget")
 

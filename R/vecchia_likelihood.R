@@ -52,7 +52,7 @@ removeNAs=function(){ # overwrites z and U.obj
             p$nuggets = new.nuggets
         }
         
-        p$nuggets[is.na(p$z)] = var(p$z,na.rm=TRUE)*1e8
+        p$nuggets[is.na(p$z)] = stats::var(p$z,na.rm=TRUE)*1e8
         p$z[is.na(p$z)] = mean(p$z,na.rm=TRUE)
     }
 }

@@ -38,6 +38,8 @@ or 'mra'}
 
 \item{mra.options}{Settings for number of levels and neighbors per level}
 
+\item{ic0}{Specifies if ic0 decomposition should be used as opposed to regular Cholesky}
+
 \item{verbose}{Provide more detail when using MRA calculations.  Default is false.}
 }
 \value{
