@@ -1,3 +1,53 @@
+#' create the sparse triangular L matrix for specific parameters
+#'
+#' @param vecchia.approx object returned by \code{\link{vecchia_specify}}
+#' @param covmodel covariance model. currently implemented:
+#'    matern: with covparms (var,range,smoothness)
+#'    esqe: exponential + squared exp with covparms (var1,range1,var2,range2)
+#'    If covmodel is a function it has to be able to take k pairs
+#'    of locations and return a vector with distances which is of length k.
+#' @param covparms vector of covariance parameters
+#'
+#' @return list containing the sparse lower triangular L,
+#' @examples
+#' z=rnorm(9); locs=matrix(1:9,ncol=1); vecchia.approx=vecchia_specify(locs,m=5)
+#' L = createL(vecchia.approx, covparms=c(1,2,.5), 'matern')
+#' @export
+createL = function( vecchia.approx, covmodel, covparms=NULL ){
+
+    inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
+    ptrs = c(0, cumsum(apply(vecchia.approx$U.prep$revNNarray, 1, function(r) sum(!is.na(r)))))
+
+    if(is.matrix(covmodel)){
+        cov.vals = Filter(function(i) !is.na(i), c(t(covmodel)))
+        vals = createUcppM(ptrs, inds, cov.vals)
+    } else if(is.function(covmodel)){
+        if (length(formals(covmodel))!=2) {
+            stop("The suplied covariance function has to have two arguments")
+        }
+        f = function(r) rep(r[length(r)], length(which(!is.na(r))))
+        inds1 = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray)))
+        inds2 = unlist(apply(vecchia.approx$U.prep$revNNarray, 1, f))
+        locs1 = vecchia.approx$locsord[inds1,]
+        locs2 = vecchia.approx$locsord[inds2,]
+        cov.vals = covmodel(locs1, locs2)
+        if (methods::is(cov.vals, "matrix") & ncol(cov.vals) != 1) {
+            stop("The supplied covariance function is in a wrong format")
+        }
+        vals = createUcppM(ptrs, inds, cov.vals)
+        
+    } else if(covmodel %in% c("matern", "esqe")) {
+        vals = createUcpp(ptrs, inds, vecchia.approx$locsord, covparms)
+    } else {
+        stop("Argument covmodel has incorrect format")
+    }
+    Laux = Matrix::sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
+    ro = order(vecchia.approx$ord)
+    return(Laux[ro, ])
+}
+
+
+
 #' create the sparse triangular U matrix for specific parameters
 #'
 #' @param vecchia.approx object returned by \code{\link{vecchia_specify}}
