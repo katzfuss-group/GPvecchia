@@ -50,7 +50,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
                       "gamma_alt" = .gamma_data_reqs(z.obs),
                       "beta" = .beta_data_reqs(z.obs))
   if(invalid_data_support){
-    stop("Data invalid for likelihood type.  Correct negative or non-integer values and try again.")
+    stop("Data invalid for likelihood type. Make sure that your data lies in the support of the likelihood function.")
   }
 
   # pull out score and second derivative for readability
@@ -101,7 +101,8 @@ calculate_posterior_VL = function(z,vecchia.approx,
     D = 1/D_inv
       u = ell_prime(y_o,z.obs)
       if (any(!is.finite(u))) stop("Derivative of the loglikehood is infinite. Try different parameter values")
-    pseudo.data = rep(NA, length(z))
+      pseudo.data = rep(NA, length(z))
+
     pseudo.data[obs.inds] = D * u + y_o - prior_mean[obs.inds]
 
     nuggets = rep(Inf, length(z))
@@ -276,7 +277,7 @@ calculate_posterior_VL = function(z,vecchia.approx,
 }
 
 .gamma_data_reqs = function(z){
-  return(any(z<0))
+  return(any(z<=0))
 }
 
 ################# Beta #########################
