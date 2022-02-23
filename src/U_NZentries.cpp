@@ -8,6 +8,7 @@
 #include <Rcpp.h>
 #include "Matern.h"
 #include "Esqe.h"
+#include "Sphere.h"
 #include "dist.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -24,7 +25,7 @@ using namespace std;
 // [[Rcpp::export]]
 List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, const std::string covType, const arma::vec covparms){
 
-  if ((covType!="matern")&(covType!="esqe")){
+  if ((covType!="matern")&(covType!="esqe")&(covType!="sphere")){
     Rcerr << "Error message: " << covType << " covariance is not implemented"<< endl;
   }
   
@@ -45,6 +46,7 @@ List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, 
       uword n0 = inds00.n_elem;
     
       arma::vec nug = nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m)));
+      // arma::vec nug = nuggets.elem(inds00);
       arma::mat dist = calcPWD(locs.rows( inds00 ));
       arma::mat covmat;
     
@@ -52,6 +54,8 @@ List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, 
         covmat = MaternFun(dist,covparms) + diagmat(nug);
       } else if(covType=="esqe") {
         covmat = EsqeFun(dist,covparms) + diagmat(nug);
+      } else if(covType=="sphere") {
+        covmat = SphereFun(dist,covparms,locs.rows(inds00)) + diagmat(nug);
       }
     
       arma::vec onevec = zeros(n0);
@@ -79,6 +83,7 @@ List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, 
       uword n0 = inds00.n_elem;
       
       arma::vec nug = nuggets.elem(inds00) % (ones(n0)-revCon_row(span(m+1-n0,m)));
+      // arma::vec nug = nuggets.elem(inds00);
       arma::mat dist = calcPWD(locs.rows( inds00 ));
       arma::mat covmat;
       
@@ -86,6 +91,8 @@ List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, 
         covmat = MaternFun(dist,covparms) + diagmat(nug);
       } else if(covType=="esqe") {
         covmat = EsqeFun(dist,covparms) + diagmat(nug);
+      } else if(covType=="sphere") {
+        covmat = SphereFun(dist,covparms,locs.rows(inds00)) + diagmat(nug);
       }
       
       arma::vec onevec = zeros(n0);
