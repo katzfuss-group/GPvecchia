@@ -4,8 +4,8 @@
 #' @param covmodel covariance model. currently implemented:
 #'    matern: with covparms (var,range,smoothness)
 #'    esqe: exponential + squared exp with covparms (var1,range1,var2,range2)
-#'    If covmodel is a function it has to be able to take k pairs
-#'    of locations and return a vector with distances which is of length k.
+#'    If covmodel is a function it has to be able to take a distance matrix
+#'    and return a vector with distances which is of length k.
 #' @param covparms vector of covariance parameters
 #'
 #' @return list containing the sparse lower triangular L,
@@ -14,10 +14,8 @@
 #' L = createL(vecchia.approx, covparms=c(1,2,.5), 'matern')
 #' @export
 createL = function( vecchia.approx, covmodel, covparms=NULL ){
-
     inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
     ptrs = c(0, cumsum(apply(vecchia.approx$U.prep$revNNarray, 1, function(r) sum(!is.na(r)))))
-
     if(is.matrix(covmodel)){
         cov.vals = Filter(function(i) !is.na(i), c(t(covmodel)))
         vals = createUcppM(ptrs, inds, cov.vals)
@@ -31,7 +29,7 @@ createL = function( vecchia.approx, covmodel, covparms=NULL ){
         locs1 = vecchia.approx$locsord[inds1,]
         locs2 = vecchia.approx$locsord[inds2,]
         cov.vals = covmodel(locs1, locs2)
-        if (methods::is(cov.vals, "matrix") & ncol(cov.vals) != 1) {
+        if (methods::is(cov.vals, "matrix") && ncol(cov.vals) != 1) {
             stop("The supplied covariance function is in a wrong format")
         }
         vals = createUcppM(ptrs, inds, cov.vals)
@@ -45,6 +43,7 @@ createL = function( vecchia.approx, covmodel, covparms=NULL ){
     ro = order(vecchia.approx$ord)
     return(Laux[ro, ])
 }
+
 
 
 
