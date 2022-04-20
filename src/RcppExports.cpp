@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // EsqeFun
 arma::mat EsqeFun(arma::mat distmat, arma::vec covparms);
 RcppExport SEXP _GPvecchia_EsqeFun(SEXP distmatSEXP, SEXP covparmsSEXP) {
@@ -38,6 +43,19 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type locations(locationsSEXP);
     rcpp_result_gen = Rcpp::wrap(MaxMincpp(locations));
+    return rcpp_result_gen;
+END_RCPP
+}
+// SphereFun
+arma::mat SphereFun(arma::mat distmat, arma::vec covparms, arma::mat locs);
+RcppExport SEXP _GPvecchia_SphereFun(SEXP distmatSEXP, SEXP covparmsSEXP, SEXP locsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type distmat(distmatSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type covparms(covparmsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type locs(locsSEXP);
+    rcpp_result_gen = Rcpp::wrap(SphereFun(distmat, covparms, locs));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -151,6 +169,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GPvecchia_EsqeFun", (DL_FUNC) &_GPvecchia_EsqeFun, 2},
     {"_GPvecchia_MaternFun", (DL_FUNC) &_GPvecchia_MaternFun, 2},
     {"_GPvecchia_MaxMincpp", (DL_FUNC) &_GPvecchia_MaxMincpp, 1},
+    {"_GPvecchia_SphereFun", (DL_FUNC) &_GPvecchia_SphereFun, 3},
     {"_GPvecchia_U_NZentries", (DL_FUNC) &_GPvecchia_U_NZentries, 9},
     {"_GPvecchia_U_NZentries_mat", (DL_FUNC) &_GPvecchia_U_NZentries_mat, 9},
     {"_GPvecchia_generateNNarray", (DL_FUNC) &_GPvecchia_generateNNarray, 5},

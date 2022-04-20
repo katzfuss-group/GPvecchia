@@ -55,7 +55,8 @@ List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, 
       } else if(covType=="esqe") {
         covmat = EsqeFun(dist,covparms) + diagmat(nug);
       } else if(covType=="sphere") {
-        covmat = SphereFun(dist,covparms,locs.rows(inds00)) + diagmat(nug);
+        covmat = SphereFun(dist,covparms,locs.rows(inds00));
+        covmat.diag() = covmat.diag() + covmat.diag() % nug;
       }
     
       arma::vec onevec = zeros(n0);
@@ -92,7 +93,8 @@ List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, 
       } else if(covType=="esqe") {
         covmat = EsqeFun(dist,covparms) + diagmat(nug);
       } else if(covType=="sphere") {
-        covmat = SphereFun(dist,covparms,locs.rows(inds00)) + diagmat(nug);
+        covmat = SphereFun(dist,covparms,locs.rows(inds00));
+        covmat.diag() = covmat.diag() + covmat.diag() % nug;
       }
       
       arma::vec onevec = zeros(n0);

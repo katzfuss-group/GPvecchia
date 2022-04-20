@@ -19,6 +19,10 @@ MaxMincpp <- function(locations) {
     .Call('_GPvecchia_MaxMincpp', PACKAGE = 'GPvecchia', locations)
 }
 
+SphereFun <- function(distmat, covparms, locs) {
+    .Call('_GPvecchia_SphereFun', PACKAGE = 'GPvecchia', distmat, covparms, locs)
+}
+
 U_NZentries <- function(Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, covType, covparms) {
     .Call('_GPvecchia_U_NZentries', PACKAGE = 'GPvecchia', Ncores, n, locs, revNNarray, revCondOnLatent, nuggets, nuggets_obsord, covType, covparms)
 }
