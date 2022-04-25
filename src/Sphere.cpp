@@ -104,6 +104,8 @@ arma::mat SphereFun( arma::mat distmat, arma::vec covparms, arma::mat locs ){
       double c = pow(det(Sigma[j1]), 0.25) * pow(det(Sigma[j2]), 0.25) * pow(det((Sigma[j1] + Sigma[j2]) / 2.0), -0.5);
       covmat(j1, j2) = c * Matern(dis, mu, range, 1.0);
       covmat(j2, j1) = covmat(j1, j2);
+      if(j1 == j2)
+          covmat(j2, j1) += 0.0025;
     }
   }
   return covmat;
