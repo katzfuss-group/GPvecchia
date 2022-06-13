@@ -106,6 +106,8 @@ arma::mat SphereFun( arma::mat distmat, arma::vec covparms, arma::mat locs ){
       covmat(j2, j1) = covmat(j1, j2);
       if(j1 == j2)
           covmat(j2, j1) += 0.0025;
+      if(isnan(covmat(j1, j2)) || covmat(j1, j2) > 1e10)
+          throw -1;
     }
   }
   return covmat;
