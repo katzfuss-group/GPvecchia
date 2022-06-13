@@ -47,6 +47,8 @@ double Matern(double d, double mu, double range, double sigma2)
 	{
 		return sigma2;
 	}
+    if(isnan(mu) || isnan(d / range))
+        throw Rcpp::exception("Input value error when calling boost math cyl_bessel_k\n");
 	return sigma2 * pow(2.0, 1 - mu) / tgamma(mu) * pow(d / range, mu) * boost::math::cyl_bessel_k(mu, d / range);
 }
 
@@ -106,8 +108,6 @@ arma::mat SphereFun( arma::mat distmat, arma::vec covparms, arma::mat locs ){
       covmat(j2, j1) = covmat(j1, j2);
       if(j1 == j2)
           covmat(j2, j1) += 0.0025;
-      if(isnan(covmat(j1, j2)) || covmat(j1, j2) > 1e10)
-          throw -1;
     }
   }
   return covmat;
