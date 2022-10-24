@@ -7,7 +7,8 @@
 #' @examples
 #' A = matrix(runif(25), ncol = 5)
 #' A = t(A) * A + 2 * Matrix::Diagonal(5)
-#' S = Matrix::Matrix(c(rep(1, 5), c(0, 1, 1, 0, 0), c(0, 0, 1, 0, 1), c(0, 0, 0, 1, 0), c(0, 0, 0, 0, 1)), ncol = 5, byrow = TRUE)
+#' S = Matrix::Matrix(c(rep(1, 5), c(0, 1, 1, 0, 0), c(0, 0, 1, 0, 1),
+#' c(0, 0, 0, 1, 0), c(0, 0, 0, 0, 1)), ncol = 5, byrow = TRUE)
 #' I1 = ichol(A, S)
 #' I2 = ichol(A * S)
 #'

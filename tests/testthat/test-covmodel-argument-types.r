@@ -29,6 +29,8 @@ if(n <= 1e4) {
   z=as.numeric(t(Sigma.c)%*%rnorm(n))
 } else z=rnorm(n)
 
+
+### MRA conditioning; in this case covmodel can be an n x (m + 1) matrix
 V = vecchia_specify(locs, m, conditioning = 'mra')
 
 ##### likelihood evaluation #####
@@ -37,10 +39,12 @@ Sig.sel = getMatCov(V, covfun(locs))
 vecchia_loglik1 = vecchia_likelihood(z,V,covparms,nuggets,covmodel=Sig.sel)
 vecchia_loglik2 = vecchia_likelihood(z,V,covparms,nuggets,covmodel=covfun)
 vecchia_loglik3 = vecchia_likelihood(z,V,covparms,nuggets,covmodel='matern')
+vecchia_loglik4 = vecchia_likelihood(z,V,covparms,nuggets,covmodel=covfun(locs))
 
 test_that("likelihood is the same for all covariance argument types", {
   expect_equal(vecchia_loglik1-vecchia_loglik2, 0)
   expect_equal(vecchia_loglik3-vecchia_loglik2, 0)
+  expect_equal(vecchia_loglik4-vecchia_loglik2, 0)
 })
 
 
@@ -48,9 +52,11 @@ test_that("likelihood is the same for all covariance argument types", {
 vecchia_pred1 = vecchia_prediction(z, V, covparms, nuggets, covmodel = Sig.sel, return.values = 'mean')$mu.obs
 vecchia_pred2 = vecchia_prediction(z, V, covparms, nuggets, covmodel = covfun, return.values = 'mean')$mu.obs
 vecchia_pred3 = vecchia_prediction(z, V, covparms, nuggets, covmodel = 'matern', return.values = 'mean')$mu.obs
+vecchia_pred3 = vecchia_prediction(z, V, covparms, nuggets, covmodel = covfun(locs), return.values = 'mean')$mu.obs
 
 
 test_that("prediction is the same for all covariance argument types", {
   expect_equal(sum(abs(vecchia_pred1-vecchia_pred2)), 0)
   expect_equal(sum(abs(vecchia_pred3-vecchia_pred2)), 0)
+  expect_equal(sum(abs(vecchia_pred4-vecchia_pred2)), 0)
 })

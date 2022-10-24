@@ -89,9 +89,9 @@ getMatCov = function(V, covariances, factor=FALSE){
     } else {
       getMatCovFromFactor(V, covariances) 
     }
-  } else if (class(covariances)=='function') {
+  } else if (methods::is(covariances, 'function')) {
     getMatCovFromFunction(V, covariances)
-  } else if (class(covariances)=='matrix') {
+  } else if (methods::is(covariances, 'matrix')) {
     getMatCovFromMat(V, covariances)
   } else {
     stop("Wrong covariance format passed")
@@ -188,7 +188,7 @@ getMatCovFromFactor = function(V, L.org){
   
   Sig.sel = Matrix::Matrix(rep(NA, nrow(revNNarray)*ncol(revNNarray)), ncol = ncol(revNNarray))
   
-  if( class(L.org)=="dgCMatrix" ){
+  if( methods::is(L.org, "dgCMatrix" )){
     L = methods::as(L.org, "RsparseMatrix")[V$ord, V$ord]
   } else {
     L = L.org[V$ord, V$ord]

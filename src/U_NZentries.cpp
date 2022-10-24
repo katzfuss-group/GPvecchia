@@ -24,7 +24,7 @@ using namespace std;
 // [[Rcpp::export]]
 List U_NZentries (const int Ncores, const arma::uword n, const arma::mat& locs, const arma::umat& revNNarray, const arma::mat& revCondOnLatent, const arma::vec& nuggets, const arma::vec& nuggets_obsord, const std::string covType, const arma::vec covparms){
 
-  if ((covType!="matern")&(covType!="esqe")){
+  if ((covType!="matern") && (covType!="esqe")){
     Rcerr << "Error message: " << covType << " covariance is not implemented"<< endl;
   }
   

@@ -116,7 +116,7 @@ int compareLevel(const void* p1, const void*p2) {
 }
 
 /*Function that initialises a heap*/
-void heap_init(heap* h, point* points, const int N) {
+/*void heap_init(heap* h, point* points, const int N) {
   h->elements = (point**)malloc(sizeof(point*) * N);
   h->N = N;
   //if (h->elements == NULL) exit(1);
@@ -128,7 +128,7 @@ void heap_init(heap* h, point* points, const int N) {
   for (k = 0; k < N; ++k) {
     h->elements[k]->hnode = &(h->elements[k]);
   }
-}
+}/*
 
 /*Function that performs a single step of heap reordering. The output is -1, if no
 * swapping has taken place and the new heap id, otherwise.*/
@@ -136,7 +136,7 @@ void heap_init(heap* h, point* points, const int N) {
 
 /*Function that sorts the heap.
 * TODO: Implement using heap structure */
-void heap_sort(heap* h) {
+/*void heap_sort(heap* h) {
   qsort(h->elements, h->N, sizeof(point*), compareSQ);
   int k;
   for (k = 0; k < h->N; ++k) {
@@ -147,7 +147,7 @@ void heap_sort(heap* h) {
 
 void heap_destruct(heap* h) {
   free(h->elements);
-}
+}*/
 
 /*A struct that provides storage for the children of the individual nodes*/
 typedef struct daycare {

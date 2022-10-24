@@ -187,7 +187,7 @@ vecchia_lincomb=function(H,U.obj,V.ord,cov.mat=FALSE) {
 #'
 #' @return sparse inverse of A, with same sparsity pattern as L
 #' @examples
-#' A=Matrix::sparseMatrix(1:9,1:9,x=4); L=chol(A)
+#' A=Matrix::sparseMatrix(1:9,1:9,x=4); L=Matrix::chol(A)
 #' SelInv(L)
 #' @export
 SelInv=function(cholmat){

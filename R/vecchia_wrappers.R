@@ -27,78 +27,81 @@
 #' @export
 vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.level=1,
                           reltol=sqrt(.Machine$double.eps), ...) {
- 
-  ## default trend is constant over space (intercept)
-  if(missing(X)){
 
-    beta.hat=mean(data)
-    z=data-beta.hat
-    trend='constant'
+    ## default trend is constant over space (intercept)
+    if(missing(X)){
 
-  } else if(is.null(X)){
-  ## if X=NULL, do not estimate any trend
+        beta.hat=mean(data)
+        z=data-beta.hat
+        trend='constant'
 
-    beta.hat=c()
-    z=data
-    trend='none'
+    } else if(is.null(X)){
+        ## if X=NULL, do not estimate any trend
+        
+        beta.hat=c()
+        z=data
+        trend='none'
+        
+    } else {
+        ## otherwise, estimate and de-trend
 
-  } else {
-  ## otherwise, estimate and de-trend
+        beta.hat=Matrix::solve(crossprod(X),crossprod(X,data))
+        z=data-X%*%beta.hat
+        trend='userspecified'
 
-    beta.hat=Matrix::solve(crossprod(X),crossprod(X,data))
-    z=data-X%*%beta.hat
-    trend='userspecified'
+    }
 
-  }
+    ## specify vecchia approximation
+    vecchia.approx=vecchia_specify(locs,m,...)
 
-  ## specify vecchia approximation
-  vecchia.approx=vecchia_specify(locs,m,...)
+    ## initial covariance parameter values
 
+    if(all(is.character(covmodel)) && covmodel=='matern'){
+        if (missing(theta.ini) || any(is.na(theta.ini))){
 
-   ## initial covariance parameter values
-   if(is.character(covmodel) && covmodel=='matern'){
-     if(missing(theta.ini) || is.na(theta.ini)){
+            var.res=stats::var(z)
+            n=length(z)
+            dists.sample=fields::rdist(locs[sample(1:n,min(n,300)),])
+            theta.ini=c(.9*var.res,mean(dists.sample)/4,.8,.1*var.res) # var,range,smooth,nugget
+        } 
+   }
 
-      var.res=stats::var(z)
-      n=length(z)
-      dists.sample=fields::rdist(locs[sample(1:n,min(n,300)),])
-         theta.ini=c(.9*var.res,mean(dists.sample)/4,.8,.1*var.res) # var,range,smooth,nugget
-         
-     } 
-  }
-
-  ## specify vecchia loglikelihood
-  n.par=length(theta.ini)
-
-    negloglik.vecchia=function(logparms){
-        if(exp(logparms[3])>10 && is.character(covmodel) && covmodel=='matern'){
+    ## specify vecchia loglikelihood
+    n.par=length(theta.ini)
+    
+    negloglik.vecchia=function(lgparms){
+        if(exp(lgparms[3])>10 && all(is.character(covmodel)) && covmodel=='matern'){
             stop("The default optimization routine to find parameters did not converge. Try writing your own optimization.")
         }
-        
-        -vecchia_likelihood(z,vecchia.approx,exp(logparms)[-n.par],exp(logparms)[n.par],covmodel=covmodel)
+        l = -vecchia_likelihood(z,vecchia.approx,exp(lgparms)[-n.par],exp(lgparms)[n.par],covmodel=covmodel)
+        return(l)
     }
     
 
     ## find MLE of theta (given beta.hat)
-    print(negloglik.vecchia(log(theta.ini)))
+    #print(negloglik.vecchia(log(theta.ini)))
+    non1pars = which(theta.ini != 1)
+    parscale = rep(1, length(n.par))
+    parscale[non1pars] = log(theta.ini[non1pars])
+
     opt.result=stats::optim(par=log(theta.ini),
                             fn=negloglik.vecchia,
                             method = "Nelder-Mead",
                             control=list(
-                                trace=100,maxit=300, parscale=log(theta.ini),
+                                trace=100,maxit=300, parscale=parscale,
                                 reltol=reltol
                           )) # trace=1 outputs iteration counts
     
     theta.hat=exp(opt.result$par)
     names(theta.hat) = c("variance", "range", "smoothness", "nugget")
 
-  ## return estimated parameters
-  if(output.level>0){  
-    cat('estimated trend coefficients:\n'); print(beta.hat)
-    cat('estimated covariance parameters:\n'); print(theta.hat)
-  }
-  return(list(z=z,beta.hat=beta.hat,theta.hat=theta.hat,
-              trend=trend,locs=locs,covmodel=covmodel))
+    ## return estimated parameters
+    if(output.level>0){  
+        cat('estimated trend coefficients:\n'); print(beta.hat)
+        cat('estimated covariance parameters:\n'); print(theta.hat)
+    }
+    return(list(z=z,beta.hat=beta.hat,theta.hat=theta.hat,
+                trend=trend,locs=locs,covmodel=covmodel))
 
 }
 

@@ -12,8 +12,8 @@ createL(vecchia.approx, covmodel, covparms = NULL)
 \item{covmodel}{covariance model. currently implemented:
 matern: with covparms (var,range,smoothness)
 esqe: exponential + squared exp with covparms (var1,range1,var2,range2)
-If covmodel is a function it has to be able to take k pairs
-of locations and return a vector with distances which is of length k.}
+If covmodel is a function it has to be able to take a distance matrix
+and return a vector with distances which is of length k.}
 
 \item{covparms}{vector of covariance parameters}
 }
