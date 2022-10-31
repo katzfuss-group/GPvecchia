@@ -45,13 +45,13 @@ devtools::install_github("katzfuss-group/GPvecchia")
 or by downloading the repository and then building the package manually:
 ```{bash}
 R CMD build GPvecchia
-R CMD INSTALL GPvecchia_0.1_0.tar.gz
+R CMD INSTALL GPvecchia_0.1.4.tar.gz
 ```
 
 <!---
 .tar.gz file from the main directory here and then run:
 ```{r}
-install.packages("GPvecchia_0.1.0.tar.gz", repos = NULL, type = "source")
+install.packages("GPvecchia_0.1.4.tar.gz", repos = NULL, type = "source")
 ```
 -->
 
