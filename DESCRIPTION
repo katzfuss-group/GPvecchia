@@ -1,7 +1,7 @@
 Package: GPvecchia
 Type: Package
 Title: Scalable Gaussian-Process Approximations
-Version: 0.1.4
+Version: 0.1.5
 Date: 2022-10-24
 Authors@R: c(
 	   person("Matthias", "Katzfuss", role=c("aut"), email="katzfuss@gmail.com"),
@@ -23,7 +23,7 @@ Description: Fast scalable Gaussian process approximations, particularly well su
 License: GPL (>=2)
 Imports: Rcpp (>= 1.0.9), methods, stats, sparseinv, fields, Matrix(>= 1.5.1), parallel, GpGp, FNN
 LinkingTo: Rcpp, RcppArmadillo, BH
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Suggests:
     mvtnorm,
     knitr,

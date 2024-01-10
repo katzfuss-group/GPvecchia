@@ -7,9 +7,10 @@
 #' @name GPvecchia
 #' @useDynLib GPvecchia
 #' @importFrom Rcpp sourceCpp
+#' @aliases GPvecchia-package
 #'
 #' @example
-#' z=rnorm(10); locs=matrix(1:10,ncol=1); nuggets = rep(.1, 10)
+#' z=rnorm(10); locs=matrix(1:10,ncol=1); nuggets = rep(.1, 10); 
 #' vecchia.approx=vecchia_specify(locs,m=5)
 #' preds=vecchia_prediction(z,vecchia.approx,covparms=c(1,2,.5), nuggets)
 NULL
