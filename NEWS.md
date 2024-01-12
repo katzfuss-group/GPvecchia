@@ -1,3 +1,8 @@
+# GPvecchia 0.1.5
+
+This is a minor release to account for a change in Rosxygen2 which requires
+slightly different syntax in package documentation.
+
 # GPvecchia 0.1.4
 
 This is a minor release to maintain compatibility with the newest
