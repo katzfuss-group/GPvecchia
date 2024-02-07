@@ -12,7 +12,7 @@ be a point in Euclidean space R^d, a point in space-time R^d x T,
 a longitude and latitude (in degrees) giving a point on the sphere,
 or a longitude, latitude, and time giving a point in the sphere-time domain.}
 
-\item{coordinate}{integer or vector of integers in {1,...,d}. If a single integer,
+\item{coordinate}{integer or vector of integers in \{1,...,d\}. If a single integer,
 coordinates are ordered along that coordinate. If multiple integers,
 coordinates are ordered according to the sum of specified coordinate values. For example,
 when \code{d=2}, \code{coordinate = c(1,2)} orders from bottom left to top right.}

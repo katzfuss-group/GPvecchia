@@ -109,7 +109,7 @@ order_outsidein <- function( locs, lonlat = FALSE ){
 #' Return the ordering of locations sorted along one of the
 #' coordinates or the sum of multiple coordinates
 #'
-#' @param coordinate integer or vector of integers in {1,...,d}. If a single integer,
+#' @param coordinate integer or vector of integers in \{1,...,d\}. If a single integer,
 #' coordinates are ordered along that coordinate. If multiple integers,
 #' coordinates are ordered according to the sum of specified coordinate values. For example,
 #' when \code{d=2}, \code{coordinate = c(1,2)} orders from bottom left to top right.

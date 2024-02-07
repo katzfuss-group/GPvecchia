@@ -1,7 +1,8 @@
 # GPvecchia 0.1.5
 
 This is a minor release to account for a change in Rosxygen2 which requires
-slightly different syntax in package documentation.
+slightly different syntax in package documentation. We also drop the dependence
+on the Boost library and switch to the C++ 17 standard.
 
 # GPvecchia 0.1.4
 

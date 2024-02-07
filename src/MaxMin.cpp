@@ -128,7 +128,7 @@ int compareLevel(const void* p1, const void*p2) {
   for (k = 0; k < N; ++k) {
     h->elements[k]->hnode = &(h->elements[k]);
   }
-}/*
+  }*/
 
 /*Function that performs a single step of heap reordering. The output is -1, if no
 * swapping has taken place and the new heap id, otherwise.*/
