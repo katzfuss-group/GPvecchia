@@ -81,7 +81,7 @@ vecchia_estimate=function(data,locs,X,m=20,covmodel='matern',theta.ini,output.le
     ## find MLE of theta (given beta.hat)
     #print(negloglik.vecchia(log(theta.ini)))
     non1pars = which(theta.ini != 1)
-    parscale = rep(1, length(n.par))
+    parscale = rep(1, n.par)
     parscale[non1pars] = log(theta.ini[non1pars])
 
     opt.result=stats::optim(par=log(theta.ini),
