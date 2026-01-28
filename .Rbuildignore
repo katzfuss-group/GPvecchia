@@ -1,0 +1,11 @@
+cran-comments.md
+\.git/*
+\.gitignore
+.Rcheck/*
+.Rhistory
+^.*\tar.gz$
+^CRAN-RELEASE$
+^CRAN-SUBMISSION$
+\.o$
+\.so$
+\.github
