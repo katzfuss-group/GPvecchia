@@ -1,3 +1,9 @@
+# GPvecchia 0.1.6
+
+This is a minor release to account for some technical challenges with the submission
+process. CRAN advised to increment the version number.
+
+
 # GPvecchia 0.1.5
 
 This is a minor release to account for a change in Rosxygen2 which requires

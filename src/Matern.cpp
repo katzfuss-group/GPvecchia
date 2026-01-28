@@ -7,8 +7,8 @@
 #include <RcppArmadillo.h>
 #include <Rcpp.h>
 #include "Matern.h"
-//#include <boost/math/special_functions/bessel.hpp>
-//#include <boost/math/special_functions/gamma.hpp>
+#include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/gamma.hpp>
 
 using namespace Rcpp;
 using namespace arma;
@@ -70,14 +70,14 @@ if (covparms(2)==0.5) { // Exponential cov function
     }
   }
 } else {// Matern cov with bessel function
-  double normcon = covparms(0)/(pow(2.0,covparms(2)-1)*std::tgamma(covparms(2))); //Rf_gammafn(covparms(2)));//
+  double normcon = covparms(0)/(pow(2.0,covparms(2)-1)*boost::math::tgamma(covparms(2))); //Rf_gammafn(covparms(2)));//
   for (j1 = 0; j1 < d1; j1++){
     for (j2 = 0; j2 < d2; j2++){
       if ( distmat(j1,j2) == 0 ){
         covmat(j1,j2) = covparms(0);
       } else {
         scaledist = distmat(j1,j2)/covparms(1);
-        covmat(j1,j2) = normcon*pow( scaledist, covparms(2) )*std::cyl_bessel_k(covparms(2),scaledist); //Rf_bessel_k(scaledist,covparms(2),1.0);
+        covmat(j1,j2) = normcon*pow( scaledist, covparms(2) )*boost::math::cyl_bessel_k(covparms(2),scaledist); //Rf_bessel_k(scaledist,covparms(2),1.0);
       }
     }
   }

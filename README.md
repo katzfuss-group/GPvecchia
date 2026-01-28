@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/katzfuss-group/GPvecchia.svg?branch=master)](https://travis-ci.org/katzfuss-group/GPvecchia)
 [![CRAN status](https://www.r-pkg.org/badges/version/GPvecchia)](https://cran.r-project.org/package=GPvecchia)
 [![CRAN total downloads](https://cranlogs.r-pkg.org/badges/grand-total/GPvecchia)](https://cranlogs.r-pkg.org/badges/grand-total/GPvecchia)
 [![CRAN downloads last month](https://cranlogs.r-pkg.org/badges/last-month/GPvecchia)](https://cranlogs.r-pkg.org/badges/last-month/GPvecchia)

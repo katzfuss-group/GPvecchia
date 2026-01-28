@@ -4,6 +4,8 @@
 * Fedora Linux, R-devel, clang, gfortran (on R-hub)
 * Ubuntu Linux 20.04.1 LTS, R-release, GCC (on R-hub)
 * Windows Server 2022, R-devel, 64 bit (on R-hub)
+* Mac OS 13.3, R-release, clang (on mac.r-project.org)
+
 
 ## R CMD check results
 
@@ -53,9 +55,7 @@ This also seems to be a recurring issue on Rhub [R-hub issue #560](https://githu
 
 ---
 
-This version fixes several CRAN errors observed in previous submissions and removes the dependency on the Boost library.
-Instead, C++17 is used (and required) because it contains bessel and gamma functions, which is what Boost used to be used for.
-
+This version restores dependency on the Boost library. The previous version was using the implementation of certain functions directly from the std library instead, but these functions are not currently supported by the clang compiler.
 
 ## Downstream dependencies
-GeoModels
+GeoModels, VeccTMVN
