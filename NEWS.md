@@ -1,3 +1,7 @@
+# GPvecchia 0.1.8
+
+This is a minor release to account for changing the default C++ standard to C++20
+
 # GPvecchia 0.1.6
 
 This is a minor release to account for some technical challenges with the submission
