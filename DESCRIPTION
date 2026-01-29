@@ -22,7 +22,7 @@ Author: Matthias Katzfuss [aut],
 Description: Fast scalable Gaussian process approximations, particularly well suited to spatial (aerial, remote-sensed) and environmental data, described in more detail in Katzfuss and Guinness (2017) <arXiv:1708.06302>. Package also contains a fast implementation of the incomplete Cholesky decomposition (IC0), based on Schaefer et al. (2019) <arXiv:1706.02205> and MaxMin ordering proposed in Guinness (2018) <arXiv:1609.05372>.
 Encoding: UTF-8
 License: GPL (>=2)
-Imports: Rcpp (>= 1.0.9), methods, stats, sparseinv, fields, Matrix(>= 1.5.1), parallel, GpGp, FNN
+Imports: Rcpp (>= 1.0.14), methods, stats, sparseinv, fields, Matrix(>= 1.5.1), parallel, GpGp, FNN
 LinkingTo: Rcpp, RcppArmadillo, BH
 RoxygenNote: 7.2.3
 Suggests:

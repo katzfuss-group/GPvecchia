@@ -5,7 +5,6 @@ inst/doc
 .Rhistory
 .RData
 .Ruserdata
-.Rbuildignore
 *.Rproj
 .httr-oauth
 *.so
